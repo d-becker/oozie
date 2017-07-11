@@ -1,0 +1,8 @@
+<jaxb:bindings xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" version="2.1">
+
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/oozie-workflow-0.5.xsd"
+                   node="//xs:complexType[@name='ACTION']/xs:sequence/xs:any[@namespace='uri:oozie:sla:0.1 uri:oozie:sla:0.2']">
+        <jaxb:property name="anySLA"/>
+    </jaxb:bindings>
+</jaxb:bindings>
