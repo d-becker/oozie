@@ -23,14 +23,20 @@ import org.apache.oozie.jobs_api.gen.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -103,14 +109,15 @@ public class TestJAXBWorkflow extends TestCase {
     }
 
     /**
-     * Tests whether a programatically built JAXB element tree is serialized correctly.
+     * Tests whether a programatically built JAXB element tree is serialized correctly to xml.
      *
-     * TODO: the test shouldn't compare the strings but the xml structure.
      * @throws JAXBException If an error was encountered while creating the <tt>JAXBContext</tt>
      *         or during the marshalling.
      */
     @Test
-    public void testMarshallingWorkflow() throws JAXBException, URISyntaxException, IOException {
+    public void testMarshallingWorkflow() throws JAXBException, URISyntaxException, IOException,
+                                                 ParserConfigurationException, SAXException {
+        // Marshalling the JAXB tree representing the workflow definition.
         final WORKFLOWAPP wfApp = getWfApp();
         final JAXBElement wfElement = new ObjectFactory().createWorkflowApp(wfApp);
 
@@ -120,11 +127,31 @@ public class TestJAXBWorkflow extends TestCase {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         m.marshal(wfElement, out);
 
-        final String expected = new String(Files.readAllBytes(Paths.get(getClass().getResource("/workflow.xml")
-                .toURI())), StandardCharsets.UTF_8);
-        final String output = out.toString(StandardCharsets.UTF_8.toString());
+        final String outputXml = out.toString(StandardCharsets.UTF_8.toString());
 
-        assertEquals(expected, output);
+        // Checking if the marshalled xml differs from the reference.
+        final Diff diff = DiffBuilder.compare(Input.fromURL(getClass().getResource("/workflow.xml")))
+                .withTest(Input.fromString(outputXml))
+                .ignoreComments()
+                .withDifferenceEvaluator(DifferenceEvaluators.chain(DifferenceEvaluators.Default,
+                                                                    new DifferenceEvaluator() {
+                    @Override
+                    public ComparisonResult evaluate(Comparison comparison, ComparisonResult comparisonResult) {
+                        // We want to ignore whitespace differences in TEXT_VALUE comparisons but not anywhere else,
+                        // for example not in attribute names.
+                        if (!comparisonResult.equals(ComparisonResult.EQUAL)
+                                && comparison.getType().equals(ComparisonType.TEXT_VALUE)
+                                && comparison.getControlDetails().getTarget().getNodeValue().trim().equals(
+                                        comparison.getTestDetails().getTarget().getNodeValue().trim())) {
+                                comparisonResult = ComparisonResult.EQUAL;
+                        }
+
+                        return comparisonResult;
+                    }
+                }))
+                .build();
+
+        assertFalse(diff.hasDifferences());
     }
 
     private Schema getSchema() throws SAXException {
