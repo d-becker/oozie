@@ -79,14 +79,10 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
             <version>2.3.0</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
@@ -131,52 +127,14 @@
                     </sources>
 
                     <!-- The package of your generated sources -->
-                    <packageName>org.apache.oozie.jobs_api.gen</packageName>
+                    <packageName>org.apache.oozie.jobs.api.generated</packageName>
+
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
     <profiles>
-        <!-- Include MySQL JDBC driver -->
-        <profile>
-            <id>mysql</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property>
-                    <name>oozie.test.db</name>
-                    <value>mysql</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>mysql</groupId>
-                    <artifactId>mysql-connector-java</artifactId>
-                    <scope>compile</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <!-- Include Oracle JDBC driver                                         -->
-        <!-- Oracle JDBC driver is not available in any public Maven repository -->
-        <!-- It must be manually installed in the local Maven cache             -->
-        <profile>
-            <id>oracle</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property>
-                    <name>oozie.test.db</name>
-                    <value>oracle</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.oracle</groupId>
-                    <artifactId>ojdbc6</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-
     </profiles>
 </project>
 

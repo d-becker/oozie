@@ -16,38 +16,59 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs_api;
+package org.apache.oozie.jobs.api;
 
-import junit.framework.TestCase;
-import org.apache.oozie.jobs_api.gen.*;
+import org.apache.oozie.jobs.api.generated.ACTION;
+import org.apache.oozie.jobs.api.generated.ACTIONTRANSITION;
+import org.apache.oozie.jobs.api.generated.CONFIGURATION;
+import org.apache.oozie.jobs.api.generated.DELETE;
+import org.apache.oozie.jobs.api.generated.END;
+import org.apache.oozie.jobs.api.generated.KILL;
+import org.apache.oozie.jobs.api.generated.MAPREDUCE;
+import org.apache.oozie.jobs.api.generated.ObjectFactory;
+import org.apache.oozie.jobs.api.generated.PREPARE;
+import org.apache.oozie.jobs.api.generated.START;
+import org.apache.oozie.jobs.api.generated.WORKFLOWAPP;
+
+import org.junit.Test;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
-import org.xmlunit.diff.*;
+import org.xmlunit.diff.Comparison;
+import org.xmlunit.diff.ComparisonResult;
+import org.xmlunit.diff.ComparisonType;
+import org.xmlunit.diff.Diff;
+import org.xmlunit.diff.DifferenceEvaluator;
+import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 /**
  * This class tests whether the workflow.xml files are parsed correctly into JAXB objects and whether the JAXB objects
  * are serialized correctly to xml.
  */
-public class TestJAXBWorkflow extends TestCase {
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+public class TestJAXBWorkflow {
+    private static final String GENERATED_PACKAGE = "org.apache.oozie.jobs.api.generated";
+    private static final String EXAMPLE_WORKFLOW_RESOURCE_NAME = "/workflow.xml";
 
     /**
      * Tests whether a workflow.xml object is parsed correctly into a JAXB element tree by checking some of the main
@@ -56,17 +77,9 @@ public class TestJAXBWorkflow extends TestCase {
      * @throws JAXBException If an error was encountered while creating the <tt>JAXBContext</tt> or the
      *         <tt>Unmarshaller</tt> objects.
      */
-    public void testUnmarshallingWorkflow() throws SAXException, JAXBException {
-        final Schema wf_schema = getSchema();
-
-        final JAXBContext jc = JAXBContext.newInstance("org.apache.oozie.jobs_api.gen");
-        final Unmarshaller u = jc.createUnmarshaller();
-        u.setSchema(wf_schema);
-
-        final URL wf_url = getClass().getResource("/workflow.xml");
-
-        final JAXBElement element = (JAXBElement) u.unmarshal(wf_url);
-        final WORKFLOWAPP wf = (WORKFLOWAPP) element.getValue();
+    @Test
+    public void whenWorkflowXmlIsUnmarshaledAttributesArePreserved() throws SAXException, JAXBException {
+        final WORKFLOWAPP wf = unmarshalExampleWorkflow();
 
         assertEquals("jaxb-example-wf", wf.getName());
         assertEquals("mr-node", wf.getStart().getTo());
@@ -97,49 +110,68 @@ public class TestJAXBWorkflow extends TestCase {
         assertEquals("org.apache.oozie.example.SampleMapper", mapper.getValue());
     }
 
+
     /**
-     * Tests whether a programatically built JAXB element tree is serialized correctly to xml.
+     * Tests whether a programmatically built JAXB element tree is serialized correctly to xml.
      *
      * @throws JAXBException If an error was encountered while creating the <tt>JAXBContext</tt>
      *         or during the marshalling.
      */
-    public void testMarshallingWorkflow() throws JAXBException, URISyntaxException, IOException,
+    @Test
+    public void marshallingWorkflowProducesCorrectXml() throws JAXBException, URISyntaxException, IOException,
                                                  ParserConfigurationException, SAXException {
-        // Marshalling the JAXB tree representing the workflow definition.
-        final WORKFLOWAPP wfApp = getWfApp();
-        final JAXBElement wfElement = new ObjectFactory().createWorkflowApp(wfApp);
+        WORKFLOWAPP programmaticallyCreatedWfApp = getWfApp();
+        final String outputXml = unmarshalWorkflowApp(programmaticallyCreatedWfApp);
 
-        final JAXBContext jc = JAXBContext.newInstance("org.apache.oozie.jobs_api.gen");
-        final Marshaller m =  jc.createMarshaller();
-        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        m.marshal(wfElement, out);
-
-        final String outputXml = out.toString(StandardCharsets.UTF_8.toString());
-
-        // Checking if the marshalled xml differs from the reference.
-        final Diff diff = DiffBuilder.compare(Input.fromURL(getClass().getResource("/workflow.xml")))
+        final Diff diff = DiffBuilder.compare(Input.fromURL(getClass().getResource(EXAMPLE_WORKFLOW_RESOURCE_NAME)))
                 .withTest(Input.fromString(outputXml))
                 .ignoreComments()
-                .withDifferenceEvaluator(DifferenceEvaluators.chain(DifferenceEvaluators.Default,
-                                                                    new DifferenceEvaluator() {
-                    @Override
-                    public ComparisonResult evaluate(Comparison comparison, ComparisonResult comparisonResult) {
-                        // We want to ignore whitespace differences in TEXT_VALUE comparisons but not anywhere else,
-                        // for example not in attribute names.
-                        if (!comparisonResult.equals(ComparisonResult.EQUAL)
-                                && comparison.getType().equals(ComparisonType.TEXT_VALUE)
-                                && comparison.getControlDetails().getTarget().getNodeValue().trim().equals(
-                                        comparison.getTestDetails().getTarget().getNodeValue().trim())) {
-                                comparisonResult = ComparisonResult.EQUAL;
-                        }
-
-                        return comparisonResult;
-                    }
-                }))
+                .withDifferenceEvaluator(DifferenceEvaluators.chain(
+                        DifferenceEvaluators.Default,
+                        new IgnoreWhitespaceInTextValueDifferenceEvaluator()))
                 .build();
 
         assertFalse(diff.hasDifferences());
+    }
+
+    private static class IgnoreWhitespaceInTextValueDifferenceEvaluator implements DifferenceEvaluator {
+        @Override
+        public ComparisonResult evaluate(Comparison comparison, ComparisonResult comparisonResult) {
+            // We want to ignore whitespace differences in TEXT_VALUE comparisons but not anywhere else,
+            // for example not in attribute names.
+            if (isTextValueComparison(comparison) && expectedAndActualValueTrimmedAreEqual(comparison)) {
+                return ComparisonResult.EQUAL;
+            } else {
+                return comparisonResult;
+            }
+        }
+
+        private boolean isTextValueComparison(Comparison comparison) {
+            return comparison.getType().equals(ComparisonType.TEXT_VALUE);
+        }
+
+        private boolean expectedAndActualValueTrimmedAreEqual(Comparison comparison) {
+            String expectedNodeValue = comparison.getControlDetails().getTarget().getNodeValue();
+            String actualNodeValue = comparison.getTestDetails().getTarget().getNodeValue();
+
+            if (expectedNodeValue == null || actualNodeValue == null) {
+                return false;
+            }
+
+            return expectedNodeValue.trim().equals(actualNodeValue.trim());
+        }
+    }
+
+    private WORKFLOWAPP unmarshalExampleWorkflow() throws SAXException, JAXBException {
+        final JAXBContext jc = JAXBContext.newInstance(GENERATED_PACKAGE);
+        final Unmarshaller u = jc.createUnmarshaller();
+        final Schema wfSchema = getSchema();
+        u.setSchema(wfSchema);
+
+        final URL wfUrl = getClass().getResource(EXAMPLE_WORKFLOW_RESOURCE_NAME);
+        final JAXBElement element = (JAXBElement) u.unmarshal(wfUrl);
+
+        return (WORKFLOWAPP) element.getValue();
     }
 
     private Schema getSchema() throws SAXException {
@@ -149,6 +181,17 @@ public class TestJAXBWorkflow extends TestCase {
         return sf.newSchema(schemaURL);
     }
 
+    private String unmarshalWorkflowApp(WORKFLOWAPP wfApp) throws JAXBException, UnsupportedEncodingException {
+        final JAXBElement wfElement = new ObjectFactory().createWorkflowApp(wfApp);
+
+        final JAXBContext jc = JAXBContext.newInstance(GENERATED_PACKAGE);
+        final Marshaller m =  jc.createMarshaller();
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        m.marshal(wfElement, out);
+
+        return out.toString(StandardCharsets.UTF_8.toString());
+    }
     private WORKFLOWAPP getWfApp() {
         final START start = new START();
         start.setTo("mr-node");
