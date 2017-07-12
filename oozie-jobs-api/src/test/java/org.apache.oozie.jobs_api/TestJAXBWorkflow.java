@@ -20,10 +20,6 @@ package org.apache.oozie.jobs_api;
 
 import junit.framework.TestCase;
 import org.apache.oozie.jobs_api.gen.*;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
@@ -31,8 +27,6 @@ import org.xmlunit.diff.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -40,8 +34,6 @@ import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -49,12 +41,10 @@ import java.util.List;
  * are serialized correctly to xml.
  */
 public class TestJAXBWorkflow extends TestCase {
-    @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
     }
 
-    @AfterClass
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -66,7 +56,6 @@ public class TestJAXBWorkflow extends TestCase {
      * @throws JAXBException If an error was encountered while creating the <tt>JAXBContext</tt> or the
      *         <tt>Unmarshaller</tt> objects.
      */
-    @Test
     public void testUnmarshallingWorkflow() throws SAXException, JAXBException {
         final Schema wf_schema = getSchema();
 
@@ -114,7 +103,6 @@ public class TestJAXBWorkflow extends TestCase {
      * @throws JAXBException If an error was encountered while creating the <tt>JAXBContext</tt>
      *         or during the marshalling.
      */
-    @Test
     public void testMarshallingWorkflow() throws JAXBException, URISyntaxException, IOException,
                                                  ParserConfigurationException, SAXException {
         // Marshalling the JAXB tree representing the workflow definition.
