@@ -31,7 +31,6 @@ import org.apache.oozie.jobs.api.generated.START;
 import org.apache.oozie.jobs.api.generated.WORKFLOWAPP;
 
 import org.junit.Test;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;

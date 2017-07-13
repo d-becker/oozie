@@ -125,10 +125,6 @@
                     <sources>
                         <source>../client/src/main/resources/oozie-workflow-0.5.xsd</source>
                     </sources>
-
-                    <!-- The package of your generated sources -->
-                    <packageName>org.apache.oozie.jobs.api.generated</packageName>
-
                 </configuration>
             </plugin>
         </plugins>
