@@ -126,7 +126,7 @@
         <module>docs</module>
         <module>tools</module>
         <module>minitest</module>
-        <module>oozie-jobs-api</module>
+        <module>jobs-api</module>
         <module>server</module>
         <module>distro</module>
         <module>zookeeper-security-tests</module>
