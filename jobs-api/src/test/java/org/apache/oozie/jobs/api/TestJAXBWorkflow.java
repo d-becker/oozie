@@ -120,7 +120,7 @@ public class TestJAXBWorkflow {
     public void marshallingWorkflowProducesCorrectXml() throws JAXBException, URISyntaxException, IOException,
                                                  ParserConfigurationException, SAXException {
         WORKFLOWAPP programmaticallyCreatedWfApp = getWfApp();
-        final String outputXml = unmarshalWorkflowApp(programmaticallyCreatedWfApp);
+        final String outputXml = marshalWorkflowApp(programmaticallyCreatedWfApp);
 
         final Diff diff = DiffBuilder.compare(Input.fromURL(getClass().getResource(EXAMPLE_WORKFLOW_RESOURCE_NAME)))
                 .withTest(Input.fromString(outputXml))
@@ -180,7 +180,7 @@ public class TestJAXBWorkflow {
         return sf.newSchema(schemaURL);
     }
 
-    private String unmarshalWorkflowApp(WORKFLOWAPP wfApp) throws JAXBException, UnsupportedEncodingException {
+    private String marshalWorkflowApp(WORKFLOWAPP wfApp) throws JAXBException, UnsupportedEncodingException {
         final JAXBElement wfElement = new ObjectFactory().createWorkflowApp(wfApp);
 
         final JAXBContext jc = JAXBContext.newInstance(GENERATED_PACKAGE);
