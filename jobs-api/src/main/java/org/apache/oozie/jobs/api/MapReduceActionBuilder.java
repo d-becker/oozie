@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-// TODO: Remove elements from the list.
 public class MapReduceActionBuilder {
     private final ModifyOnce<String> name;
     private final List<MapReduceAction> parents;
@@ -55,17 +54,32 @@ public class MapReduceActionBuilder {
         archives = new ArrayList<>();
     }
 
+    public MapReduceActionBuilder(MapReduceAction action) {
+        parents = new ArrayList<>(action.getParents());
+        name = new ModifyOnce<>(action.getName());
+        jobTracker = new ModifyOnce<>(action.getJobTracker());
+        nameNode = new ModifyOnce<>(action.getNameNode());
+        prepare = new ModifyOnce<>(action.getPrepare());
+        jobXmls = new ArrayList<>(action.getJobXmls());
+        configuration = immutableConfigurationMapToModifyOnce(action.getConfiguration());
+        configClass = new ModifyOnce<>(action.getConfigClass());
+        files = new ArrayList<>(action.getFiles());
+        archives = new ArrayList<>(action.getArchives());
+    }
+
     public MapReduceActionBuilder withParent(MapReduceAction action) {
         parents.add(action);
         return this;
     }
 
-    public boolean removeParent(MapReduceAction parent) {
-        return parents.remove(parent);
+    public MapReduceActionBuilder removeParent(MapReduceAction parent) {
+        parents.remove(parent);
+        return this;
     }
 
-    public void clearParents() {
+    public MapReduceActionBuilder clearParents() {
         parents.clear();
+        return this;
     }
 
     public MapReduceActionBuilder withName(String name) {
@@ -93,12 +107,14 @@ public class MapReduceActionBuilder {
         return this;
     }
 
-    public boolean removeJobXml(String jobXml) {
-        return jobXmls.remove(jobXml);
+    public MapReduceActionBuilder removeJobXml(String jobXml) {
+        jobXmls.remove(jobXml);
+        return this;
     }
 
-    public void clearJobXmls() {
+    public MapReduceActionBuilder clearJobXmls() {
         jobXmls.clear();
+        return this;
     }
 
     public MapReduceActionBuilder withConfigProperty(String key, String value) {
@@ -123,12 +139,14 @@ public class MapReduceActionBuilder {
         return this;
     }
 
-    public boolean removeFile(String file) {
-        return files.remove(file);
+    public MapReduceActionBuilder removeFile(String file) {
+        files.remove(file);
+        return this;
     }
 
-    public void clearFiles() {
+    public MapReduceActionBuilder clearFiles() {
         files.clear();
+        return this;
     }
 
     public MapReduceActionBuilder withArchive(String archive) {
@@ -136,12 +154,14 @@ public class MapReduceActionBuilder {
         return this;
     }
 
-    public boolean removeArchive(String archive) {
-        return archives.remove(archive);
+    public MapReduceActionBuilder removeArchive(String archive) {
+        archives.remove(archive);
+        return this;
     }
 
-    public void clearArchives() {
+    public MapReduceActionBuilder clearArchives() {
         archives.clear();
+        return this;
     }
 
     public MapReduceAction build() {
@@ -151,7 +171,7 @@ public class MapReduceActionBuilder {
         final String nameNodeStr = this.nameNode.get();
         final Prepare prepareStr = this.prepare.get();
         final ImmutableList<String> jobXmlsList = new ImmutableList.Builder<String>().addAll(this.jobXmls).build();
-        final ImmutableMap<String, String> configurationMap = getConfigurationMap();
+        final ImmutableMap<String, String> configurationMap = modifyOnceConfigurationMapToImmutable(this.configuration);
         final String configClassStr = this.configClass.get();
         final ImmutableList<String> filesList = new ImmutableList.Builder<String>().addAll(this.files).build();
         final ImmutableList<String> archivesList = new ImmutableList.Builder<String>().addAll(this.archives).build();
@@ -178,14 +198,24 @@ public class MapReduceActionBuilder {
         return instance;
     }
 
-    private ImmutableMap<String, String> getConfigurationMap() {
+    private static ImmutableMap<String, String> modifyOnceConfigurationMapToImmutable(Map<String, ModifyOnce<String>> map) {
         ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
 
-        for (Map.Entry<String, ModifyOnce<String>> entry : this.configuration.entrySet()) {
+        for (Map.Entry<String, ModifyOnce<String>> entry : map.entrySet()) {
             builder.put(entry.getKey(), entry.getValue().get());
         }
 
         return builder.build();
+    }
+
+    private static Map<String, ModifyOnce<String>> immutableConfigurationMapToModifyOnce(ImmutableMap<String, String> map) {
+        Map<String, ModifyOnce<String>> result = new LinkedHashMap<>();
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            result.put(entry.getKey(), new ModifyOnce<>(entry.getValue()));
+        }
+
+        return result;
     }
 
 }

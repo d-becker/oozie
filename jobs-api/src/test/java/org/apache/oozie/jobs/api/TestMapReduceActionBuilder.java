@@ -24,7 +24,9 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -207,8 +209,11 @@ public class TestMapReduceActionBuilder {
 
         MapReduceActionBuilder builder = new MapReduceActionBuilder();
 
+        Map<String, String> expectedConfigurationMap = new LinkedHashMap<>();
+
         for (int i = 0; i < keys.length; ++i) {
             builder.withConfigProperty(keys[i], values[i]);
+            expectedConfigurationMap.put(keys[i], values[i]);
         }
 
         MapReduceAction mrAction = builder.build();
@@ -216,6 +221,8 @@ public class TestMapReduceActionBuilder {
         for (int i = 0; i < keys.length; ++i) {
             assertEquals(values[i], mrAction.getConfigProperty(keys[i]));
         }
+
+        assertEquals(expectedConfigurationMap, mrAction.getConfiguration());
     }
 
     @Test
@@ -408,6 +415,31 @@ public class TestMapReduceActionBuilder {
 
         List<String> archivesList = mrAction.getArchives();
         assertEquals(0, archivesList.size());
+    }
+
+    @Test
+    public void testFromExistingAction() {
+        MapReduceActionBuilder builder = new MapReduceActionBuilder();
+
+        builder.withName(NAME)
+                .withNameNode(NAME_NODE)
+                .withFile(FILES[0])
+                .withFile(FILES[1]);
+
+        MapReduceAction mrAction = builder.build();
+
+        MapReduceActionBuilder fromExistingBuilder = new MapReduceActionBuilder(mrAction);
+
+        final String newName = "fromExisting_" + NAME;
+        fromExistingBuilder.withName(newName)
+                .removeFile(FILES[1])
+                .withFile(FILES[2]);
+
+        MapReduceAction modifiedMrAction = fromExistingBuilder.build();
+
+        assertEquals(newName, modifiedMrAction.getName());
+        assertEquals(mrAction.getNameNode(), modifiedMrAction.getNameNode());
+        assertEquals(Arrays.asList(FILES[0], FILES[2]), modifiedMrAction.getFiles());
     }
 
     private MapReduceActionBuilder getSpyBuilder() {

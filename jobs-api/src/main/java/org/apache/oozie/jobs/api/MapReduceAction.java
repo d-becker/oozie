@@ -92,7 +92,11 @@ public class MapReduceAction {
     }
 
     public String getConfigProperty(String property) {
-        return this.configuration.get(property);
+        return configuration.get(property);
+    }
+
+    public ImmutableMap<String, String> getConfiguration() {
+        return configuration;
     }
 
     public String getConfigClass() {
