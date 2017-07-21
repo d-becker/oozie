@@ -29,7 +29,7 @@ import java.util.Set;
 
 public class WorkflowBuilder {
     private final ModifyOnce<String> name;
-    private final List<MapReduceAction> addedActions;
+    private final List<Action> addedActions;
 
     public WorkflowBuilder() {
         name = new ModifyOnce<>();
@@ -41,32 +41,32 @@ public class WorkflowBuilder {
         return this;
     }
 
-    public WorkflowBuilder withDagContainingAction(MapReduceAction action) {
+    public WorkflowBuilder withDagContainingAction(Action action) {
         addedActions.add(action);
         return this;
     }
 
     public Workflow build() {
-        final Set<MapReduceAction> nodes = new HashSet<>();
-        for (MapReduceAction node : addedActions) {
+        final Set<Action> nodes = new HashSet<>();
+        for (Action node : addedActions) {
             if (!nodes.contains(node)) {
                 nodes.addAll(getNodesInDag(node));
             }
         }
 
-        final ImmutableSet.Builder<MapReduceAction> builder = new ImmutableSet.Builder<>();
+        final ImmutableSet.Builder<Action> builder = new ImmutableSet.Builder<>();
         builder.addAll(nodes);
 
         return new Workflow(name.get(), builder.build());
     }
 
-    private static Set<MapReduceAction> getNodesInDag(MapReduceAction action) {
-        final Set<MapReduceAction> visited = new HashSet<>();
-        final Queue<MapReduceAction> queue = new ArrayDeque<>();
+    private static Set<Action> getNodesInDag(Action action) {
+        final Set<Action> visited = new HashSet<>();
+        final Queue<Action> queue = new ArrayDeque<>();
         visited.add(action);
         queue.add(action);
 
-        MapReduceAction current;
+        Action current;
         while ((current = queue.poll()) != null) {
             visit(current.getParents(), visited, queue);
             visit(current.getChildren(), visited, queue);
@@ -75,8 +75,8 @@ public class WorkflowBuilder {
         return visited;
     }
 
-    private static void visit(List<MapReduceAction> toVisit, Set<MapReduceAction> visited, Queue<MapReduceAction> queue) {
-        for (MapReduceAction node : toVisit) {
+    private static void visit(List<Action> toVisit, Set<Action> visited, Queue<Action> queue) {
+        for (Action node : toVisit) {
             if (!visited.contains(node)) {
                 visited.add(node);
                 queue.add(node);

@@ -22,69 +22,41 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MapReduceActionBuilder {
-    private final ModifyOnce<String> name;
-    private final List<MapReduceAction> parents;
-
+public class MapReduceActionBuilder extends ActionBuilder<MapReduceActionBuilder> {
     private final ModifyOnce<String> jobTracker;
     private final ModifyOnce<String> nameNode;
     private final ModifyOnce<Prepare> prepare;
     // private STREAMING streaming;
     // private PIPES pipes;
     private final List<String> jobXmls;
-    private final Map<String, ModifyOnce<String>> configuration;
     private final ModifyOnce<String> configClass;
     private final List<String> files;
     private final List<String> archives;
 
     public MapReduceActionBuilder() {
-        parents = new ArrayList<>();
-        name = new ModifyOnce<>();
+        super();
         jobTracker = new ModifyOnce<>();
         nameNode = new ModifyOnce<>();
         prepare = new ModifyOnce<>();
         jobXmls = new ArrayList<>();
-        configuration = new LinkedHashMap<>();
         configClass = new ModifyOnce<>();
         files = new ArrayList<>();
         archives = new ArrayList<>();
     }
 
-    public MapReduceActionBuilder(MapReduceAction action) {
-        parents = new ArrayList<>(action.getParents());
-        name = new ModifyOnce<>(action.getName());
+    public MapReduceActionBuilder(final MapReduceAction action) {
+        super(action);
         jobTracker = new ModifyOnce<>(action.getJobTracker());
         nameNode = new ModifyOnce<>(action.getNameNode());
         prepare = new ModifyOnce<>(action.getPrepare());
         jobXmls = new ArrayList<>(action.getJobXmls());
-        configuration = immutableConfigurationMapToModifyOnce(action.getConfiguration());
+
         configClass = new ModifyOnce<>(action.getConfigClass());
         files = new ArrayList<>(action.getFiles());
         archives = new ArrayList<>(action.getArchives());
-    }
-
-    public MapReduceActionBuilder withParent(MapReduceAction action) {
-        parents.add(action);
-        return this;
-    }
-
-    public MapReduceActionBuilder removeParent(MapReduceAction parent) {
-        parents.remove(parent);
-        return this;
-    }
-
-    public MapReduceActionBuilder clearParents() {
-        parents.clear();
-        return this;
-    }
-
-    public MapReduceActionBuilder withName(String name) {
-        this.name.set(name);
-        return this;
     }
 
     public MapReduceActionBuilder withJobTracker(String jobTracker) {
@@ -107,25 +79,13 @@ public class MapReduceActionBuilder {
         return this;
     }
 
-    public MapReduceActionBuilder removeJobXml(String jobXml) {
+    public MapReduceActionBuilder withoutJobXml(String jobXml) {
         jobXmls.remove(jobXml);
         return this;
     }
 
     public MapReduceActionBuilder clearJobXmls() {
         jobXmls.clear();
-        return this;
-    }
-
-    public MapReduceActionBuilder withConfigProperty(String key, String value) {
-        ModifyOnce<String> mappedValue = this.configuration.get(key);
-
-        if (mappedValue == null) {
-            mappedValue = new ModifyOnce<>(value);
-            this.configuration.put(key, mappedValue);
-        }
-
-        mappedValue.set(value);
         return this;
     }
 
@@ -139,7 +99,7 @@ public class MapReduceActionBuilder {
         return this;
     }
 
-    public MapReduceActionBuilder removeFile(String file) {
+    public MapReduceActionBuilder withoutFile(String file) {
         files.remove(file);
         return this;
     }
@@ -154,7 +114,7 @@ public class MapReduceActionBuilder {
         return this;
     }
 
-    public MapReduceActionBuilder removeArchive(String archive) {
+    public MapReduceActionBuilder withoutArchive(String archive) {
         archives.remove(archive);
         return this;
     }
@@ -164,9 +124,10 @@ public class MapReduceActionBuilder {
         return this;
     }
 
+    // TODO: Extract common parts of the build function to the base class.
     public MapReduceAction build() {
         final String nameStr = this.name.get();
-        final ImmutableList<MapReduceAction> parentsList = new ImmutableList.Builder<MapReduceAction>().addAll(parents).build();
+        final ImmutableList<Action> parentsList = new ImmutableList.Builder<Action>().addAll(parents).build();
         final String jobTrackerStr = this.jobTracker.get();
         final String nameNodeStr = this.nameNode.get();
         final Prepare prepareStr = this.prepare.get();
@@ -190,7 +151,7 @@ public class MapReduceActionBuilder {
                 archivesList);
 
         if (parentsList != null) {
-            for (MapReduceAction parent : parentsList) {
+            for (Action parent : parentsList) {
                 parent.addChild(instance);
             }
         }
@@ -202,20 +163,13 @@ public class MapReduceActionBuilder {
         ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
 
         for (Map.Entry<String, ModifyOnce<String>> entry : map.entrySet()) {
-            builder.put(entry.getKey(), entry.getValue().get());
+            String value = entry.getValue().get();
+            if (value != null) {
+                builder.put(entry.getKey(), value);
+            }
         }
 
         return builder.build();
-    }
-
-    private static Map<String, ModifyOnce<String>> immutableConfigurationMapToModifyOnce(ImmutableMap<String, String> map) {
-        Map<String, ModifyOnce<String>> result = new LinkedHashMap<>();
-
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            result.put(entry.getKey(), new ModifyOnce<>(entry.getValue()));
-        }
-
-        return result;
     }
 
 }

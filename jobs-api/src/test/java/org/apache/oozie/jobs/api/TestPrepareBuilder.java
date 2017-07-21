@@ -18,24 +18,31 @@
 
 package org.apache.oozie.jobs.api;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class TestPrepareBuilder {
-    public static final String[] TEST_DIRS = {"/user/testpath/testdir1", "/user/testpath/testdir2", "/user/testpath/testdir3"};
+    public static final String[] TEST_FOLDER_NAMES = {"/user/testpath/testdir1", "/user/testpath/testdir2", "/user/testpath/testdir3"};
+
+    private PrepareBuilder pb;
+
+    @Before
+    public void setUp() {
+        pb = new PrepareBuilder();
+    }
 
     @Test
     public void testOneDeleteIsAddedWithSkipTrashTrue() {
-        PrepareBuilder pb = new PrepareBuilder();
-        pb.withDelete(TEST_DIRS[0], true);
+        pb.withDelete(TEST_FOLDER_NAMES[0], true);
 
         Prepare prepare = pb.build();
 
         assertEquals(1, prepare.getDeletes().size());
 
         Delete delete = prepare.getDeletes().get(0);
-        assertEquals(TEST_DIRS[0], delete.getPath());
+        assertEquals(TEST_FOLDER_NAMES[0], delete.getPath());
         assertEquals(true, delete.getSkipTrash());
 
         assertEquals(0, prepare.getMkdirs().size());
@@ -43,19 +50,17 @@ public class TestPrepareBuilder {
 
     @Test
     public void testSeveralDeletesAreAddedWithSkipTrashNotSpecified() {
-        PrepareBuilder pb = new PrepareBuilder();
-
-        for (String testDir : TEST_DIRS) {
+        for (String testDir : TEST_FOLDER_NAMES) {
             pb.withDelete(testDir);
         }
 
         Prepare prepare = pb.build();
 
-        assertEquals(TEST_DIRS.length, prepare.getDeletes().size());
+        assertEquals(TEST_FOLDER_NAMES.length, prepare.getDeletes().size());
 
-        for (int i = 0; i < TEST_DIRS.length; ++i) {
+        for (int i = 0; i < TEST_FOLDER_NAMES.length; ++i) {
             Delete delete = prepare.getDeletes().get(i);
-            assertEquals(TEST_DIRS[i], delete.getPath());
+            assertEquals(TEST_FOLDER_NAMES[i], delete.getPath());
             assertEquals(null, delete.getSkipTrash());
         }
 
@@ -64,34 +69,31 @@ public class TestPrepareBuilder {
 
     @Test
     public void testOneMkdirIsAdded() {
-        PrepareBuilder pb = new PrepareBuilder();
-        pb.withMkdir(TEST_DIRS[0]);
+        pb.withMkdir(TEST_FOLDER_NAMES[0]);
 
         Prepare prepare = pb.build();
 
         assertEquals(1, prepare.getMkdirs().size());
 
         Mkdir mkdir = prepare.getMkdirs().get(0);
-        assertEquals(TEST_DIRS[0], mkdir.getPath());
+        assertEquals(TEST_FOLDER_NAMES[0], mkdir.getPath());
 
         assertEquals(0, prepare.getDeletes().size());
     }
 
     @Test
     public void testSeveralMkdirsAreAdded() {
-        PrepareBuilder pb = new PrepareBuilder();
-
-        for (String testDir : TEST_DIRS) {
+        for (String testDir : TEST_FOLDER_NAMES) {
             pb.withMkdir(testDir);
         }
 
         Prepare prepare = pb.build();
 
-        assertEquals(TEST_DIRS.length, prepare.getMkdirs().size());
+        assertEquals(TEST_FOLDER_NAMES.length, prepare.getMkdirs().size());
 
-        for (int i = 0; i < TEST_DIRS.length; ++i) {
+        for (int i = 0; i < TEST_FOLDER_NAMES.length; ++i) {
             Mkdir mkdir = prepare.getMkdirs().get(i);
-            assertEquals(TEST_DIRS[i], mkdir.getPath());
+            assertEquals(TEST_FOLDER_NAMES[i], mkdir.getPath());
         }
 
         assertEquals(0, prepare.getDeletes().size());

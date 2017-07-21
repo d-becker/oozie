@@ -20,6 +20,8 @@ package org.apache.oozie.jobs.api;
 
 import com.google.common.collect.ImmutableList;
 
+import java.util.List;
+
 public class Prepare {
     private final ImmutableList<Delete> deletes;
     private final ImmutableList<Mkdir> mkdirs;
@@ -30,11 +32,11 @@ public class Prepare {
         this.mkdirs = mkdirs;
     }
 
-    public ImmutableList<Delete> getDeletes() {
+    public List<Delete> getDeletes() {
         return deletes;
     }
 
-    public ImmutableList<Mkdir> getMkdirs() {
+    public List<Mkdir> getMkdirs() {
         return mkdirs;
     }
 

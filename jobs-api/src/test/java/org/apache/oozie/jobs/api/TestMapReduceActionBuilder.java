@@ -35,9 +35,6 @@ public class TestMapReduceActionBuilder {
     public static final String JOB_TRACKER = "${jobTracker}";
     public static final String NAME_NODE = "${nameNode}";
 
-    public static final String QNAME = "mapred.job.queue.name";
-    public static final String DEFAULT = "default";
-
     public static final String EXAMPLE_DIR = "/path/to/directory";
     public static final String CONFIG_CLASS = "AnyConfigClass.class";
     public static final String[] JOB_XMLS = {"jobXml1.xml", "jobXml2.xml", "jobXml3.xml", "jobXml4.xml"};
@@ -47,97 +44,6 @@ public class TestMapReduceActionBuilder {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    @Test
-    public void testAddParents() {
-        MapReduceAction parent1 = Mockito.spy(new MapReduceActionBuilder().build());
-        MapReduceAction parent2 = Mockito.spy(new MapReduceActionBuilder().build());
-
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
-        builder.withParent(parent1)
-                .withParent(parent2);
-
-        MapReduceAction child = builder.build();
-
-        assertEquals(Arrays.asList(parent1, parent2), child.getParents());
-
-        Mockito.verify(parent1).addChild(child);
-        Mockito.verify(parent2).addChild(child);
-
-        Mockito.verifyNoMoreInteractions(parent1);
-        Mockito.verifyNoMoreInteractions(parent2);
-    }
-
-    @Test
-    public void testRemoveParent() {
-        MapReduceAction parent1 = Mockito.spy(new MapReduceActionBuilder().build());
-        MapReduceAction parent2 = Mockito.spy(new MapReduceActionBuilder().build());
-
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
-        builder.withParent(parent1)
-                .withParent(parent2);
-
-        builder.removeParent(parent2);
-
-        MapReduceAction child = builder.build();
-
-        assertEquals(Arrays.asList(parent1), child.getParents());
-
-        Mockito.verify(parent1).addChild(child);
-
-        Mockito.verifyNoMoreInteractions(parent1);
-        Mockito.verifyNoMoreInteractions(parent2);
-    }
-
-    @Test
-    public void testClearParents() {
-        MapReduceAction parent1 = Mockito.spy(new MapReduceActionBuilder().build());
-        MapReduceAction parent2 = Mockito.spy(new MapReduceActionBuilder().build());
-
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
-        builder.withParent(parent1)
-                .withParent(parent2);
-
-        builder.clearParents();
-
-        MapReduceAction child = builder.build();
-
-        assertEquals(0, child.getParents().size());
-
-        Mockito.verifyNoMoreInteractions(parent1);
-        Mockito.verifyNoMoreInteractions(parent2);
-    }
-
-    @Test
-    public void testNameAddedMocked() {
-        MapReduceActionBuilder builder = getSpyBuilder();
-        builder.withName(NAME);
-
-        MapReduceAction mrAction = builder.build();
-
-        assertEquals(NAME, mrAction.getName());
-
-        Mockito.verify(builder).withName(NAME);
-        Mockito.verify(builder).build();
-        Mockito.verifyNoMoreInteractions(builder);
-    }
-
-    @Test
-    public void testNameAdded() {
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
-        builder.withName(NAME);
-
-        MapReduceAction mrAction = builder.build();
-        assertEquals(NAME, mrAction.getName());
-    }
-
-    @Test
-    public void testNameAddedTwiceThrows() {
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
-        builder.withName(NAME);
-
-        expectedException.expect(IllegalStateException.class);
-        builder.withName("any_name");
-    }
     @Test
     public void testJobTrackerAdded() {
         MapReduceActionBuilder builder = new MapReduceActionBuilder();
@@ -193,48 +99,6 @@ public class TestMapReduceActionBuilder {
     }
 
     @Test
-    public void testConfigPropertyAdded() {
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
-        builder.withConfigProperty(QNAME, DEFAULT);
-
-        MapReduceAction mrAction = builder.build();
-        assertEquals(DEFAULT, mrAction.getConfigProperty(QNAME));
-    }
-
-    @Test
-    public void testSeveralConfigPropertiesAdded() {
-        final String[] keys = {"mapred.map.tasks", "mapred.input.dir", "mapred.output.dir"};
-        final String[] values = {"1", "${inputDir}", "${outputDir}"};
-        assertEquals(keys.length, values.length);
-
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
-
-        Map<String, String> expectedConfigurationMap = new LinkedHashMap<>();
-
-        for (int i = 0; i < keys.length; ++i) {
-            builder.withConfigProperty(keys[i], values[i]);
-            expectedConfigurationMap.put(keys[i], values[i]);
-        }
-
-        MapReduceAction mrAction = builder.build();
-
-        for (int i = 0; i < keys.length; ++i) {
-            assertEquals(values[i], mrAction.getConfigProperty(keys[i]));
-        }
-
-        assertEquals(expectedConfigurationMap, mrAction.getConfiguration());
-    }
-
-    @Test
-    public void testSameConfigPropertyAddedTwiceThrows() {
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
-        builder.withConfigProperty(QNAME, DEFAULT);
-
-        expectedException.expect(IllegalStateException.class);
-        builder.withConfigProperty(QNAME, DEFAULT);
-    }
-
-    @Test
     public void testConfigClassAdded() {
         MapReduceActionBuilder builder = new MapReduceActionBuilder();
         builder.withConfigClass(CONFIG_CLASS);
@@ -271,14 +135,14 @@ public class TestMapReduceActionBuilder {
     }
 
     @Test
-    public void testRemoveJobXmls() {
+    public void testWithoutJobXmls() {
         MapReduceActionBuilder builder = new MapReduceActionBuilder();
 
         for (String jobXml : JOB_XMLS) {
             builder.withJobXml(jobXml);
         }
 
-        builder.removeJobXml(JOB_XMLS[0]);
+        builder.withoutJobXml(JOB_XMLS[0]);
 
         MapReduceAction mrAction = builder.build();
 
@@ -333,7 +197,7 @@ public class TestMapReduceActionBuilder {
             builder.withFile(file);
         }
 
-        builder.removeFile(FILES[0]);
+        builder.withoutFile(FILES[0]);
 
         MapReduceAction mrAction = builder.build();
 
@@ -388,7 +252,7 @@ public class TestMapReduceActionBuilder {
             builder.withArchive(archive);
         }
 
-        builder.removeArchive(ARCHIVES[0]);
+        builder.withoutArchive(ARCHIVES[0]);
 
         MapReduceAction mrAction = builder.build();
 
@@ -432,7 +296,7 @@ public class TestMapReduceActionBuilder {
 
         final String newName = "fromExisting_" + NAME;
         fromExistingBuilder.withName(newName)
-                .removeFile(FILES[1])
+                .withoutFile(FILES[1])
                 .withFile(FILES[2]);
 
         MapReduceAction modifiedMrAction = fromExistingBuilder.build();
@@ -445,4 +309,5 @@ public class TestMapReduceActionBuilder {
     private MapReduceActionBuilder getSpyBuilder() {
         return Mockito.spy(new MapReduceActionBuilder());
     }
+
 }

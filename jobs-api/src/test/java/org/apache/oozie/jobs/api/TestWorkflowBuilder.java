@@ -87,5 +87,6 @@ public class TestWorkflowBuilder {
         Workflow workflow = builder.build();
 
         assertEquals(new HashSet<>(Arrays.asList(mrAction1, mrAction2)), workflow.getRoots());
+        assertEquals(new HashSet<>(Arrays.asList(mrAction1, mrAction2, mrAction3)), workflow.getNodes());
     }
 }

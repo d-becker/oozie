@@ -21,40 +21,31 @@ package org.apache.oozie.jobs.api;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class MapReduceAction {
-    private final String name;
-    private final ImmutableList<MapReduceAction> parents;
-    private final List<MapReduceAction> children; // MUTABLE!
-
+public class MapReduceAction extends Action {
     private final String jobTracker;
     private final String nameNode;
     private final Prepare prepare;
     // private final STREAMING streaming;
     // private final PIPES pipes;
     private final ImmutableList<String> jobXmls;
-    private final ImmutableMap<String, String> configuration;
     private final String configClass;
     private final ImmutableList<String> files;
     private final ImmutableList<String> archives;
 
-    MapReduceAction(String name,
-                    ImmutableList<MapReduceAction> parents,
-                    String jobTracker,
-                    String nameNode,
-                    Prepare prepare,
-                    ImmutableList<String> jobXmls,
-                    ImmutableMap<String, String> configuration,
-                    String configClass,
-                    ImmutableList<String> files,
-                    ImmutableList<String> archives)
+    MapReduceAction(final String name,
+                    final ImmutableList<Action> parents,
+                    final String jobTracker,
+                    final String nameNode,
+                    final Prepare prepare,
+                    final ImmutableList<String> jobXmls,
+                    final ImmutableMap<String, String> configuration,
+                    final String configClass,
+                    final ImmutableList<String> files,
+                    final ImmutableList<String> archives)
     {
-        this.name = name;
-        this.parents = parents;
-        this.children = new ArrayList<>();
+        super(name, parents, configuration);
 
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
@@ -62,18 +53,9 @@ public class MapReduceAction {
         // this.streaming = streaming;
         // this.pipes = pipes;
         this.jobXmls = jobXmls;
-        this.configuration = configuration;
         this.configClass = configClass;
         this.files = files;
         this.archives = archives;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public ImmutableList<MapReduceAction> getParents() {
-        return parents;
     }
 
     public String getJobTracker() {
@@ -88,39 +70,19 @@ public class MapReduceAction {
         return prepare;
     }
 
-    public ImmutableList<String> getJobXmls() {
+    public List<String> getJobXmls() {
         return jobXmls;
-    }
-
-    public String getConfigProperty(String property) {
-        return configuration.get(property);
-    }
-
-    public ImmutableMap<String, String> getConfiguration() {
-        return configuration;
     }
 
     public String getConfigClass() {
         return configClass;
     }
 
-    public ImmutableList<String> getFiles() {
+    public List<String> getFiles() {
         return files;
     }
 
-    public ImmutableList<String> getArchives() {
+    public List<String> getArchives() {
         return archives;
-    }
-
-    void addChild(MapReduceAction child) {
-        this.children.add(child);
-    }
-
-    /**
-     * Returns an unmodifiable view of list of the children of this <code>MapReduceAction</code>.
-     * @return An unmodifiable view of list of the children of this <code>MapReduceAction</code>.
-     */
-    List<MapReduceAction> getChildren() {
-        return Collections.unmodifiableList(children);
     }
 }

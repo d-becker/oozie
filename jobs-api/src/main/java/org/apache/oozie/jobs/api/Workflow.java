@@ -18,17 +18,16 @@
 
 package org.apache.oozie.jobs.api;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
 
 public class Workflow {
     private final String name;
-    private final ImmutableSet<MapReduceAction> nodes;
-    private final ImmutableSet<MapReduceAction> roots;
+    private final ImmutableSet<Action> nodes;
+    private final ImmutableSet<Action> roots;
 
-    Workflow(String name, ImmutableSet<MapReduceAction> nodes) {
+    Workflow(String name, ImmutableSet<Action> nodes) {
         this.name = name;
         this.nodes = nodes;
         this.roots = filterRoots(nodes);
@@ -38,17 +37,17 @@ public class Workflow {
         return name;
     }
 
-    public ImmutableSet<MapReduceAction> getNodes() {
+    public ImmutableSet<Action> getNodes() {
         return nodes;
     }
 
-    public ImmutableSet<MapReduceAction> getRoots() {
+    public ImmutableSet<Action> getRoots() {
         return roots;
     }
 
-    private static ImmutableSet<MapReduceAction> filterRoots(Set<MapReduceAction> dag) {
-        ImmutableSet.Builder<MapReduceAction> builder = new ImmutableSet.Builder<>();
-        for (MapReduceAction node : dag) {
+    private static ImmutableSet<Action> filterRoots(Set<Action> dag) {
+        ImmutableSet.Builder<Action> builder = new ImmutableSet.Builder<>();
+        for (Action node : dag) {
             if (node.getParents().isEmpty()) {
                 builder.add(node);
             }
