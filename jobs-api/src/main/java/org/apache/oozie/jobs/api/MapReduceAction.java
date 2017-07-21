@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MapReduceAction {
@@ -113,5 +114,13 @@ public class MapReduceAction {
 
     void addChild(MapReduceAction child) {
         this.children.add(child);
+    }
+
+    /**
+     * Returns an unmodifiable view of list of the children of this <code>MapReduceAction</code>.
+     * @return An unmodifiable view of list of the children of this <code>MapReduceAction</code>.
+     */
+    List<MapReduceAction> getChildren() {
+        return Collections.unmodifiableList(children);
     }
 }
