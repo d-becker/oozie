@@ -26,18 +26,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ActionBuilder<T extends ActionBuilder> {
+public abstract class ActionBuilderBase<T extends ActionBuilderBase> {
     protected final ModifyOnce<String> name;
     protected final List<Action> parents;
     protected final Map<String, ModifyOnce<String>> configuration;
 
-    protected ActionBuilder() {
+    protected ActionBuilderBase() {
         parents = new ArrayList<>();
         name = new ModifyOnce<>();
         configuration = new LinkedHashMap<>();
     }
 
-    public ActionBuilder(final Action action) {
+    public ActionBuilderBase(final Action action) {
         parents = new ArrayList<>(action.getParents());
         name = new ModifyOnce<>(action.getName());
         configuration = immutableConfigurationMapToModifyOnce(action.getConfiguration());
@@ -96,7 +96,7 @@ public abstract class ActionBuilder<T extends ActionBuilder> {
         } catch (ClassCastException e) {
             throw new ClassCastException("Can't convert " + this.getClass()
                     + " object to the requested concrete type."
-                    + " Probably the requested concrete type T doesn't extend ActionBuilder<T>.");
+                    + " Probably the requested concrete type T doesn't extend ActionBuilderBase<T>.");
         }
 
         return result;

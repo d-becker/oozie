@@ -19,13 +19,11 @@
 package org.apache.oozie.jobs.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class MapReduceActionBuilder extends ActionBuilder<MapReduceActionBuilder> {
+public class MapReduceActionBuilder extends ActionBuilderBase<MapReduceActionBuilder> {
     private final ModifyOnce<String> jobTracker;
     private final ModifyOnce<String> nameNode;
     private final ModifyOnce<Prepare> prepare;

@@ -18,7 +18,7 @@
 
 package org.apache.oozie.jobs.api;
 
-import org.junit.Before;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,7 +26,6 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,26 +33,27 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 // TODO: Replace MapReduceAction with something more general.
-public class TestActionBuilder {
+public class TestActionBuilderBase {
     public static final String NAME = "map-reduce-name";
     public static final String QNAME = "mapred.job.queue.name";
     public static final String DEFAULT = "default";
 
-    private Map<String, String> configExample;
+    private static final ImmutableMap<String, String> CONFIG_EXAMPLE = getConfigExample();
 
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    @Before
-    public void setUp() {
-        configExample = new HashMap<>();
+    private static ImmutableMap<String, String> getConfigExample() {
+        ImmutableMap.Builder<String, String> configExampleBuilder = new ImmutableMap.Builder<>();
 
         final String[] keys = {"mapred.map.tasks", "mapred.input.dir", "mapred.output.dir"};
         final String[] values = {"1", "${inputDir}", "${outputDir}"};
 
         for (int i = 0; i < keys.length; ++i) {
-            configExample.put(keys[i], values[i]);
+            configExampleBuilder.put(keys[i], values[i]);
         }
+
+        return configExampleBuilder.build();
     }
 
     @Test
@@ -147,17 +147,17 @@ public class TestActionBuilder {
     public void testSeveralConfigPropertiesAdded() {
         MapReduceActionBuilder builder = new MapReduceActionBuilder();
 
-        for (Map.Entry<String, String> entry : configExample.entrySet()) {
+        for (Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
             builder.withConfigProperty(entry.getKey(), entry.getValue());
         }
 
         MapReduceAction mrAction = builder.build();
 
-        for (Map.Entry<String, String> entry : configExample.entrySet()) {
+        for (Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
             assertEquals(entry.getValue(), mrAction.getConfigProperty(entry.getKey()));
         }
 
-        assertEquals(configExample, mrAction.getConfiguration());
+        assertEquals(CONFIG_EXAMPLE, mrAction.getConfiguration());
     }
 
     @Test
@@ -175,14 +175,14 @@ public class TestActionBuilder {
 
         builder.withName(NAME);
 
-        for (Map.Entry<String, String> entry : configExample.entrySet()) {
+        for (Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
             builder.withConfigProperty(entry.getKey(), entry.getValue());
         }
 
         MapReduceAction mrAction = builder.build();
 
-        List<String> keys = new ArrayList<>(configExample.keySet());
-        Map<String, String> expectedModifiedConfiguration = new LinkedHashMap<>(configExample);
+        List<String> keys = new ArrayList<>(CONFIG_EXAMPLE.keySet());
+        Map<String, String> expectedModifiedConfiguration = new LinkedHashMap<>(CONFIG_EXAMPLE);
 
         String keyToModify = keys.get(0);
         String modifiedValue = "modified-property-value";
@@ -208,9 +208,5 @@ public class TestActionBuilder {
 
         assertEquals(newName, modifiedMrAction.getName());
         assertEquals(expectedModifiedConfiguration, modifiedMrAction.getConfiguration());
-    }
-
-    private MapReduceActionBuilder getSpyBuilder() {
-        return Mockito.spy(new MapReduceActionBuilder());
     }
 }
