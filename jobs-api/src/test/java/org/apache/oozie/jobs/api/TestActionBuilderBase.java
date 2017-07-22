@@ -32,8 +32,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-// TODO: Replace MapReduceAction with something more general.
-public class TestActionBuilderBase {
+public abstract class TestActionBuilderBase<ACTION_T extends Action, BUILDER_T extends ActionBuilderBase<ACTION_T, BUILDER_T>> {
     public static final String NAME = "map-reduce-name";
     public static final String QNAME = "mapred.job.queue.name";
     public static final String DEFAULT = "default";
@@ -56,16 +55,19 @@ public class TestActionBuilderBase {
         return configExampleBuilder.build();
     }
 
+    protected abstract BUILDER_T getBuilderInstance();
+    protected abstract BUILDER_T getBuilderInstance(ACTION_T action);
+
     @Test
     public void testAddParents() {
-        MapReduceAction parent1 = Mockito.spy(new MapReduceActionBuilder().build());
-        MapReduceAction parent2 = Mockito.spy(new MapReduceActionBuilder().build());
+        ACTION_T parent1 = Mockito.spy(getBuilderInstance().build());
+        ACTION_T parent2 = Mockito.spy(getBuilderInstance().build());
 
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        BUILDER_T builder = getBuilderInstance();
         builder.withParent(parent1)
                 .withParent(parent2);
 
-        MapReduceAction child = builder.build();
+        ACTION_T child = builder.build();
 
         assertEquals(Arrays.asList(parent1, parent2), child.getParents());
 
@@ -77,17 +79,17 @@ public class TestActionBuilderBase {
     }
 
     @Test
-    public void testRemoveParent() {
-        MapReduceAction parent1 = Mockito.spy(new MapReduceActionBuilder().build());
-        MapReduceAction parent2 = Mockito.spy(new MapReduceActionBuilder().build());
+    public void testWithoutParent() {
+        ACTION_T parent1 = Mockito.spy(getBuilderInstance().build());
+        ACTION_T parent2 = Mockito.spy(getBuilderInstance().build());
 
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        BUILDER_T builder = getBuilderInstance();
         builder.withParent(parent1)
                 .withParent(parent2);
 
         builder.withoutParent(parent2);
 
-        MapReduceAction child = builder.build();
+        ACTION_T child = builder.build();
 
         assertEquals(Arrays.asList(parent1), child.getParents());
 
@@ -99,16 +101,16 @@ public class TestActionBuilderBase {
 
     @Test
     public void testClearParents() {
-        MapReduceAction parent1 = Mockito.spy(new MapReduceActionBuilder().build());
-        MapReduceAction parent2 = Mockito.spy(new MapReduceActionBuilder().build());
+        ACTION_T parent1 = Mockito.spy(getBuilderInstance().build());
+        ACTION_T parent2 = Mockito.spy(getBuilderInstance().build());
 
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        BUILDER_T builder = getBuilderInstance();
         builder.withParent(parent1)
                 .withParent(parent2);
 
         builder.clearParents();
 
-        MapReduceAction child = builder.build();
+        ACTION_T child = builder.build();
 
         assertEquals(0, child.getParents().size());
 
@@ -118,16 +120,16 @@ public class TestActionBuilderBase {
 
     @Test
     public void testNameAdded() {
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        BUILDER_T builder = getBuilderInstance();
         builder.withName(NAME);
 
-        MapReduceAction mrAction = builder.build();
-        assertEquals(NAME, mrAction.getName());
+        ACTION_T action = builder.build();
+        assertEquals(NAME, action.getName());
     }
 
     @Test
     public void testNameAddedTwiceThrows() {
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        BUILDER_T builder = getBuilderInstance();
         builder.withName(NAME);
 
         expectedException.expect(IllegalStateException.class);
@@ -136,33 +138,33 @@ public class TestActionBuilderBase {
 
     @Test
     public void testConfigPropertyAdded() {
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        BUILDER_T builder = getBuilderInstance();
         builder.withConfigProperty(QNAME, DEFAULT);
 
-        MapReduceAction mrAction = builder.build();
-        assertEquals(DEFAULT, mrAction.getConfigProperty(QNAME));
+        ACTION_T action = builder.build();
+        assertEquals(DEFAULT, action.getConfigProperty(QNAME));
     }
 
     @Test
     public void testSeveralConfigPropertiesAdded() {
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        BUILDER_T builder = getBuilderInstance();
 
         for (Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
             builder.withConfigProperty(entry.getKey(), entry.getValue());
         }
 
-        MapReduceAction mrAction = builder.build();
+        ACTION_T action = builder.build();
 
         for (Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
-            assertEquals(entry.getValue(), mrAction.getConfigProperty(entry.getKey()));
+            assertEquals(entry.getValue(), action.getConfigProperty(entry.getKey()));
         }
 
-        assertEquals(CONFIG_EXAMPLE, mrAction.getConfiguration());
+        assertEquals(CONFIG_EXAMPLE, action.getConfiguration());
     }
 
     @Test
     public void testSameConfigPropertyAddedTwiceThrows() {
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        BUILDER_T builder = getBuilderInstance();
         builder.withConfigProperty(QNAME, DEFAULT);
 
         expectedException.expect(IllegalStateException.class);
@@ -171,7 +173,7 @@ public class TestActionBuilderBase {
 
     @Test
     public void testFromExistingAction() {
-        MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        BUILDER_T builder = getBuilderInstance();
 
         builder.withName(NAME);
 
@@ -179,7 +181,7 @@ public class TestActionBuilderBase {
             builder.withConfigProperty(entry.getKey(), entry.getValue());
         }
 
-        MapReduceAction mrAction = builder.build();
+        ACTION_T action = builder.build();
 
         List<String> keys = new ArrayList<>(CONFIG_EXAMPLE.keySet());
         Map<String, String> expectedModifiedConfiguration = new LinkedHashMap<>(CONFIG_EXAMPLE);
@@ -196,7 +198,7 @@ public class TestActionBuilderBase {
         String newValue = "new-property-value";
         expectedModifiedConfiguration.put(newKey, newValue);
 
-        MapReduceActionBuilder fromExistingBuilder = new MapReduceActionBuilder(mrAction);
+        BUILDER_T fromExistingBuilder = getBuilderInstance(action);
 
         final String newName = "fromExisting_" + NAME;
         fromExistingBuilder.withName(newName)
@@ -204,7 +206,7 @@ public class TestActionBuilderBase {
                 .withConfigProperty(keyToRemove, null)
                 .withConfigProperty(newKey, newValue);
 
-        MapReduceAction modifiedMrAction = fromExistingBuilder.build();
+        ACTION_T modifiedMrAction = fromExistingBuilder.build();
 
         assertEquals(newName, modifiedMrAction.getName());
         assertEquals(expectedModifiedConfiguration, modifiedMrAction.getConfiguration());

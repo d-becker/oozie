@@ -26,7 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ActionBuilderBase<T extends ActionBuilderBase> {
+public abstract class ActionBuilderBase<ACTION_T, BUILDER_T extends Builder<ACTION_T>> implements Builder<ACTION_T> {
     protected final ModifyOnce<String> name;
     protected final List<Action> parents;
     protected final Map<String, ModifyOnce<String>> configuration;
@@ -43,22 +43,22 @@ public abstract class ActionBuilderBase<T extends ActionBuilderBase> {
         configuration = immutableConfigurationMapToModifyOnce(action.getConfiguration());
     }
 
-    public T withParent(Action action) {
+    public BUILDER_T withParent(Action action) {
         parents.add(action);
         return typeCastThis();
     }
 
-    public T withoutParent(Action parent) {
+    public BUILDER_T withoutParent(Action parent) {
         parents.remove(parent);
         return typeCastThis();
     }
 
-    public T clearParents() {
+    public BUILDER_T clearParents() {
         parents.clear();
         return typeCastThis();
     }
 
-    public T withName(String name) {
+    public BUILDER_T withName(String name) {
         this.name.set(name);
         return typeCastThis();
     }
@@ -69,7 +69,7 @@ public abstract class ActionBuilderBase<T extends ActionBuilderBase> {
      * @param value
      * @return
      */
-    public T withConfigProperty(String key, String value) {
+    public BUILDER_T withConfigProperty(String key, String value) {
         ModifyOnce<String> mappedValue = this.configuration.get(key);
 
         if (mappedValue == null) {
@@ -81,6 +81,9 @@ public abstract class ActionBuilderBase<T extends ActionBuilderBase> {
         return typeCastThis();
     }
 
+    @Override
+    public abstract ACTION_T build();
+
     protected Action.ConstructionData getConstructionData() {
         final String nameStr = this.name.get();
         final ImmutableList<Action> parentsList = new ImmutableList.Builder<Action>().addAll(parents).build();
@@ -89,14 +92,14 @@ public abstract class ActionBuilderBase<T extends ActionBuilderBase> {
         return new Action.ConstructionData(nameStr, parentsList, configurationMap);
     }
 
-    private T typeCastThis() {
-        T result;
+    private BUILDER_T typeCastThis() {
+        BUILDER_T result;
         try {
-            result = (T) this;
+            result = (BUILDER_T) this;
         } catch (ClassCastException e) {
             throw new ClassCastException("Can't convert " + this.getClass()
                     + " object to the requested concrete type."
-                    + " Probably the requested concrete type T doesn't extend ActionBuilderBase<T>.");
+                    + " Probably the requested concrete type BUILDER_T doesn't extend ActionBuilderBase<ACTION_T, BUILDER_T>.");
         }
 
         return result;

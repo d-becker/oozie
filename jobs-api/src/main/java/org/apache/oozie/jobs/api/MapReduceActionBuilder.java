@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapReduceActionBuilder extends ActionBuilderBase<MapReduceActionBuilder> {
+public class MapReduceActionBuilder extends ActionBuilderBase<MapReduceAction, MapReduceActionBuilder> {
     private final ModifyOnce<String> jobTracker;
     private final ModifyOnce<String> nameNode;
     private final ModifyOnce<Prepare> prepare;
@@ -122,7 +122,6 @@ public class MapReduceActionBuilder extends ActionBuilderBase<MapReduceActionBui
         return this;
     }
 
-    // TODO: Extract common parts of the build function to the base class.
     public MapReduceAction build() {
         final Action.ConstructionData constructionData = getConstructionData();
         final String jobTrackerStr = this.jobTracker.get();

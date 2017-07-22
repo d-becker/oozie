@@ -24,13 +24,11 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestMapReduceActionBuilder {
+public class TestMapReduceActionBuilder extends TestActionBuilderBase<MapReduceAction, MapReduceActionBuilder>{
     public static final String NAME = "map-reduce-name";
     public static final String JOB_TRACKER = "${jobTracker}";
     public static final String NAME_NODE = "${nameNode}";
@@ -41,8 +39,15 @@ public class TestMapReduceActionBuilder {
     public static final String[] FILES = {"file1.xml", "file2.xml", "file3.xml", "file4.xml"};
     public static final String[] ARCHIVES = {"archive1.jar", "archive2.jar", "archive3.jar", "archive4.jar"};
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
+    @Override
+    protected MapReduceActionBuilder getBuilderInstance() {
+        return new MapReduceActionBuilder();
+    }
+
+    @Override
+    protected MapReduceActionBuilder getBuilderInstance(MapReduceAction action) {
+        return new MapReduceActionBuilder(action);
+    }
 
     @Test
     public void testJobTrackerAdded() {
@@ -282,7 +287,7 @@ public class TestMapReduceActionBuilder {
     }
 
     @Test
-    public void testFromExistingAction() {
+    public void testFromExistingActionMapReduceSpecific() {
         MapReduceActionBuilder builder = new MapReduceActionBuilder();
 
         builder.withName(NAME)
