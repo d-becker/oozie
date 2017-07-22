@@ -126,30 +126,26 @@ public class MapReduceActionBuilder extends ActionBuilder<MapReduceActionBuilder
 
     // TODO: Extract common parts of the build function to the base class.
     public MapReduceAction build() {
-        final String nameStr = this.name.get();
-        final ImmutableList<Action> parentsList = new ImmutableList.Builder<Action>().addAll(parents).build();
+        final Action.ConstructionData constructionData = getConstructionData();
         final String jobTrackerStr = this.jobTracker.get();
         final String nameNodeStr = this.nameNode.get();
         final Prepare prepareStr = this.prepare.get();
         final ImmutableList<String> jobXmlsList = new ImmutableList.Builder<String>().addAll(this.jobXmls).build();
-        final ImmutableMap<String, String> configurationMap = modifyOnceConfigurationMapToImmutable(this.configuration);
         final String configClassStr = this.configClass.get();
         final ImmutableList<String> filesList = new ImmutableList.Builder<String>().addAll(this.files).build();
         final ImmutableList<String> archivesList = new ImmutableList.Builder<String>().addAll(this.archives).build();
 
-
         MapReduceAction instance = new MapReduceAction(
-                nameStr,
-                parentsList,
+                constructionData,
                 jobTrackerStr,
                 nameNodeStr,
                 prepareStr,
                 jobXmlsList,
-                configurationMap,
                 configClassStr,
                 filesList,
                 archivesList);
 
+        List<Action> parentsList = instance.getParents();
         if (parentsList != null) {
             for (Action parent : parentsList) {
                 parent.addChild(instance);
@@ -157,19 +153,6 @@ public class MapReduceActionBuilder extends ActionBuilder<MapReduceActionBuilder
         }
 
         return instance;
-    }
-
-    private static ImmutableMap<String, String> modifyOnceConfigurationMapToImmutable(Map<String, ModifyOnce<String>> map) {
-        ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
-
-        for (Map.Entry<String, ModifyOnce<String>> entry : map.entrySet()) {
-            String value = entry.getValue().get();
-            if (value != null) {
-                builder.put(entry.getKey(), value);
-            }
-        }
-
-        return builder.build();
     }
 
 }

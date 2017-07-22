@@ -117,20 +117,6 @@ public class TestActionBuilder {
     }
 
     @Test
-    public void testNameAddedMocked() {
-        MapReduceActionBuilder builder = getSpyBuilder();
-        builder.withName(NAME);
-
-        MapReduceAction mrAction = builder.build();
-
-        assertEquals(NAME, mrAction.getName());
-
-        Mockito.verify(builder).withName(NAME);
-        Mockito.verify(builder).build();
-        Mockito.verifyNoMoreInteractions(builder);
-    }
-
-    @Test
     public void testNameAdded() {
         MapReduceActionBuilder builder = new MapReduceActionBuilder();
         builder.withName(NAME);

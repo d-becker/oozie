@@ -34,18 +34,16 @@ public class MapReduceAction extends Action {
     private final ImmutableList<String> files;
     private final ImmutableList<String> archives;
 
-    MapReduceAction(final String name,
-                    final ImmutableList<Action> parents,
+    MapReduceAction(final Action.ConstructionData constructionData,
                     final String jobTracker,
                     final String nameNode,
                     final Prepare prepare,
                     final ImmutableList<String> jobXmls,
-                    final ImmutableMap<String, String> configuration,
                     final String configClass,
                     final ImmutableList<String> files,
                     final ImmutableList<String> archives)
     {
-        super(name, parents, configuration);
+        super(constructionData);
 
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;

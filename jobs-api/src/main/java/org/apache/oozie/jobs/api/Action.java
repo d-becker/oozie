@@ -27,19 +27,31 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Action {
+    public static class ConstructionData {
+        public ConstructionData(final String name,
+                                final ImmutableList<Action> parents,
+                                final ImmutableMap<String, String> configuration) {
+            this.name = name;
+            this.parents = parents;
+            this.configuration = configuration;
+        }
+
+        private final String name;
+        private final ImmutableList<Action> parents;
+        private final ImmutableMap<String, String> configuration;
+    }
+
     private final String name;
     private final ImmutableList<Action> parents;
     private final List<Action> children; // MUTABLE!
     private final ImmutableMap<String, String> configuration;
 
-    Action(final String name,
-           final ImmutableList<Action> parents,
-           final ImmutableMap<String, String> configuration)
+    Action(final ConstructionData data)
     {
-        this.name = name;
-        this.parents = parents;
+        this.name = data.name;
+        this.parents = data.parents;
         this.children = new ArrayList<>();
-        this.configuration = configuration;
+        this.configuration = data.configuration;
     }
 
     public String getName() {

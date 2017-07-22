@@ -18,6 +18,9 @@
 
 package org.apache.oozie.jobs.api;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -78,6 +81,14 @@ public abstract class ActionBuilder<T extends ActionBuilder> {
         return typeCastThis();
     }
 
+    protected Action.ConstructionData getConstructionData() {
+        final String nameStr = this.name.get();
+        final ImmutableList<Action> parentsList = new ImmutableList.Builder<Action>().addAll(parents).build();
+        final ImmutableMap<String, String> configurationMap = modifyOnceConfigurationMapToImmutable(this.configuration);
+
+        return new Action.ConstructionData(nameStr, parentsList, configurationMap);
+    }
+
     private T typeCastThis() {
         T result;
         try {
@@ -89,6 +100,19 @@ public abstract class ActionBuilder<T extends ActionBuilder> {
         }
 
         return result;
+    }
+
+    private static ImmutableMap<String, String> modifyOnceConfigurationMapToImmutable(Map<String, ModifyOnce<String>> map) {
+        ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
+
+        for (Map.Entry<String, ModifyOnce<String>> entry : map.entrySet()) {
+            String value = entry.getValue().get();
+            if (value != null) {
+                builder.put(entry.getKey(), value);
+            }
+        }
+
+        return builder.build();
     }
 
     private static Map<String, ModifyOnce<String>> immutableConfigurationMapToModifyOnce(Map<String, String> map) {
