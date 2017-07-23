@@ -59,6 +59,21 @@ public abstract class TestActionBuilderBase<ACTION_T extends Action, BUILDER_T e
     protected abstract BUILDER_T getBuilderInstance(ACTION_T action);
 
     @Test
+    public final void testIncorrectSubclassingThrows() {
+        class WrongBuilder extends ActionBuilderBase<MapReduceAction, MapReduceActionBuilder> {
+
+            @Override
+            public MapReduceAction build() {
+                return null;
+            }
+        }
+
+        WrongBuilder builder = new WrongBuilder();
+        expectedException.expect(ClassCastException.class);
+        builder.withName("Wrong builder");
+    }
+
+    @Test
     public void testAddParents() {
         ACTION_T parent1 = Mockito.spy(getBuilderInstance().build());
         ACTION_T parent2 = Mockito.spy(getBuilderInstance().build());

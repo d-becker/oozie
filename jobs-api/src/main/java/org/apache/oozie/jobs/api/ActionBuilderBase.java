@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ActionBuilderBase<ACTION_T, BUILDER_T extends Builder<ACTION_T>> implements Builder<ACTION_T> {
-    protected final ModifyOnce<String> name;
-    protected final List<Action> parents;
-    protected final Map<String, ModifyOnce<String>> configuration;
+    private final ModifyOnce<String> name;
+    private final List<Action> parents;
+    private final Map<String, ModifyOnce<String>> configuration;
 
     protected ActionBuilderBase() {
         parents = new ArrayList<>();
@@ -95,6 +95,7 @@ public abstract class ActionBuilderBase<ACTION_T, BUILDER_T extends Builder<ACTI
     private BUILDER_T typeCastThis() {
         BUILDER_T result;
         try {
+            // TODO: This probably doesn't help at all as it never throws because of type erasure.
             result = (BUILDER_T) this;
         } catch (ClassCastException e) {
             throw new ClassCastException("Can't convert " + this.getClass()
