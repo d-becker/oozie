@@ -26,10 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Action {
+public abstract class Action extends Node {
     public static class ConstructionData {
         public ConstructionData(final String name,
-                                final ImmutableList<Action> parents,
+                                final ImmutableList<Node> parents,
                                 final ImmutableMap<String, String> configuration) {
             this.name = name;
             this.parents = parents;
@@ -37,30 +37,19 @@ public abstract class Action {
         }
 
         private final String name;
-        private final ImmutableList<Action> parents;
+        private final ImmutableList<Node> parents;
         private final ImmutableMap<String, String> configuration;
     }
 
-    private final String name;
-    private final ImmutableList<Action> parents;
-    private final List<Action> children; // MUTABLE!
+
     private final ImmutableMap<String, String> configuration;
 
     Action(final ConstructionData data)
     {
-        this.name = data.name;
-        this.parents = data.parents;
-        this.children = new ArrayList<>();
+        super(data.name, data.parents);
         this.configuration = data.configuration;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public List<Action> getParents() {
-        return parents;
-    }
 
     public String getConfigProperty(String property) {
         return configuration.get(property);
@@ -70,15 +59,4 @@ public abstract class Action {
         return configuration;
     }
 
-    void addChild(Action child) {
-        this.children.add(child);
-    }
-
-    /**
-     * Returns an unmodifiable view of list of the children of this <code>Action</code>.
-     * @return An unmodifiable view of list of the children of this <code>Action</code>.
-     */
-    List<Action> getChildren() {
-        return Collections.unmodifiableList(children);
-    }
 }

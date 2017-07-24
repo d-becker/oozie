@@ -34,15 +34,12 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public abstract class TestActionBuilderBaseImpl<ACTION_T extends Action,
-        BUILDER_T extends ActionBuilderBaseImpl<BUILDER_T> & Builder<ACTION_T>> {
-    public static final String NAME = "map-reduce-name";
+            BUILDER_T extends ActionBuilderBaseImpl<BUILDER_T> & Builder<ACTION_T>>
+        extends TestNodeBuilderBaseImpl<ACTION_T, BUILDER_T>{
     public static final String QNAME = "mapred.job.queue.name";
     public static final String DEFAULT = "default";
 
     private static final ImmutableMap<String, String> CONFIG_EXAMPLE = getConfigExample();
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
 
     private static ImmutableMap<String, String> getConfigExample() {
         ImmutableMap.Builder<String, String> configExampleBuilder = new ImmutableMap.Builder<>();
@@ -55,109 +52,6 @@ public abstract class TestActionBuilderBaseImpl<ACTION_T extends Action,
         }
 
         return configExampleBuilder.build();
-    }
-
-    protected abstract BUILDER_T getBuilderInstance();
-    protected abstract BUILDER_T getBuilderInstance(ACTION_T action);
-
-    @Test
-    public final void testIncorrectSubclassingThrows() {
-        class WrongBuilder extends ActionBuilderBaseImpl<MapReduceActionBuilder> implements Builder<MapReduceAction> {
-
-            public WrongBuilder() {
-                super();
-            }
-
-            public MapReduceActionBuilder getThis() {
-                return new MapReduceActionBuilder();
-            }
-
-            @Override
-            public MapReduceAction build() {
-                return null;
-            }
-        }
-
-        expectedException.expect(IllegalStateException.class);
-        WrongBuilder builder = new WrongBuilder();
-    }
-
-    @Test
-    public void testAddParents() {
-        ACTION_T parent1 = Mockito.spy(getBuilderInstance().build());
-        ACTION_T parent2 = Mockito.spy(getBuilderInstance().build());
-
-        BUILDER_T builder = getBuilderInstance();
-        builder.withParent(parent1)
-                .withParent(parent2);
-
-        ACTION_T child = builder.build();
-
-        assertEquals(Arrays.asList(parent1, parent2), child.getParents());
-
-        Mockito.verify(parent1).addChild(child);
-        Mockito.verify(parent2).addChild(child);
-
-        Mockito.verifyNoMoreInteractions(parent1);
-        Mockito.verifyNoMoreInteractions(parent2);
-    }
-
-    @Test
-    public void testWithoutParent() {
-        ACTION_T parent1 = Mockito.spy(getBuilderInstance().build());
-        ACTION_T parent2 = Mockito.spy(getBuilderInstance().build());
-
-        BUILDER_T builder = getBuilderInstance();
-        builder.withParent(parent1)
-                .withParent(parent2);
-
-        builder.withoutParent(parent2);
-
-        ACTION_T child = builder.build();
-
-        assertEquals(Arrays.asList(parent1), child.getParents());
-
-        Mockito.verify(parent1).addChild(child);
-
-        Mockito.verifyNoMoreInteractions(parent1);
-        Mockito.verifyNoMoreInteractions(parent2);
-    }
-
-    @Test
-    public void testClearParents() {
-        ACTION_T parent1 = Mockito.spy(getBuilderInstance().build());
-        ACTION_T parent2 = Mockito.spy(getBuilderInstance().build());
-
-        BUILDER_T builder = getBuilderInstance();
-        builder.withParent(parent1)
-                .withParent(parent2);
-
-        builder.clearParents();
-
-        ACTION_T child = builder.build();
-
-        assertEquals(0, child.getParents().size());
-
-        Mockito.verifyNoMoreInteractions(parent1);
-        Mockito.verifyNoMoreInteractions(parent2);
-    }
-
-    @Test
-    public void testNameAdded() {
-        BUILDER_T builder = getBuilderInstance();
-        builder.withName(NAME);
-
-        ACTION_T action = builder.build();
-        assertEquals(NAME, action.getName());
-    }
-
-    @Test
-    public void testNameAddedTwiceThrows() {
-        BUILDER_T builder = getBuilderInstance();
-        builder.withName(NAME);
-
-        expectedException.expect(IllegalStateException.class);
-        builder.withName("any_name");
     }
 
     @Test

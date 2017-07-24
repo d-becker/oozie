@@ -29,7 +29,7 @@ import java.util.Set;
 
 public class WorkflowBuilder {
     private final ModifyOnce<String> name;
-    private final List<Action> addedActions;
+    private final List<Node> addedActions;
 
     public WorkflowBuilder() {
         name = new ModifyOnce<>();
@@ -41,32 +41,32 @@ public class WorkflowBuilder {
         return this;
     }
 
-    public WorkflowBuilder withDagContainingAction(Action action) {
-        addedActions.add(action);
+    public WorkflowBuilder withDagContainingNode(Node node) {
+        addedActions.add(node);
         return this;
     }
 
     public Workflow build() {
-        final Set<Action> nodes = new HashSet<>();
-        for (Action node : addedActions) {
+        final Set<Node> nodes = new HashSet<>();
+        for (Node node : addedActions) {
             if (!nodes.contains(node)) {
                 nodes.addAll(getNodesInDag(node));
             }
         }
 
-        final ImmutableSet.Builder<Action> builder = new ImmutableSet.Builder<>();
+        final ImmutableSet.Builder<Node> builder = new ImmutableSet.Builder<>();
         builder.addAll(nodes);
 
         return new Workflow(name.get(), builder.build());
     }
 
-    private static Set<Action> getNodesInDag(Action action) {
-        final Set<Action> visited = new HashSet<>();
-        final Queue<Action> queue = new ArrayDeque<>();
-        visited.add(action);
-        queue.add(action);
+    private static Set<Node> getNodesInDag(Node node) {
+        final Set<Node> visited = new HashSet<>();
+        final Queue<Node> queue = new ArrayDeque<>();
+        visited.add(node);
+        queue.add(node);
 
-        Action current;
+        Node current;
         while ((current = queue.poll()) != null) {
             visit(current.getParents(), visited, queue);
             visit(current.getChildren(), visited, queue);
@@ -75,8 +75,8 @@ public class WorkflowBuilder {
         return visited;
     }
 
-    private static void visit(List<Action> toVisit, Set<Action> visited, Queue<Action> queue) {
-        for (Action node : toVisit) {
+    private static void visit(List<Node> toVisit, Set<Node> visited, Queue<Node> queue) {
+        for (Node node : toVisit) {
             if (!visited.contains(node)) {
                 visited.add(node);
                 queue.add(node);

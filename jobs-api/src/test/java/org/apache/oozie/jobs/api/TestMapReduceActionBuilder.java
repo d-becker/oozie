@@ -309,8 +309,4 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
         assertEquals(Arrays.asList(FILES[0], FILES[2]), modifiedMrAction.getFiles());
     }
 
-    private MapReduceActionBuilder getSpyBuilder() {
-        return Mockito.spy(new MapReduceActionBuilder());
-    }
-
 }

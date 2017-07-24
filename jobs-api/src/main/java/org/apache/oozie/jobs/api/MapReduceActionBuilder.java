@@ -143,9 +143,9 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
                 filesList,
                 archivesList);
 
-        List<Action> parentsList = instance.getParents();
+        List<Node> parentsList = instance.getParents();
         if (parentsList != null) {
-            for (Action parent : parentsList) {
+            for (Node parent : parentsList) {
                 parent.addChild(instance);
             }
         }

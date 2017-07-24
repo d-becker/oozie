@@ -18,41 +18,42 @@
 
 package org.apache.oozie.jobs.api;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class Workflow {
+public abstract class Node {
     private final String name;
-    private final ImmutableSet<Node> nodes;
-    private final ImmutableSet<Node> roots;
+    private final ImmutableList<Node> parents;
+    private final List<Node> children; // MUTABLE!
 
-    Workflow(String name, ImmutableSet<Node> nodes) {
+    Node(final String name,
+         final ImmutableList<Node> parents)
+    {
         this.name = name;
-        this.nodes = nodes;
-        this.roots = filterRoots(nodes);
+        this.parents = parents;
+        this.children = new ArrayList<>();
     }
 
     public String getName() {
         return name;
     }
 
-    public ImmutableSet<Node> getNodes() {
-        return nodes;
+    public List<Node> getParents() {
+        return parents;
     }
 
-    public ImmutableSet<Node> getRoots() {
-        return roots;
+    void addChild(Node child) {
+        this.children.add(child);
     }
 
-    private static ImmutableSet<Node> filterRoots(Set<Node> dag) {
-        ImmutableSet.Builder<Node> builder = new ImmutableSet.Builder<>();
-        for (Node node : dag) {
-            if (node.getParents().isEmpty()) {
-                builder.add(node);
-            }
-        }
-
-        return builder.build();
+    /**
+     * Returns an unmodifiable view of list of the children of this <code>Action</code>.
+     * @return An unmodifiable view of list of the children of this <code>Action</code>.
+     */
+    List<Node> getChildren() {
+        return Collections.unmodifiableList(children);
     }
 }

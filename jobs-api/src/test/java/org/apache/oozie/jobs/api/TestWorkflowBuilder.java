@@ -56,8 +56,8 @@ public class TestWorkflowBuilder {
 
         WorkflowBuilder builder = new WorkflowBuilder();
 
-        builder.withDagContainingAction(mrAction1)
-                .withDagContainingAction(mrAction2);
+        builder.withDagContainingNode(mrAction1)
+                .withDagContainingNode(mrAction2);
 
         Workflow workflow = builder.build();
 
@@ -82,7 +82,7 @@ public class TestWorkflowBuilder {
 
         WorkflowBuilder builder = new WorkflowBuilder();
 
-        builder.withDagContainingAction(mrAction3);
+        builder.withDagContainingNode(mrAction3);
 
         Workflow workflow = builder.build();
 

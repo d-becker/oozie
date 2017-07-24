@@ -26,48 +26,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ActionBuilderBaseImpl<BUILDER_T extends ActionBuilderBaseImpl<BUILDER_T>> {
-    private final ModifyOnce<String> name;
-    private final List<Action> parents;
+public abstract class ActionBuilderBaseImpl<BUILDER_T extends ActionBuilderBaseImpl<BUILDER_T>>
+        extends NodeBuilderBaseImpl<BUILDER_T> {
     private final Map<String, ModifyOnce<String>> configuration;
 
-    private final BUILDER_T concreteThis;
-
     protected ActionBuilderBaseImpl() {
-        parents = new ArrayList<>();
-        name = new ModifyOnce<>();
-        configuration = new LinkedHashMap<>();
+        super();
 
-        concreteThis = checkThis();
+        configuration = new LinkedHashMap<>();
     }
 
     public ActionBuilderBaseImpl(final Action action) {
-        parents = new ArrayList<>(action.getParents());
-        name = new ModifyOnce<>(action.getName());
+        super(action);
+
         configuration = immutableConfigurationMapToModifyOnce(action.getConfiguration());
-
-        concreteThis = checkThis();
     }
 
-    public BUILDER_T withParent(Action action) {
-        parents.add(action);
-        return concreteThis;
-    }
 
-    public BUILDER_T withoutParent(Action parent) {
-        parents.remove(parent);
-        return concreteThis;
-    }
-
-    public BUILDER_T clearParents() {
-        parents.clear();
-        return concreteThis;
-    }
-
-    public BUILDER_T withName(String name) {
-        this.name.set(name);
-        return concreteThis;
-    }
 
     /**
      * Setting a key to null means deleting it.
@@ -87,23 +62,14 @@ public abstract class ActionBuilderBaseImpl<BUILDER_T extends ActionBuilderBaseI
         return concreteThis;
     }
 
-    protected abstract BUILDER_T getThis();
+
 
     protected Action.ConstructionData getConstructionData() {
         final String nameStr = this.name.get();
-        final ImmutableList<Action> parentsList = new ImmutableList.Builder<Action>().addAll(parents).build();
+        final ImmutableList<Node> parentsList = new ImmutableList.Builder<Node>().addAll(parents).build();
         final ImmutableMap<String, String> configurationMap = modifyOnceConfigurationMapToImmutable(this.configuration);
 
         return new Action.ConstructionData(nameStr, parentsList, configurationMap);
-    }
-
-    private BUILDER_T checkThis() {
-        BUILDER_T concrete = getThis();
-        if (concrete != this) {
-            throw new IllegalStateException("The concrete builder type BUILDER_T doesn't extend ActionBuilderBaseImpl<BUILDER_T>.");
-        }
-
-        return concrete;
     }
 
     private static ImmutableMap<String, String> modifyOnceConfigurationMapToImmutable(Map<String, ModifyOnce<String>> map) {
