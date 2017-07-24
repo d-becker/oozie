@@ -19,6 +19,7 @@
 package org.apache.oozie.jobs.api;
 
 import com.google.common.collect.ImmutableMap;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,7 +33,8 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public abstract class TestActionBuilderBase<ACTION_T extends Action, BUILDER_T extends ActionBuilderBase<ACTION_T, BUILDER_T>> {
+public abstract class TestActionBuilderBaseImpl<ACTION_T extends Action,
+        BUILDER_T extends ActionBuilderBaseImpl<BUILDER_T> & Builder<ACTION_T>> {
     public static final String NAME = "map-reduce-name";
     public static final String QNAME = "mapred.job.queue.name";
     public static final String DEFAULT = "default";
@@ -60,7 +62,15 @@ public abstract class TestActionBuilderBase<ACTION_T extends Action, BUILDER_T e
 
     @Test
     public final void testIncorrectSubclassingThrows() {
-        class WrongBuilder extends ActionBuilderBase<MapReduceAction, MapReduceActionBuilder> {
+        class WrongBuilder extends ActionBuilderBaseImpl<MapReduceActionBuilder> implements Builder<MapReduceAction> {
+
+            public WrongBuilder() {
+                super();
+            }
+
+            public MapReduceActionBuilder getThis() {
+                return new MapReduceActionBuilder();
+            }
 
             @Override
             public MapReduceAction build() {
@@ -68,9 +78,8 @@ public abstract class TestActionBuilderBase<ACTION_T extends Action, BUILDER_T e
             }
         }
 
+        expectedException.expect(IllegalStateException.class);
         WrongBuilder builder = new WrongBuilder();
-        expectedException.expect(ClassCastException.class);
-        builder.withName("Wrong builder");
     }
 
     @Test

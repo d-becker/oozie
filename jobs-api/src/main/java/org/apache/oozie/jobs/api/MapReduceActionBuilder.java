@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapReduceActionBuilder extends ActionBuilderBase<MapReduceAction, MapReduceActionBuilder> {
+public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActionBuilder> implements Builder<MapReduceAction> {
     private final ModifyOnce<String> jobTracker;
     private final ModifyOnce<String> nameNode;
     private final ModifyOnce<Prepare> prepare;
@@ -122,6 +122,7 @@ public class MapReduceActionBuilder extends ActionBuilderBase<MapReduceAction, M
         return this;
     }
 
+    @Override
     public MapReduceAction build() {
         final Action.ConstructionData constructionData = getConstructionData();
         final String jobTrackerStr = this.jobTracker.get();
@@ -150,6 +151,11 @@ public class MapReduceActionBuilder extends ActionBuilderBase<MapReduceAction, M
         }
 
         return instance;
+    }
+
+    @Override
+    protected MapReduceActionBuilder getThis() {
+        return this;
     }
 
 }

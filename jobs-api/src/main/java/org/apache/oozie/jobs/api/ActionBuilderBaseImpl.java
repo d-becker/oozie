@@ -26,41 +26,47 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ActionBuilderBase<ACTION_T, BUILDER_T extends Builder<ACTION_T>> implements Builder<ACTION_T> {
+public abstract class ActionBuilderBaseImpl<BUILDER_T extends ActionBuilderBaseImpl<BUILDER_T>> {
     private final ModifyOnce<String> name;
     private final List<Action> parents;
     private final Map<String, ModifyOnce<String>> configuration;
 
-    protected ActionBuilderBase() {
+    private final BUILDER_T concreteThis;
+
+    protected ActionBuilderBaseImpl() {
         parents = new ArrayList<>();
         name = new ModifyOnce<>();
         configuration = new LinkedHashMap<>();
+
+        concreteThis = checkThis();
     }
 
-    public ActionBuilderBase(final Action action) {
+    public ActionBuilderBaseImpl(final Action action) {
         parents = new ArrayList<>(action.getParents());
         name = new ModifyOnce<>(action.getName());
         configuration = immutableConfigurationMapToModifyOnce(action.getConfiguration());
+
+        concreteThis = checkThis();
     }
 
     public BUILDER_T withParent(Action action) {
         parents.add(action);
-        return typeCastThis();
+        return concreteThis;
     }
 
     public BUILDER_T withoutParent(Action parent) {
         parents.remove(parent);
-        return typeCastThis();
+        return concreteThis;
     }
 
     public BUILDER_T clearParents() {
         parents.clear();
-        return typeCastThis();
+        return concreteThis;
     }
 
     public BUILDER_T withName(String name) {
         this.name.set(name);
-        return typeCastThis();
+        return concreteThis;
     }
 
     /**
@@ -78,11 +84,10 @@ public abstract class ActionBuilderBase<ACTION_T, BUILDER_T extends Builder<ACTI
         }
 
         mappedValue.set(value);
-        return typeCastThis();
+        return concreteThis;
     }
 
-    @Override
-    public abstract ACTION_T build();
+    protected abstract BUILDER_T getThis();
 
     protected Action.ConstructionData getConstructionData() {
         final String nameStr = this.name.get();
@@ -92,18 +97,13 @@ public abstract class ActionBuilderBase<ACTION_T, BUILDER_T extends Builder<ACTI
         return new Action.ConstructionData(nameStr, parentsList, configurationMap);
     }
 
-    private BUILDER_T typeCastThis() {
-        BUILDER_T result;
-        try {
-            // TODO: This probably doesn't help at all as it never throws because of type erasure.
-            result = (BUILDER_T) this;
-        } catch (ClassCastException e) {
-            throw new ClassCastException("Can't convert " + this.getClass()
-                    + " object to the requested concrete type."
-                    + " Probably the requested concrete type BUILDER_T doesn't extend ActionBuilderBase<ACTION_T, BUILDER_T>.");
+    private BUILDER_T checkThis() {
+        BUILDER_T concrete = getThis();
+        if (concrete != this) {
+            throw new IllegalStateException("The concrete builder type BUILDER_T doesn't extend ActionBuilderBaseImpl<BUILDER_T>.");
         }
 
-        return result;
+        return concrete;
     }
 
     private static ImmutableMap<String, String> modifyOnceConfigurationMapToImmutable(Map<String, ModifyOnce<String>> map) {

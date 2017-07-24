@@ -18,9 +18,7 @@
 
 package org.apache.oozie.jobs.api;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
@@ -28,7 +26,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestMapReduceActionBuilder extends TestActionBuilderBase<MapReduceAction, MapReduceActionBuilder>{
+public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapReduceAction, MapReduceActionBuilder> {
     public static final String NAME = "map-reduce-name";
     public static final String JOB_TRACKER = "${jobTracker}";
     public static final String NAME_NODE = "${nameNode}";
