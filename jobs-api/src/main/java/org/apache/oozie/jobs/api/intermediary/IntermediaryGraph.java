@@ -51,7 +51,6 @@ public class IntermediaryGraph {
             IntermediaryNode transformed = toIntermediaryNodeSingleRoot(root, cache);
 
             this.start.addChild(transformed);
-            transformed.addParent(this.start);
 
             transformedList.add(transformed);
         }
@@ -78,7 +77,6 @@ public class IntermediaryGraph {
 
         if (root.getChildren().isEmpty()) {
             result.addChild(this.end);
-            this.end.addParent(result);
         }
 
         return result;
