@@ -18,15 +18,13 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class EndIntermediaryNode extends IntermediaryNode {
     public EndIntermediaryNode(String name) {
-        this(name, new ArrayList<IntermediaryNode>());
+        super(name);
     }
 
-    public EndIntermediaryNode(String name, List<IntermediaryNode> parents) {
-        super(name, parents, new ArrayList<IntermediaryNode>());
+    @Override
+    protected void addChildRaw(final IntermediaryNode child) {
+        throw new IllegalStateException("Trying to add a child to an end node.");
     }
 }

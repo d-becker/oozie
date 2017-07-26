@@ -42,22 +42,17 @@ public class IntermediaryGraph {
         return end;
     }
 
-    private void toIntermediaryGraphMultipleRoots(List<Node> roots) {
-        Map<Node, IntermediaryNode> cache = new HashMap<>();
-
-        List<IntermediaryNode> transformedList = new ArrayList<>();
+    private void toIntermediaryGraphMultipleRoots(final List<Node> roots) {
+        final Map<Node, IntermediaryNode> cache = new HashMap<>();
 
         for (Node root : roots) {
             IntermediaryNode transformed = toIntermediaryNodeSingleRoot(root, cache);
-
             this.start.addChild(transformed);
-
-            transformedList.add(transformed);
         }
     }
 
-    private RealIntermediaryNode toIntermediaryNodeSingleRoot(Node root, Map<Node, IntermediaryNode> cache) {
-        RealIntermediaryNode result = new RealIntermediaryNode(root.getName(), root);
+    private RealIntermediaryNode toIntermediaryNodeSingleRoot(final Node root, final Map<Node, IntermediaryNode> cache) {
+        final RealIntermediaryNode result = new RealIntermediaryNode(root.getName(), root);
 
         for (Node child : root.getChildren()) {
             IntermediaryNode IChild = null;
@@ -72,7 +67,6 @@ public class IntermediaryGraph {
                 IChild.addParent(result);
             }
 
-            result.addChild(IChild);
         }
 
         if (root.getChildren().isEmpty()) {

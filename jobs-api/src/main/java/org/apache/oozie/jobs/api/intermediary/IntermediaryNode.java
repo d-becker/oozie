@@ -27,22 +27,10 @@ public abstract class IntermediaryNode {
     private final List<IntermediaryNode> parents;
     private final List<IntermediaryNode> children;
 
-    public IntermediaryNode(String name) {
+    public IntermediaryNode(final String name) {
         this.name = name;
         this.parents = new ArrayList<>();
         this.children = new ArrayList<>();
-    }
-
-    public IntermediaryNode(String name, List<IntermediaryNode> parents, List<IntermediaryNode> children) {
-        this(name);
-
-        for (IntermediaryNode parent : parents) {
-            addParent(parent);
-        }
-
-        for (IntermediaryNode child : children) {
-            addChild(child);
-        }
     }
 
     public String getName() {
@@ -57,19 +45,27 @@ public abstract class IntermediaryNode {
         return Collections.unmodifiableList(children);
     }
 
-    public void addParent(IntermediaryNode parent) {
-        this.parents.add(parent);
+    public void addParent(final IntermediaryNode parent) {
+        addParentRaw(parent);
 
         if (parent != null) {
-            parent.children.add(this);
+            parent.addChildRaw(this);
         }
     }
 
-    public void addChild(IntermediaryNode child) {
-        this.children.add(child);
+    public void addChild(final IntermediaryNode child) {
+        addChildRaw(child);
 
         if (child != null) {
-            child.parents.add(this);
+            child.addParentRaw(this);
         }
+    }
+
+    protected void addParentRaw(final IntermediaryNode parent) {
+        this.parents.add(parent);
+    }
+
+    protected void addChildRaw(final IntermediaryNode child) {
+        this.children.add(child);
     }
 }

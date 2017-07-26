@@ -18,15 +18,13 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class StartIntermediaryNode extends IntermediaryNode {
     public StartIntermediaryNode(String name) {
-        this(name, new ArrayList<IntermediaryNode>());
+        super(name);
     }
 
-    public StartIntermediaryNode(String name, List<IntermediaryNode> children) {
-        super(name, new ArrayList<IntermediaryNode>(), children);
+    @Override
+    protected void addParentRaw(final IntermediaryNode parent) {
+        throw new IllegalStateException("Trying to add a parent to a start node.");
     }
 }

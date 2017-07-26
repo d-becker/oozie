@@ -18,19 +18,27 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
-import org.apache.oozie.jobs.api.Node;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import java.util.List;
+public class TestStartIntermediaryNode extends TestIntermediaryNode<StartIntermediaryNode> {
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
 
-public class RealIntermediaryNode extends IntermediaryNode {
-    private final Node realNode;
 
-    public RealIntermediaryNode(String name, Node realNode) {
-        super(name);
-        this.realNode = realNode;
+    @Override
+    protected StartIntermediaryNode getInstance(final String name) {
+        return new StartIntermediaryNode(name);
     }
 
-    public Node getRealNode() {
-        return realNode;
+    @Override
+    @Test
+    public void testAddParent() {
+        final DummyIntermediaryNode parent = new DummyIntermediaryNode("parent");
+        final StartIntermediaryNode start = getInstance("start");
+
+        expectedException.expect(IllegalStateException.class);
+        start.addParent(parent);
     }
 }

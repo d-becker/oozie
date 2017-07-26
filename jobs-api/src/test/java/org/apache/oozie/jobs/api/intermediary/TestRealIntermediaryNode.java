@@ -18,19 +18,23 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
+import org.apache.oozie.jobs.api.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.Node;
+import org.junit.Test;
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
 
-public class RealIntermediaryNode extends IntermediaryNode {
-    private final Node realNode;
-
-    public RealIntermediaryNode(String name, Node realNode) {
-        super(name);
-        this.realNode = realNode;
+public class TestRealIntermediaryNode extends TestIntermediaryNode<RealIntermediaryNode> {
+    @Override
+    protected RealIntermediaryNode getInstance(final String name) {
+        return new RealIntermediaryNode(name, null);
     }
 
-    public Node getRealNode() {
-        return realNode;
+    @Test
+    public void testRealNode() {
+        final Node node = new MapReduceActionBuilder().build();
+        final RealIntermediaryNode instance = new RealIntermediaryNode(NAME, node);
+
+        assertEquals(node, instance.getRealNode());
     }
 }

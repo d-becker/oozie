@@ -18,19 +18,9 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
-import org.apache.oozie.jobs.api.Node;
-
-import java.util.List;
-
-public class RealIntermediaryNode extends IntermediaryNode {
-    private final Node realNode;
-
-    public RealIntermediaryNode(String name, Node realNode) {
-        super(name);
-        this.realNode = realNode;
-    }
-
-    public Node getRealNode() {
-        return realNode;
+public class TestDummyIntermediaryNode extends TestIntermediaryNode<DummyIntermediaryNode> {
+    @Override
+    protected DummyIntermediaryNode getInstance(final String name) {
+        return new DummyIntermediaryNode(name);
     }
 }

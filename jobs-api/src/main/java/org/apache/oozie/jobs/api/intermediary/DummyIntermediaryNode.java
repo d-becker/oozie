@@ -21,7 +21,8 @@ package org.apache.oozie.jobs.api.intermediary;
 import java.util.List;
 
 public class DummyIntermediaryNode  extends IntermediaryNode {
-    public DummyIntermediaryNode(String name, List<IntermediaryNode> parents, List<IntermediaryNode> children) {
-        super(name, parents, children);
+    public DummyIntermediaryNode(final String name) {
+        super(name);
     }
+
 }
