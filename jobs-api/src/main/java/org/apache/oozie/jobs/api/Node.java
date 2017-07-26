@@ -53,7 +53,7 @@ public abstract class Node {
      * Returns an unmodifiable view of list of the children of this <code>Action</code>.
      * @return An unmodifiable view of list of the children of this <code>Action</code>.
      */
-    List<Node> getChildren() {
+    public List<Node> getChildren() {
         return Collections.unmodifiableList(children);
     }
 }
