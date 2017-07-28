@@ -23,6 +23,7 @@ import org.junit.Test;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public abstract class TestIntermediaryNode<T extends IntermediaryNode> {
     public static final String NAME = "node name";
@@ -55,5 +56,36 @@ public abstract class TestIntermediaryNode<T extends IntermediaryNode> {
 
         assertEquals(Arrays.asList(parent), child.getParents());
         assertEquals(Arrays.asList(child), parent.getChildren());
+    }
+
+    @Test
+    public void testRemoveParent() {
+        final IntermediaryNode parent1 = new DummyIntermediaryNode("parent1");
+        final IntermediaryNode parent2 = new DummyIntermediaryNode("parent2");
+        final T child = getInstance("child");
+
+        child.addParent(parent1);
+        child.addParent(parent2);
+        assertEquals(Arrays.asList(parent1, parent2), child.getParents());
+
+        child.removeParent(parent1);
+        assertEquals(Arrays.asList(parent2), child.getParents());
+        assertFalse(parent1.getChildren().contains(child));
+    }
+
+    @Test
+    public void testRemoveChild() {
+        final T parent = getInstance("parent");
+        final IntermediaryNode child1 = new DummyIntermediaryNode("child1");
+        final IntermediaryNode child2 = new DummyIntermediaryNode("child2");
+
+        parent.addChild(child1);
+        parent.addChild(child2);
+
+        assertEquals(Arrays.asList(child1, child2), parent.getChildren());
+
+        parent.removeChild(child1);
+        assertEquals(Arrays.asList(child2), parent.getChildren());
+        assertFalse(child1.getParents().contains(parent));
     }
 }

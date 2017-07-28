@@ -21,10 +21,14 @@ package org.apache.oozie.jobs.api.intermediary;
 import org.apache.oozie.jobs.api.Node;
 import org.apache.oozie.jobs.api.Workflow;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 public class IntermediaryGraph {
     private final StartIntermediaryNode start = new StartIntermediaryNode("start");
@@ -41,6 +45,57 @@ public class IntermediaryGraph {
     public EndIntermediaryNode getEnd() {
         return end;
     }
+
+    public void convertToForkJoinFriendly() {
+        new IntermediaryGraphConverter()
+    }
+
+    private IntermediaryNode getClosestMatchingFork(IntermediaryNode join,
+                                                    Map<IntermediaryNode, List<IntermediaryNode>> upstreamForks) {
+        List<IntermediaryNode> parents = join.getParents();
+
+        int maxUpstreamForksLength = getMaxUpstreamForksLength(parents, upstreamForks);
+
+        IntermediaryNode result = null;
+        Set<IntermediaryNode> parentsToResult = new HashSet<>();
+
+        for (int i = 0; i < maxUpstreamForksLength; ++i) {
+            for (IntermediaryNode parent : parents) {
+                if (i < upstreamForks.get(parent).size()) {
+                    IntermediaryNode fork = upstreamForks.get(parent).get(i);
+
+                    for (IntermediaryNode otherParent : parents) {
+                        if (parent != otherParent && upstreamForks.get(otherParent).contains(fork)) {
+                            if (result == null) {
+                                result = fork;
+                                parentsToResult.add(parent);
+                                parentsToResult.add(otherParent);
+                            } else if (result == fork) {
+                                parentsToResult.add(otherParent);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private int getMaxUpstreamForksLength(List<IntermediaryNode> nodes,
+                                          Map<IntermediaryNode, List<IntermediaryNode>> upstreamForks) {
+        int max = 0;
+        for (IntermediaryNode node : nodes) {
+            List<IntermediaryNode> forksList = upstreamForks.get(node);
+            if (forksList != null && forksList.size() > max) {
+                max = forksList.size();
+            }
+        }
+
+        return max;
+    }
+
+
 
     private void toIntermediaryGraphMultipleRoots(final List<Node> roots) {
         final Map<Node, IntermediaryNode> cache = new HashMap<>();
@@ -59,7 +114,8 @@ public class IntermediaryGraph {
             if (child != null) {
                 if (cache.containsKey(child)) {
                     IChild = cache.get(child);
-                } else {
+                }
+                else {
                     IChild = toIntermediaryNodeSingleRoot(child, cache);
                     cache.put(child, IChild);
                 }

@@ -53,6 +53,14 @@ public abstract class IntermediaryNode {
         }
     }
 
+    public boolean removeParent(final IntermediaryNode parent) {
+        if (parent != null) {
+            parent.removeChildRaw(this);
+        }
+
+        return removeParentRaw(parent);
+    }
+
     public void addChild(final IntermediaryNode child) {
         addChildRaw(child);
 
@@ -61,11 +69,27 @@ public abstract class IntermediaryNode {
         }
     }
 
+    public boolean removeChild(final IntermediaryNode child) {
+        if (child != null) {
+            child.removeParentRaw(this);
+        }
+
+        return removeChildRaw(child);
+    }
+
     protected void addParentRaw(final IntermediaryNode parent) {
         this.parents.add(parent);
     }
 
+    protected boolean removeParentRaw(final IntermediaryNode parent) {
+        return this.parents.remove(parent);
+    }
+
     protected void addChildRaw(final IntermediaryNode child) {
         this.children.add(child);
+    }
+
+    protected boolean removeChildRaw(final IntermediaryNode child) {
+        return this.children.remove(child);
     }
 }

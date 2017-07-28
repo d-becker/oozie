@@ -40,4 +40,10 @@ public class TestEndIntermediaryNode extends TestIntermediaryNode<EndIntermediar
         expectedException.expect(IllegalStateException.class);
         end.addChild(child);
     }
+
+    @Test
+    @Override
+    public void testRemoveChild() {
+        // We cannot remove a child because there are no children.
+    }
 }

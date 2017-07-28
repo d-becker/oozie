@@ -32,13 +32,19 @@ public class TestStartIntermediaryNode extends TestIntermediaryNode<StartInterme
         return new StartIntermediaryNode(name);
     }
 
-    @Override
     @Test
+    @Override
     public void testAddParent() {
         final DummyIntermediaryNode parent = new DummyIntermediaryNode("parent");
         final StartIntermediaryNode start = getInstance("start");
 
         expectedException.expect(IllegalStateException.class);
         start.addParent(parent);
+    }
+
+    @Test
+    @Override
+    public void testRemoveParent() {
+        // We cannot remove a parent because there are no parents.
     }
 }

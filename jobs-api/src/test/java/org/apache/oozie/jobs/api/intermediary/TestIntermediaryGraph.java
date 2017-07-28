@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -50,38 +51,25 @@ public class TestIntermediaryGraph {
         assertEquals(1, start.getChildren().size());
 
         IntermediaryNode IA = start.getChildren().get(0);
-        assertEquals("A", IA.getName());
-        assertEquals(Arrays.asList(start), IA.getParents());
-        assertEquals(2, IA.getChildren().size());
+        checkNode(IA, "A", Arrays.asList(start), 2);
 
         IntermediaryNode IB = IA.getChildren().get(0);
-        assertEquals("B", IB.getName());
-        assertEquals(Arrays.asList(IA), IB.getParents());
-        assertEquals(1, IB.getChildren().size());
+        checkNode(IB, "B", Arrays.asList(IA), 1);
 
         IntermediaryNode IC = IA.getChildren().get(1);
-        assertEquals("C", IC.getName());
-        assertEquals(Arrays.asList(IA), IC.getParents());
-        assertEquals(2, IC.getChildren().size());
+        checkNode(IC, "C", Arrays.asList(IA), 2);
 
         IntermediaryNode ID = IB.getChildren().get(0);
-        assertEquals("D", ID.getName());
-        assertEquals(Arrays.asList(IB, IC), ID.getParents());
-        assertEquals(1, ID.getChildren().size());
+        checkNode(ID, "D", Arrays.asList(IB, IC), 1);
 
         IntermediaryNode IE = IC.getChildren().get(1);
-        assertEquals("E", IE.getName());
-        assertEquals(Arrays.asList(IC), IE.getParents());
-        assertEquals(1, IE.getChildren().size());
+        checkNode(IE, "E", Arrays.asList(IC), 1);
 
         IntermediaryNode IF = ID.getChildren().get(0);
-        assertEquals("F", IF.getName());
-        assertEquals(Arrays.asList(ID, IE), IF.getParents());
-        assertEquals(1, IF.getChildren().size());
+        checkNode(IF, "F", Arrays.asList(ID, IE), 1);
 
         IntermediaryNode end = graph.getEnd();
         assertEquals("end", end.getName());
-        assertEquals(Arrays.asList(IF), end.getParents());
     }
 
     @Test
@@ -110,13 +98,9 @@ public class TestIntermediaryGraph {
         IntermediaryNode IG = start.getChildren().get(0).getName().equals("G") ?
                 start.getChildren().get(0) : start.getChildren().get(1);;
 
-        assertEquals("A", IA.getName());
-        assertEquals(Arrays.asList(start), IA.getParents());
-        assertEquals(2, IA.getChildren().size());
+        checkNode(IA, "A", Arrays.asList(start), 2);
 
-        assertEquals("G", IG.getName());
-        assertEquals(Arrays.asList(start), IG.getParents());
-        assertEquals(1, IG.getChildren().size());
+        checkNode(IG, "G", Arrays.asList(start), 1);
 
         IntermediaryNode IB = IA.getChildren().get(0);
         assertEquals("B", IB.getName());
@@ -124,27 +108,108 @@ public class TestIntermediaryGraph {
         assertEquals(1, IB.getChildren().size());
 
         IntermediaryNode IC = IA.getChildren().get(1);
-        assertEquals("C", IC.getName());
-        assertEquals(Arrays.asList(IA), IC.getParents());
-        assertEquals(2, IC.getChildren().size());
+        checkNode(IC, "C", Arrays.asList(IA), 2);
 
         IntermediaryNode ID = IB.getChildren().get(0);
-        assertEquals("D", ID.getName());
-        assertEquals(Arrays.asList(IB, IC), ID.getParents());
-        assertEquals(1, ID.getChildren().size());
+        checkNode(ID, "D", Arrays.asList(IB, IC), 1);
 
         IntermediaryNode IE = IC.getChildren().get(1);
-        assertEquals("E", IE.getName());
-        assertEquals(Arrays.asList(IC), IE.getParents());
-        assertEquals(1, IE.getChildren().size());
+        checkNode(IE, "E", Arrays.asList(IC), 1);
 
         IntermediaryNode IF = ID.getChildren().get(0);
-        assertEquals("F", IF.getName());
-        assertEquals(Arrays.asList(ID, IE), IF.getParents());
-        assertEquals(1, IF.getChildren().size());
+        checkNode(IF, "F", Arrays.asList(ID, IE), 1);
+
+        IntermediaryNode end = graph.getEnd();
+        checkNode(end, "end", Arrays.asList(IF), 0);
+    }
+
+    @Test
+    public void testConvertToForkAndJoinFriendlyWhenItIsAlreadyThat() {
+        Node a = new MapReduceActionBuilder().withName("A").build();
+
+        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+
+        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+
+        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
+        IntermediaryGraph graph = new IntermediaryGraph(w);
+
+        graph.convertToForkJoinFriendly();
+
+        IntermediaryNode start = graph.getStart();
+
+        assertEquals(1, start.getChildren().size());
+
+        IntermediaryNode IA = start.getChildren().get(0);
+        checkNode(IA, "A", Arrays.asList(start), 2);
+
+        IntermediaryNode IB = IA.getChildren().get(0);
+        checkNode(IB, "B", Arrays.asList(IA), 1);
+
+        IntermediaryNode IC = IA.getChildren().get(1);
+        checkNode(IC, "C", Arrays.asList(IA), 1);
+
+        IntermediaryNode ID = IB.getChildren().get(0);
+        checkNode(ID, "D", Arrays.asList(IB, IC), 1);
+        assertEquals(Arrays.asList(graph.getEnd()), ID.getChildren());
+    }
+
+    @Test
+    public void testConvertToForkAndJoinFriendlyWhenItIsNotAlreadyThat() {
+        Node a = new MapReduceActionBuilder().withName("A").build();
+
+        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+
+        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+
+        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
+
+        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
+        IntermediaryGraph graph = new IntermediaryGraph(w);
+
+        IntermediaryNode start = graph.getStart();
+
+        assertEquals(1, start.getChildren().size());
+
+        IntermediaryNode IA = start.getChildren().get(0);
+        checkNode(IA, "A", Arrays.asList(start), 2);
+
+        IntermediaryNode IB = IA.getChildren().get(0);
+        checkNode(IB, "B", Arrays.asList(IA), 1);
+
+        IntermediaryNode IC = IA.getChildren().get(1);
+        checkNode(IC, "C", Arrays.asList(IA), 1);
+
+        IntermediaryNode dummyNode = IB.getChildren().get(0);
+        checkNode(dummyNode, null, Arrays.asList(IB, IC), 2);
+
+        IntermediaryNode ID = dummyNode.getChildren().get(0);
+        checkNode(ID, "D", Arrays.asList(dummyNode), 1);
+
+        IntermediaryNode IE = dummyNode.getChildren().get(1);
+        checkNode(IE, "E", Arrays.asList(dummyNode), 1);
+
+        IntermediaryNode IF = ID.getChildren().get(0);
+        checkNode(IF, "F", Arrays.asList(ID, IE), 1);
 
         IntermediaryNode end = graph.getEnd();
         assertEquals("end", end.getName());
-        assertEquals(Arrays.asList(IF), end.getParents());
+    }
+
+    private void checkNode(final IntermediaryNode node, final String name,
+                           final List<IntermediaryNode> parents, final int numberOfChildren) {
+        if (name != null) {
+            assertEquals(name, node.getName());
+        }
+        if (parents != null) {
+            assertEquals(parents, node.getParents());
+        }
+
+        if (numberOfChildren >= 0) {
+            assertEquals(numberOfChildren, node.getChildren().size());
+        }
     }
 }
