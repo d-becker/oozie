@@ -19,12 +19,41 @@
 package org.apache.oozie.jobs.api.intermediary;
 
 public class StartIntermediaryNode extends IntermediaryNode {
-    public StartIntermediaryNode(String name) {
+    private IntermediaryNode child;
+
+    public StartIntermediaryNode(final String name) {
         super(name);
     }
 
+    public IntermediaryNode getChild() {
+        return child;
+    }
+
     @Override
-    protected void addParentRaw(final IntermediaryNode parent) {
-        throw new IllegalStateException("Trying to add a parent to a start node.");
+    public void addParent(final IntermediaryNode parent) {
+        throw new IllegalStateException("Start nodes cannot have parents.");
+    }
+
+    @Override
+    public void removeParent(IntermediaryNode parent) {
+        throw new IllegalStateException("Start nodes cannot have parents.");
+    }
+
+    @Override
+    protected void addChild(final IntermediaryNode child) {
+        if (this.child != null) {
+            throw new IllegalStateException("Start nodes cannot have multiple children.");
+        }
+
+        this.child =  child;
+    }
+
+    @Override
+    protected void removeChild(final IntermediaryNode child) {
+        if (this.child == child) {
+            this.child = null;
+        } else {
+            throw new IllegalArgumentException("Trying to remove a nonexistent child.");
+        }
     }
 }

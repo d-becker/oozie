@@ -18,47 +18,61 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
-public class EndIntermediaryNode extends IntermediaryNode {
-    private IntermediaryNode parent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-    public EndIntermediaryNode(final String name) {
+public class JoinIntermediaryNode extends IntermediaryNode {
+    private final List<IntermediaryNode> parents;
+    private IntermediaryNode child;
+
+    public JoinIntermediaryNode(final String name) {
         super(name);
+        parents = new ArrayList<>();
     }
 
-    public IntermediaryNode getParent() {
-        return parent;
+    public List<IntermediaryNode> getParents() {
+        return Collections.unmodifiableList(parents);
     }
 
     @Override
     public void addParent(final IntermediaryNode parent) {
-        if (this.parent != null) {
-            throw new IllegalStateException("End nodes cannot have multiple parents.");
+        if (parent != null) {
+            parent.addChild(this);
         }
 
-        this.parent = parent;
-        this.parent.addChild(this);
+        parents.add(parent);
     }
 
     @Override
     public void removeParent(final IntermediaryNode parent) {
-        if (this.parent != parent) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
-        } else {
-            if (this.parent != null) {
-                this.parent.removeChild(this);
-            }
-
-            this.parent = null;
+        if (!parents.remove(parent)) {
+            throw new IllegalArgumentException("Trying to remove a nonexistent parent");
         }
+
+        parent.removeChild(this);
+
+    }
+
+    public IntermediaryNode getChild() {
+        return child;
     }
 
     @Override
     protected void addChild(final IntermediaryNode child) {
-        throw new IllegalStateException("End nodes cannot have children.");
+        if (this.child != null) {
+            throw new IllegalStateException("Join nodes cannot have multiple children.");
+        }
+
+        this.child = child;
     }
 
     @Override
     protected void removeChild(final IntermediaryNode child) {
-        throw new IllegalStateException("End nodes cannot have children.");
+        if (this.child == child) {
+            this.child = null;
+        } else {
+            throw new IllegalArgumentException("Trying to remove a nonexistent child.");
+        }
     }
 }

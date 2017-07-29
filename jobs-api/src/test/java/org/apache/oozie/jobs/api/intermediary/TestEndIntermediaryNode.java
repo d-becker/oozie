@@ -22,6 +22,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.junit.Assert.assertEquals;
+
 public class TestEndIntermediaryNode extends TestIntermediaryNode<EndIntermediaryNode> {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
@@ -32,18 +34,54 @@ public class TestEndIntermediaryNode extends TestIntermediaryNode<EndIntermediar
     }
 
     @Test
-    @Override
-    public void testAddChild() {
-        final DummyIntermediaryNode child = new DummyIntermediaryNode("child");
-        final EndIntermediaryNode end = getInstance("end");
+    public void testAddParentWhenNoneAlreadyExists() {
+        final StartIntermediaryNode parent = new StartIntermediaryNode("parent");
+        final EndIntermediaryNode instance = getInstance("instance");
 
-        expectedException.expect(IllegalStateException.class);
-        end.addChild(child);
+        instance.addParent(parent);
+        assertEquals(parent, instance.getParent());
+        assertEquals(instance, parent.getChild());
     }
 
     @Test
-    @Override
-    public void testRemoveChild() {
-        // We cannot remove a child because there are no children.
+    public void testAddParentWhenItAlreadyExists() {
+        final StartIntermediaryNode parent1 = new StartIntermediaryNode("parent1");
+        final StartIntermediaryNode parent2 = new StartIntermediaryNode("parent2");
+        final EndIntermediaryNode instance = getInstance("instance");
+
+        instance.addParent(parent1);
+
+        expectedException.expect(IllegalStateException.class);
+        instance.addParent(parent2);
+    }
+
+    @Test
+    public void testRemoveExistingParent() {
+        final StartIntermediaryNode parent = new StartIntermediaryNode("parent");
+        final EndIntermediaryNode instance = getInstance("instance");
+
+        instance.addParent(parent);
+
+        instance.removeParent(parent);
+        assertEquals(null, instance.getParent());
+        assertEquals(null, parent.getChild());
+    }
+
+    @Test
+    public void testRemoveNonexistentParentThrows() {
+        final StartIntermediaryNode parent = new StartIntermediaryNode("parent");
+        final EndIntermediaryNode instance = getInstance("instance");
+
+        expectedException.expect(IllegalArgumentException.class);
+        instance.removeParent(parent);
+    }
+
+    @Test
+    public void testAddedAsParentThrows () {
+        final EndIntermediaryNode instance = getInstance("instance");
+        final NormalIntermediaryNode child = new NormalIntermediaryNode("child", null);
+
+        expectedException.expect(IllegalStateException.class);
+        child.addParent(instance);
     }
 }

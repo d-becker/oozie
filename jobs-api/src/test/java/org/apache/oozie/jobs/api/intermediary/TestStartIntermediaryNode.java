@@ -22,6 +22,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.junit.Assert.assertEquals;
+
 public class TestStartIntermediaryNode extends TestIntermediaryNode<StartIntermediaryNode> {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
@@ -33,9 +35,8 @@ public class TestStartIntermediaryNode extends TestIntermediaryNode<StartInterme
     }
 
     @Test
-    @Override
     public void testAddParent() {
-        final DummyIntermediaryNode parent = new DummyIntermediaryNode("parent");
+        final NormalIntermediaryNode parent = new NormalIntermediaryNode("parent", null);
         final StartIntermediaryNode start = getInstance("start");
 
         expectedException.expect(IllegalStateException.class);
@@ -43,8 +44,43 @@ public class TestStartIntermediaryNode extends TestIntermediaryNode<StartInterme
     }
 
     @Test
-    @Override
     public void testRemoveParent() {
-        // We cannot remove a parent because there are no parents.
+        final StartIntermediaryNode start = getInstance("start");
+
+        expectedException.expect(IllegalStateException.class);
+        start.removeParent(null);
+    }
+
+    @Test
+    public void testStartAddedAsParentWhenItHasNoChild() {
+        final StartIntermediaryNode start = getInstance("start");
+        final IntermediaryNode child = new NormalIntermediaryNode("child", null);
+
+        child.addParent(start);
+
+        assertEquals(child, start.getChild());
+    }
+
+    @Test
+    public void testStartAddedAsParentWhenItAlreadyHasAChildThrows() {
+        final StartIntermediaryNode start = getInstance("start");
+        final IntermediaryNode child1 = new NormalIntermediaryNode("child1", null);
+        final IntermediaryNode child2 = new NormalIntermediaryNode("child2", null);
+
+        child1.addParent(start);
+
+        expectedException.expect(IllegalStateException.class);
+        child2.addParent(start);
+    }
+
+    @Test
+    public void testStartRemovedAsParent() {
+        final StartIntermediaryNode instance = getInstance("instance");
+        final IntermediaryNode child = new NormalIntermediaryNode("child", null);
+
+        child.addParent(instance);
+        child.removeParent(instance);
+
+        assertEquals(null, instance.getChild());
     }
 }

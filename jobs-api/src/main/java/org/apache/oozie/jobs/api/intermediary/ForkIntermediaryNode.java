@@ -18,11 +18,17 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
-public class EndIntermediaryNode extends IntermediaryNode {
-    private IntermediaryNode parent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-    public EndIntermediaryNode(final String name) {
+public class ForkIntermediaryNode extends IntermediaryNode {
+    private IntermediaryNode parent;
+    private final List<IntermediaryNode> children;
+
+    public ForkIntermediaryNode(final String name) {
         super(name);
+        children = new ArrayList<>();
     }
 
     public IntermediaryNode getParent() {
@@ -32,7 +38,7 @@ public class EndIntermediaryNode extends IntermediaryNode {
     @Override
     public void addParent(final IntermediaryNode parent) {
         if (this.parent != null) {
-            throw new IllegalStateException("End nodes cannot have multiple parents.");
+            throw new IllegalStateException("Fork nodes cannot have multiple parents.");
         }
 
         this.parent = parent;
@@ -52,13 +58,19 @@ public class EndIntermediaryNode extends IntermediaryNode {
         }
     }
 
+    public List<IntermediaryNode> getChildren() {
+        return Collections.unmodifiableList(children);
+    }
+
     @Override
     protected void addChild(final IntermediaryNode child) {
-        throw new IllegalStateException("End nodes cannot have children.");
+        children.add(child);
     }
 
     @Override
     protected void removeChild(final IntermediaryNode child) {
-        throw new IllegalStateException("End nodes cannot have children.");
+        if (!this.children.remove(child)) {
+            throw new IllegalArgumentException("Trying to remove a nonexistent child.");
+        }
     }
 }
