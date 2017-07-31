@@ -81,11 +81,22 @@ public class IntermediaryGraph {
             }
         }
 
+        List<IntermediaryNode> finalNodes = new ArrayList<>();
         for (IntermediaryNode node : nodesByName.values()) {
             if (node.getChildren().isEmpty() && node != end) {
-                // TODO: add join if necessary.
-                end.addParent(node);
+                finalNodes.add(node);
             }
+        }
+
+        if (finalNodes.size() == 1) {
+            end.addParent(finalNodes.get(0));
+        } else {
+            JoinIntermediaryNode finalJoin = getNewJoinNode();
+            for (IntermediaryNode finalNode : finalNodes) {
+                finalJoin.addParent(finalNode);
+            }
+
+            end.addParent(finalJoin);
         }
 
     }
@@ -95,21 +106,7 @@ public class IntermediaryGraph {
         Node parent = originalNode.getParents().isEmpty() ? null : originalNode.getParents().get(0);
         IntermediaryNode mappedParent = parent == null ? start : mappings.get(parent);
 
-        IntermediaryNode newParent = reachableThrough(mappedParent);
-        if (newParent == null) {
-            List<IntermediaryNode> children = mappedParent.getChildren();
-
-            newParent = getNewForkNode();
-
-            for (IntermediaryNode child : children) {
-                child.removeParent(mappedParent);
-                child.addParent(newParent);
-            }
-
-            newParent.addParent(mappedParent);
-        }
-
-        convertedNode.addParent(newParent);
+        addParentWithForkIfNeeded(convertedNode, mappedParent);
     }
 
     private void handleJoinNode(final Node originalNode, final Map<Node, IntermediaryNode> mappings) {
@@ -120,6 +117,7 @@ public class IntermediaryGraph {
             siblings.addAll(mappedParent.getChildren());
         }
 
+        // TODO: Reuse join if possible, take care of correct fork / join pairs.
         JoinIntermediaryNode join = getNewJoinNode();
         for (Node originalParent : originalNode.getParents()) {
             IntermediaryNode mappedParent = mappings.get(originalParent);
@@ -142,6 +140,31 @@ public class IntermediaryGraph {
         }
     }
 
+    private void addParentWithForkIfNeeded(IntermediaryNode node, IntermediaryNode parent) {
+        if (parent.getChildren().isEmpty() || parent instanceof ForkIntermediaryNode) {
+            node.addParent(parent);
+        } else {
+            // If there is no child, we never get to this point.
+            // There is only one child, otherwise it is a fork and we don't get here.
+            IntermediaryNode child = parent.getChildren().get(0);
+
+            if (child instanceof ForkIntermediaryNode) {
+                node.addParent(child);
+            }
+            else if (child instanceof JoinIntermediaryNode) {
+                // TODO: Probably we don't really need recursion here.
+                addParentWithForkIfNeeded(node, child);
+            }
+            else {
+                final ForkIntermediaryNode newFork = getNewForkNode();
+                child.removeParent(parent);
+                child.addParent(newFork);
+                node.addParent(newFork);
+                newFork.addParent(parent);
+            }
+        }
+    }
+
     public String toDot() {
         StringBuilder builder = new StringBuilder();
         builder.append("digraph {\n");
@@ -158,76 +181,6 @@ public class IntermediaryGraph {
         return builder.toString();
     }
 
-    private IntermediaryNode reachableThrough(IntermediaryNode node) {
-        if (isDirectlyReachable(node)) {
-            return node;
-        }
-        else {
-            return reachableThroughJoinAndFork(node);
-        }
-    }
-
-    private ForkIntermediaryNode reachableThroughJoinAndFork(IntermediaryNode node) {
-        if (node instanceof EndIntermediaryNode) {
-            return null;
-        }
-        else if (node instanceof ForkIntermediaryNode) {
-            return (ForkIntermediaryNode) node;
-        }
-        else if (node instanceof JoinIntermediaryNode) {
-            JoinIntermediaryNode join = (JoinIntermediaryNode) node;
-            IntermediaryNode child = join.getChild();
-            if (child instanceof ForkIntermediaryNode) {
-                return (ForkIntermediaryNode) child;
-            }
-        }
-        else if (node instanceof NormalIntermediaryNode) {
-            NormalIntermediaryNode normal = (NormalIntermediaryNode) node;
-            IntermediaryNode child = normal.getChild();
-
-            if (child instanceof ForkIntermediaryNode) {
-                return (ForkIntermediaryNode) child;
-            }
-            else if (child instanceof JoinIntermediaryNode) {
-                IntermediaryNode grandchild = ((JoinIntermediaryNode) child).getChild();
-
-                if (grandchild instanceof ForkIntermediaryNode) {
-                    return (ForkIntermediaryNode) grandchild;
-                }
-                else {
-                    ForkIntermediaryNode fork = getNewForkNode();
-                    grandchild.removeParent(child);
-                    fork.addParent(child);
-                    grandchild.addParent(fork);
-                    return fork;
-                }
-            }
-        }
-        else if (node instanceof StartIntermediaryNode) {
-            StartIntermediaryNode start = (StartIntermediaryNode) node;
-            IntermediaryNode child = start.getChild();
-
-            if (child instanceof ForkIntermediaryNode) {
-                return (ForkIntermediaryNode) child;
-            }
-            else if (child instanceof JoinIntermediaryNode) {
-                IntermediaryNode grandchild = ((JoinIntermediaryNode) child).getChild();
-
-                if (grandchild instanceof ForkIntermediaryNode) {
-                    return (ForkIntermediaryNode) grandchild;
-                }
-                else {
-                    return null;
-                }
-            }
-        }
-        else {
-            return null;
-        }
-
-        return null;
-    }
-
     private ForkIntermediaryNode getNewForkNode() {
         ForkIntermediaryNode fork = new ForkIntermediaryNode("fork" + forkCounter++);
         nodesByName.put(fork.getName(), fork);
@@ -240,31 +193,6 @@ public class IntermediaryGraph {
         nodesByName.put(join.getName(), join);
 
         return join;
-    }
-
-    private static boolean isDirectlyReachable(IntermediaryNode node) {
-        if (node instanceof EndIntermediaryNode) {
-            return true;
-        }
-        else if (node instanceof ForkIntermediaryNode) {
-            ForkIntermediaryNode fork = (ForkIntermediaryNode) node;
-            return fork.getChildren().isEmpty();
-        }
-        else if (node instanceof JoinIntermediaryNode) {
-            JoinIntermediaryNode join = (JoinIntermediaryNode) node;
-            return join.getChild() == null;
-        }
-        else if (node instanceof NormalIntermediaryNode) {
-            NormalIntermediaryNode normal = (NormalIntermediaryNode) node;
-            return normal.getChild() == null;
-        }
-        else if (node instanceof StartIntermediaryNode) {
-            StartIntermediaryNode start = (StartIntermediaryNode) node;
-            return start.getChild() == null;
-        }
-        else {
-            return false;
-        }
     }
 
     private static List<Node> getNodesInTopologicalOrder(final Workflow workflow) {
