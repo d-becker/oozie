@@ -51,7 +51,6 @@ public class JoinIntermediaryNode extends IntermediaryNode {
         }
 
         parent.removeChild(this);
-
     }
 
     public IntermediaryNode getChild() {

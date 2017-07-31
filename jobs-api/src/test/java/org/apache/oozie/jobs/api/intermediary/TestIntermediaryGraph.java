@@ -32,23 +32,23 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class TestIntermediaryGraph {
-//    @Test
-//    public void testWorkflowToIntermediaryGraphWithSingleRoot() {
-//        Node a = new MapReduceActionBuilder().withName("A").build();
-//
-//        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-//        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
-//
-//        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
-//        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
-//
-//        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
-//
-//        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
-//        IntermediaryGraph graph = new IntermediaryGraph(w);
-//
-//        IntermediaryNode start = graph.getStart();
-//
+    @Test
+    public void testWorkflowToIntermediaryGraphWithSingleRoot() {
+        Node a = new MapReduceActionBuilder().withName("A").build();
+
+        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+
+        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+
+        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).withParent(a).build();
+
+        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
+        IntermediaryGraph graph = new IntermediaryGraph(w);
+
+        IntermediaryNode start = graph.getStart();
+
 //        assertEquals(1, start.getChildren().size());
 //
 //        IntermediaryNode IA = start.getChildren().get(0);
@@ -71,7 +71,7 @@ public class TestIntermediaryGraph {
 //
 //        IntermediaryNode end = graph.getEnd();
 //        assertEquals("end", end.getName());
-//    }
+    }
 //
 //    @Test
 //    public void testWorkflowToIntermediaryGraphWithMultipleRoots() {

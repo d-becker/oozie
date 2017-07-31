@@ -21,16 +21,18 @@ package org.apache.oozie.jobs.api.intermediary;
 import org.apache.oozie.jobs.api.Node;
 import org.apache.oozie.jobs.api.Workflow;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class IntermediaryGraph {
     private final StartIntermediaryNode start = new StartIntermediaryNode("start");
     private final EndIntermediaryNode end = new EndIntermediaryNode("end");
 
-    public IntermediaryGraph(final Workflow w) {
-        toIntermediaryGraphMultipleRoots(w.getRoots().asList());
+    public IntermediaryGraph(final Workflow workflow) {
+        List<Node> nodes = getNodesInTopologicalOrder(workflow);
     }
 
     public StartIntermediaryNode getStart() {
@@ -41,38 +43,74 @@ public class IntermediaryGraph {
         return end;
     }
 
-    private void toIntermediaryGraphMultipleRoots(final List<Node> roots) {
-        final Map<Node, IntermediaryNode> cache = new HashMap<>();
-
-        for (Node root : roots) {
-            IntermediaryNode transformed = toIntermediaryNodeSingleRoot(root, cache);
-            this.start.addChild(transformed);
-        }
+    private static StartIntermediaryNode convert(List<Node> nodes) {
+        return null;
     }
 
-    private NormalIntermediaryNode toIntermediaryNodeSingleRoot(final Node root, final Map<Node, IntermediaryNode> cache) {
-        final NormalIntermediaryNode result = new NormalIntermediaryNode(root.getName(), root);
+    private static List<Node> getNodesInTopologicalOrder(final Workflow workflow) {
+        final SetAndList<Node> nodes = new SetAndList<>(workflow.getRoots());
 
-        for (Node child : root.getChildren()) {
-            IntermediaryNode IChild = null;
-            if (child != null) {
-                if (cache.containsKey(child)) {
-                    IChild = cache.get(child);
-                }
-                else {
-                    IChild = toIntermediaryNodeSingleRoot(child, cache);
-                    cache.put(child, IChild);
-                }
+        for (int i = 0; i < nodes.size(); ++i) {
+            final Node current  = nodes.get(i);
 
-                IChild.addParent(result);
+            for (Node child : current.getChildren()) {
+                // Checking if every dependency has been processed, if not, we do not add the node to the list.
+                List<Node> dependencies = child.getParents();
+                if (nodes.containsAll(dependencies) && !nodes.contains(child)) {
+                    nodes.add(child);
+                }
             }
-
         }
 
-        if (root.getChildren().isEmpty()) {
-            result.addChild(this.end);
-        }
-
-        return result;
+        return nodes.consumeAndReturnList();
     }
+
+    // We need a sequential container but we want to check efficiently if it contains an element.
+    private static class SetAndList<T> {
+        private List<T> list;
+        private Set<T> set;
+
+        public SetAndList() {
+            list = new ArrayList<>();
+            set = new HashSet<>();
+        }
+
+        public SetAndList(final Collection<T> collection) {
+            list = new ArrayList<>(collection);
+            set = new HashSet<>(collection);
+        }
+
+        public int size() {
+            return list.size();
+        }
+
+        public T get(final int i) {
+            return list.get(i);
+        }
+
+        public boolean contains(final T element) {
+            return set.contains(element);
+        }
+
+        public boolean containsAll(final Collection<T> elements) {
+            return set.containsAll(elements);
+        }
+
+        public void add(final T element) {
+            if (!set.contains(element)) {
+                list.add(element);
+                set.add(element);
+            }
+        }
+
+        public List<T> consumeAndReturnList() {
+            List<T> result = list;
+
+            list = null;
+            set = null;
+
+            return result;
+        }
+    }
+
 }
