@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 
 public class TestNormalIntermediaryNode extends TestIntermediaryNode<NormalIntermediaryNode> {
@@ -118,5 +120,15 @@ public class TestNormalIntermediaryNode extends TestIntermediaryNode<NormalInter
         child.removeParent(instance);
 
         assertEquals(null, instance.getChild());
+    }
+
+    @Test
+    public void testGetChildren() {
+        final NormalIntermediaryNode instance = getInstance("start");
+        final IntermediaryNode child = getInstance("child");
+
+        child.addParent(instance);
+
+        assertEquals(Arrays.asList(child), instance.getChildren());
     }
 }

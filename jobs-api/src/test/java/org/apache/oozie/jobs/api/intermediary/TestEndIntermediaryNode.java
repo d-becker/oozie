@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestEndIntermediaryNode extends TestIntermediaryNode<EndIntermediaryNode> {
     @Rule
@@ -83,5 +84,12 @@ public class TestEndIntermediaryNode extends TestIntermediaryNode<EndIntermediar
 
         expectedException.expect(IllegalStateException.class);
         child.addParent(instance);
+    }
+
+    @Test
+    public void testGetChildren() {
+        EndIntermediaryNode instance = getInstance("end");
+
+        assertTrue(instance.getChildren().isEmpty());
     }
 }

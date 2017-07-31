@@ -115,4 +115,14 @@ public class TestJoinIntermediaryNode extends TestIntermediaryNode<JoinIntermedi
 
         assertEquals(null, instance.getChild());
     }
+
+    @Test
+    public void testGetChildren() {
+        final JoinIntermediaryNode instance = getInstance("instance");
+        final IntermediaryNode child = new NormalIntermediaryNode("child", null);
+
+        child.addParent(instance);
+
+        assertEquals(Arrays.asList(child), instance.getChildren());
+    }
 }

@@ -18,6 +18,10 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class EndIntermediaryNode extends IntermediaryNode {
     private IntermediaryNode parent;
 
@@ -50,6 +54,11 @@ public class EndIntermediaryNode extends IntermediaryNode {
 
             this.parent = null;
         }
+    }
+
+    @Override
+    public List<IntermediaryNode> getChildren() {
+        return Arrays.asList();
     }
 
     @Override

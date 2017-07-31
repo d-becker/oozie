@@ -18,6 +18,8 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
+import java.util.List;
+
 public abstract class IntermediaryNode {
     private final String name;
 
@@ -31,6 +33,8 @@ public abstract class IntermediaryNode {
 
     public abstract void addParent(final IntermediaryNode parent);
     public abstract void removeParent(final IntermediaryNode parent);
+
+    public abstract List<IntermediaryNode> getChildren();
 
     protected abstract void addChild(final IntermediaryNode child);
     protected abstract void removeChild(final IntermediaryNode child);

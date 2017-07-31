@@ -19,6 +19,7 @@
 package org.apache.oozie.jobs.api.intermediary;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,6 +52,15 @@ public class JoinIntermediaryNode extends IntermediaryNode {
         }
 
         parent.removeChild(this);
+    }
+
+    @Override
+    public List<IntermediaryNode> getChildren() {
+        if (child == null) {
+            return Arrays.asList();
+        } else {
+            return Arrays.asList(child);
+        }
     }
 
     public IntermediaryNode getChild() {

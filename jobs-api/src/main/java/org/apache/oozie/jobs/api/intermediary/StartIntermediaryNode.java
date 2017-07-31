@@ -18,6 +18,9 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class StartIntermediaryNode extends IntermediaryNode {
     private IntermediaryNode child;
 
@@ -37,6 +40,15 @@ public class StartIntermediaryNode extends IntermediaryNode {
     @Override
     public void removeParent(IntermediaryNode parent) {
         throw new IllegalStateException("Start nodes cannot have parents.");
+    }
+
+    @Override
+    public List<IntermediaryNode> getChildren() {
+        if (child == null) {
+            return Arrays.asList();
+        } else {
+            return Arrays.asList(child);
+        }
     }
 
     @Override

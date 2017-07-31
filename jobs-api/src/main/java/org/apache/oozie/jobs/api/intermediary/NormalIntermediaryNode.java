@@ -20,6 +20,7 @@ package org.apache.oozie.jobs.api.intermediary;
 
 import org.apache.oozie.jobs.api.Node;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class NormalIntermediaryNode extends IntermediaryNode {
@@ -64,6 +65,15 @@ public class NormalIntermediaryNode extends IntermediaryNode {
             }
 
             this.parent = null;
+        }
+    }
+
+    @Override
+    public List<IntermediaryNode> getChildren() {
+        if (child == null) {
+            return Arrays.asList();
+        } else {
+            return Arrays.asList(child);
         }
     }
 

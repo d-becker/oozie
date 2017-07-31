@@ -58,6 +58,7 @@ public class ForkIntermediaryNode extends IntermediaryNode {
         }
     }
 
+    @Override
     public List<IntermediaryNode> getChildren() {
         return Collections.unmodifiableList(children);
     }
