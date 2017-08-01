@@ -22,17 +22,14 @@ import org.apache.oozie.jobs.api.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.Node;
 import org.apache.oozie.jobs.api.Workflow;
 import org.apache.oozie.jobs.api.WorkflowBuilder;
-import org.apache.oozie.jobs.api.generated.FORK;
+import org.codehaus.groovy.runtime.powerassert.SourceText;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -117,6 +114,8 @@ public class TestIntermediaryGraph {
         List<IntermediaryNode> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
 
         checkEqualStructureByNames(nodes, graph);
+
+        System.out.println(graph.toDot());
     }
 
     @Test
@@ -157,18 +156,10 @@ public class TestIntermediaryGraph {
         B.addParent(fork1);
         fork1.addParent(start);
 
-        System.out.println("Expected list:");
-        for (IntermediaryNode child : fork1.getChildren()) {
-            System.out.println(child.getName());
-        }
-
-        System.out.println("\nActual list:");
-        for (IntermediaryNode child : graph.getNodeByName("fork1").getChildren()) {
-            System.out.println(child.getName());
-        }
-
         List<IntermediaryNode> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D);
-        checkEqualStructureByNames(nodes, graph); // TODO: Flaky, probably because of the order of the children.
+        checkEqualStructureByNames(nodes, graph);
+
+        System.out.println(graph.toDot());
     }
 
     @Test
@@ -218,7 +209,7 @@ public class TestIntermediaryGraph {
 
         List<IntermediaryNode> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
 
-        System.out.println(IntermediaryGraph.toDot(nodes));
+        System.out.println(graph.toDot());
 
         checkEqualStructureByNames(nodes, graph);
     }
@@ -510,7 +501,7 @@ public class TestIntermediaryGraph {
             }
 
             List<String> actualChildrenNames = new ArrayList<>();
-            for (IntermediaryNode child : expectedChildren) {
+            for (IntermediaryNode child : actualChildren) {
                 actualChildrenNames.add(child.getName());
             }
 

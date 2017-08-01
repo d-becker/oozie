@@ -159,7 +159,6 @@ public class IntermediaryGraph {
                 newParents.add(parentsAndDirectionsInPartition.get(0).getStart());
             }
             else {
-                // Check if we have to divide the fork.
                 final List<IntermediaryNode> parentsInPartition = new ArrayList<>();
                 final List<IntermediaryNode> directionsInPartition = new ArrayList<>();
                 for (PathInformation parentAndDirection : parentsAndDirectionsInPartition) {
@@ -169,6 +168,7 @@ public class IntermediaryGraph {
 
                 JoinIntermediaryNode newJoin = null;
 
+                // Check if we have to divide the fork.
                 if (directionsInPartition.size() < correspondingFork.getChildren().size()) {
                     // Dividing the fork.
                     newJoin = divideForkAndCloseSubFork(correspondingFork, parentsInPartition, directionsInPartition);
@@ -225,7 +225,7 @@ public class IntermediaryGraph {
         Map<ForkIntermediaryNode, List<PathInformation>> partitions = new LinkedHashMap<>();
 
         for (IntermediaryNode parent : parents) {
-            PathInformation pathInfo = getNearestOpenUpstreamForkAndDirection(parent);
+            PathInformation pathInfo = pathInfoToNearestOpenUpstreamFork(parent);
             ForkIntermediaryNode nearestFork = pathInfo.getFork();
             IntermediaryNode directionFromFork = pathInfo.getDirectChildOfFork();
 
@@ -242,7 +242,7 @@ public class IntermediaryGraph {
         return partitions;
     }
 
-    private PathInformation getNearestOpenUpstreamForkAndDirection(final IntermediaryNode node) {
+    private PathInformation pathInfoToNearestOpenUpstreamFork(final IntermediaryNode node) {
         IntermediaryNode previous = null;
         IntermediaryNode current = node;
 
