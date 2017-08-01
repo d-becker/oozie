@@ -120,55 +120,6 @@ public class TestIntermediaryGraph {
     }
 
     @Test
-    public void testWorkflowNewDependenciesNeededMoreComplicated() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
-
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
-
-        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build(); // TODO: Is changing order important?
-        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
-
-        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
-
-        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
-        IntermediaryGraph graph = new IntermediaryGraph(w);
-
-        checkDependencies(w.getNodes(), graph);
-
-        IntermediaryNode A = new NormalIntermediaryNode("A", null);
-        IntermediaryNode B = new NormalIntermediaryNode("B", null);
-        IntermediaryNode C = new NormalIntermediaryNode("C", null);
-        IntermediaryNode D = new NormalIntermediaryNode("D", null);
-        IntermediaryNode E = new NormalIntermediaryNode("E", null);
-        IntermediaryNode F = new NormalIntermediaryNode("F", null);
-
-        StartIntermediaryNode start = new StartIntermediaryNode("start");
-        EndIntermediaryNode end = new EndIntermediaryNode("end");
-        ForkIntermediaryNode fork1 = new ForkIntermediaryNode("fork1");
-        ForkIntermediaryNode fork2 = new ForkIntermediaryNode("fork2");
-        JoinIntermediaryNode join1 = new JoinIntermediaryNode("join1", fork1);
-        JoinIntermediaryNode join2 = new JoinIntermediaryNode("join2", fork2);
-
-        end.addParent(F);
-        F.addParent(join2);
-        join2.addParent(D);
-        join2.addParent(E);
-        D.addParent(fork2);
-        E.addParent(fork2);
-        fork2.addParent(join1);
-        join1.addParent(B);
-        join1.addParent(C);
-        B.addParent(fork1);
-        C.addParent(fork1);
-        fork1.addParent(A);
-        A.addParent(start);
-
-        List<IntermediaryNode> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
-        checkEqualStructureByNames(nodes, graph);
-    }
-
-    @Test
     public void testCrossingDependencyLines() {
         Node a = new MapReduceActionBuilder().withName("A").build();
 
@@ -319,12 +270,30 @@ public class TestIntermediaryGraph {
 
         List<IntermediaryNode> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
 
-        System.out.println(IntermediaryGraph.toDot(nodes));
+        System.out.println(graph.toDot());
 
         checkEqualStructureByNames(nodes, graph);
     }
 
+    @Test
+    public void testStaleUncles() {
+        Node a = new MapReduceActionBuilder().withName("A").build();
 
+        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+
+        Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
+        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+
+        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
+        Node g = new MapReduceActionBuilder().withName("G").withParent(c).build();
+        Node h = new MapReduceActionBuilder().withName("H").withParent(f).withParent(g).build();
+
+        Workflow workflow = new WorkflowBuilder().withDagContainingNode(a).build();
+        IntermediaryGraph graph = new IntermediaryGraph(workflow);
+
+        checkDependencies(workflow.getNodes(), graph);
+    }
 
     @Test
     public void testWorkflowToIntermediaryGraphRedundantEdge() {
