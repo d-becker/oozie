@@ -78,6 +78,28 @@ public class TestEndIntermediaryNode extends TestIntermediaryNode<EndIntermediar
     }
 
     @Test
+    public void testClearExistingParent() {
+        final StartIntermediaryNode parent = new StartIntermediaryNode("parent");
+        final EndIntermediaryNode instance = getInstance("instance");
+
+        instance.addParent(parent);
+
+        instance.clearParents();
+        assertEquals(null, instance.getParent());
+        assertEquals(null, parent.getChild());
+    }
+
+    @Test
+    public void testClearNonExistentParent() {
+        final StartIntermediaryNode parent = new StartIntermediaryNode("parent");
+        final EndIntermediaryNode instance = getInstance("instance");
+
+        instance.clearParents();
+        assertEquals(null, instance.getParent());
+        assertEquals(null, parent.getChild());
+    }
+
+    @Test
     public void testAddedAsParentThrows () {
         final EndIntermediaryNode instance = getInstance("instance");
         final NormalIntermediaryNode child = new NormalIntermediaryNode("child", null);

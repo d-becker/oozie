@@ -57,6 +57,11 @@ public class EndIntermediaryNode extends IntermediaryNode {
     }
 
     @Override
+    public void clearParents() {
+        removeParent(parent);
+    }
+
+    @Override
     public List<IntermediaryNode> getChildren() {
         return Arrays.asList();
     }

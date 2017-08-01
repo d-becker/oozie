@@ -33,6 +33,7 @@ public abstract class IntermediaryNode {
 
     public abstract void addParent(final IntermediaryNode parent);
     public abstract void removeParent(final IntermediaryNode parent);
+    public abstract void clearParents();
 
     public abstract List<IntermediaryNode> getChildren();
 

@@ -32,7 +32,15 @@ public class TestJoinIntermediaryNode extends TestIntermediaryNode<JoinIntermedi
 
     @Override
     protected JoinIntermediaryNode getInstance(final String name) {
-        return new JoinIntermediaryNode(name);
+        return new JoinIntermediaryNode(name, null);
+    }
+
+    @Test
+    public void testCorrespondingForkIsCorrect() {
+        ForkIntermediaryNode fork = new ForkIntermediaryNode("fork");
+        JoinIntermediaryNode join = new JoinIntermediaryNode("join", fork);
+
+        assertEquals(fork, join.getCorrespondingFork());
     }
 
     @Test
@@ -80,6 +88,30 @@ public class TestJoinIntermediaryNode extends TestIntermediaryNode<JoinIntermedi
 
         expectedException.expect(IllegalArgumentException.class);
         instance.removeParent(parent);
+    }
+
+    @Test
+    public void testClearExistingParent() {
+        final NormalIntermediaryNode parent1 = new NormalIntermediaryNode("parent1", null);
+        final NormalIntermediaryNode parent2 = new NormalIntermediaryNode("parent2", null);
+
+        final JoinIntermediaryNode instance = getInstance("instance");
+
+        instance.addParent(parent1);
+        instance.addParent(parent2);
+
+        instance.clearParents();
+        assertEquals(0, instance.getParents().size());
+        assertEquals(null, parent1.getChild());
+        assertEquals(null, parent2.getChild());
+    }
+
+    @Test
+    public void testClearNonExistentParent() {
+        final JoinIntermediaryNode instance = getInstance("instance");
+
+        instance.clearParents();
+        assertEquals(0, instance.getParents().size());
     }
 
     @Test

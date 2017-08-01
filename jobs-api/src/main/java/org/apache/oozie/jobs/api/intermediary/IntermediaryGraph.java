@@ -18,6 +18,8 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.oozie.jobs.api.Node;
 import org.apache.oozie.jobs.api.Workflow;
 
@@ -25,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,7 +81,13 @@ public class IntermediaryGraph {
 
             // We are a join.
             else {
-                handleJoinNode(originalNode, mappings);
+                final List<IntermediaryNode> mappedParents = new ArrayList<>();
+
+                for (Node originalParent : originalNode.getParents()) {
+                    mappedParents.add(mappings.get(originalParent));
+                }
+
+                handleJoinNodeWithParents(convertedNode, mappedParents);
             }
         }
 
@@ -91,7 +101,7 @@ public class IntermediaryGraph {
         if (finalNodes.size() == 1) {
             end.addParent(finalNodes.get(0));
         } else {
-            JoinIntermediaryNode finalJoin = getNewJoinNode();
+            JoinIntermediaryNode finalJoin = getNewJoinNode(null);
             for (IntermediaryNode finalNode : finalNodes) {
                 finalJoin.addParent(finalNode);
             }
@@ -109,35 +119,176 @@ public class IntermediaryGraph {
         addParentWithForkIfNeeded(convertedNode, mappedParent);
     }
 
-    private void handleJoinNode(final Node originalNode, final Map<Node, IntermediaryNode> mappings) {
-        IntermediaryNode convertedNode = mappings.get(originalNode);
-        Set<IntermediaryNode> siblings = new HashSet<>();
-        for (Node originalParent : originalNode.getParents()) {
-            IntermediaryNode mappedParent = mappings.get(originalParent);
-            siblings.addAll(mappedParent.getChildren());
+    private void handleJoinNodeWithParents(final IntermediaryNode node, final List<IntermediaryNode> parents) {
+        Set<JoinIntermediaryNode> joinSiblings = new LinkedHashSet<>();
+        for (IntermediaryNode parent : parents) {
+            for (IntermediaryNode sibling : parent.getChildren()) {
+                if (sibling instanceof JoinIntermediaryNode) {
+                    joinSiblings.add((JoinIntermediaryNode) sibling);
+                }
+            }
         }
 
-        // TODO: Reuse join if possible, take care of correct fork / join pairs.
-        JoinIntermediaryNode join = getNewJoinNode();
-        for (Node originalParent : originalNode.getParents()) {
-            IntermediaryNode mappedParent = mappings.get(originalParent);
-            join.addParent(mappedParent);
-        }
-
-        if (siblings.isEmpty()) {
-            convertedNode.addParent(join);
+        if (joinSiblings.isEmpty()) {
+            if (parents.size() == 1) {
+                addParentWithForkIfNeeded(node, parents.get(0));
+            }
+            else {
+                insertJoin(node, parents);
+            }
         }
         else {
-            ForkIntermediaryNode fork = getNewForkNode();
-            fork.addParent(join);
+            final List<IntermediaryNode> parentsToRemove = new ArrayList<>();
 
-            for (IntermediaryNode sibling : siblings) {
-                // sibling.removeParent();
-                sibling.addParent(fork);
+            for (JoinIntermediaryNode join : joinSiblings) {
+                parentsToRemove.addAll(join.getParents());
             }
 
-            convertedNode.addParent(fork);
+            final List<IntermediaryNode> newParents = new ArrayList<>();
+            newParents.addAll(joinSiblings);
+
+            for (IntermediaryNode parent : parents) {
+                if (!parentsToRemove.contains(parent)) {
+                    newParents.add(parent);
+                }
+            }
+
+            handleJoinNodeWithParents(node, newParents);
         }
+
+    }
+
+    private void insertJoin(IntermediaryNode node, List<IntermediaryNode> parents) {
+        final Map<ForkIntermediaryNode, List<NodeAndDirectionFromFork>> partitions
+                = partitionParentsByNearestUpstreamFork(parents);
+        final List<IntermediaryNode> newParents = new ArrayList<>();
+
+        for (Map.Entry<ForkIntermediaryNode, List<NodeAndDirectionFromFork>> entry : partitions.entrySet()) {
+            final ForkIntermediaryNode correspondingFork = entry.getKey();
+            final List<NodeAndDirectionFromFork> parentsAndDirectionsInPartition = entry.getValue();
+
+            if (parentsAndDirectionsInPartition.size() == 1) {
+                newParents.add(parentsAndDirectionsInPartition.get(0).getNode());
+            }
+            else {
+                // Check if we have to divide the fork.
+                final List<IntermediaryNode> parentsInPartition = new ArrayList<>();
+                final List<IntermediaryNode> directionsInPartition = new ArrayList<>();
+                for (NodeAndDirectionFromFork parentAndDirection : parentsAndDirectionsInPartition) {
+                    parentsInPartition.add(parentAndDirection.getNode());
+                    directionsInPartition.add(parentAndDirection.getDirectionFromFork());
+                }
+
+                JoinIntermediaryNode newJoin = null;
+
+                if (directionsInPartition.size() < correspondingFork.getChildren().size()) {
+                    // Dividing the fork.
+                    ForkIntermediaryNode newFork = getNewForkNode();
+                    for (IntermediaryNode childOfOriginalFork : directionsInPartition) {
+                        childOfOriginalFork.clearParents();
+                        newFork.addParent(childOfOriginalFork);
+                    }
+
+                    newFork.addParent(correspondingFork);
+
+                    newJoin = getNewJoinNode(newFork);
+
+                    for (IntermediaryNode parentInPartition : parentsInPartition) {
+                        newJoin.addParent(parentInPartition);
+
+                    }
+
+                    newParents.add(newJoin);
+                }
+                else {
+                    // We don't divide the fork.
+                    newJoin = getNewJoinNode(correspondingFork);
+
+                    for (IntermediaryNode parentInPartition : parentsInPartition) {
+                        newJoin.addParent(parentInPartition);
+                    }
+
+                    newParents.add(newJoin);
+                }
+
+                for (IntermediaryNode parent : parentsInPartition) {
+                    // TODO: It is possible that we process a child multiple times, because it may have multiple parents.
+                    for (IntermediaryNode childOfParent : parent.getChildren()) {
+                        if (childOfParent != newJoin) {
+                            childOfParent.clearParents();
+                            addParentWithForkIfNeeded(childOfParent, newJoin);
+                        }
+                    }
+
+                }
+            }
+        }
+
+        handleJoinNodeWithParents(node, newParents);
+    }
+
+    private Map<ForkIntermediaryNode, List<NodeAndDirectionFromFork>>
+    partitionParentsByNearestUpstreamFork(List<IntermediaryNode> parents) {
+        Map<ForkIntermediaryNode, List<NodeAndDirectionFromFork>> partitions = new LinkedHashMap<>();
+
+        for (IntermediaryNode parent : parents) {
+            Pair<ForkIntermediaryNode, IntermediaryNode> nearestForkAndDirection = getNearestOpenUpstreamForkAndDirection(parent);
+            ForkIntermediaryNode nearestFork = nearestForkAndDirection.getLeft();
+            IntermediaryNode directionFromFork = nearestForkAndDirection.getRight();
+
+            List<NodeAndDirectionFromFork> partition = partitions.get(nearestFork);
+
+            if (partition == null) {
+                partition = new ArrayList<>();
+                partitions.put(nearestFork, partition);
+            }
+
+            partition.add(new NodeAndDirectionFromFork(parent, directionFromFork));
+        }
+
+        return partitions;
+    }
+
+    private Pair<ForkIntermediaryNode, IntermediaryNode> getNearestOpenUpstreamForkAndDirection(final IntermediaryNode node) {
+        IntermediaryNode previous = null;
+        IntermediaryNode current = node;
+
+        while (!(current instanceof ForkIntermediaryNode) || current == node) {
+            if (node instanceof JoinIntermediaryNode) {
+                // Get the fork corresponding to this join and go towards that.
+                ForkIntermediaryNode correspondingFork = ((JoinIntermediaryNode) node).getCorrespondingFork();
+                previous = current;
+                current = getSingleParent(correspondingFork);
+            } else {
+                previous = current;
+                current = getSingleParent(current);
+            }
+
+        }
+
+        return new ImmutablePair<>((ForkIntermediaryNode) current, previous);
+    }
+
+    private IntermediaryNode getSingleParent(final IntermediaryNode node) {
+        if (node instanceof EndIntermediaryNode) {
+            return ((EndIntermediaryNode) node).getParent();
+        } else if (node instanceof ForkIntermediaryNode) {
+            return ((ForkIntermediaryNode) node).getParent();
+        } else if (node instanceof NormalIntermediaryNode) {
+            return ((NormalIntermediaryNode) node).getParent();
+        } else if (node instanceof StartIntermediaryNode) {
+            throw new IllegalStateException("The node has no parent.");
+        } else if (node instanceof JoinIntermediaryNode) {
+            JoinIntermediaryNode join = (JoinIntermediaryNode) node;
+            int numberOfParents = join.getParents().size();
+            if (numberOfParents != 1) {
+                throw new IllegalStateException("The node has " + numberOfParents + " parents instead of 1.");
+            }
+
+            return join.getParents().get(0);
+        }
+
+        throw new IllegalArgumentException("Unknown node type.");
     }
 
     private void addParentWithForkIfNeeded(IntermediaryNode node, IntermediaryNode parent) {
@@ -166,9 +317,13 @@ public class IntermediaryGraph {
     }
 
     public String toDot() {
+        return toDot(nodesByName.values());
+    }
+
+    public static String toDot(Collection<IntermediaryNode> nodes) {
         StringBuilder builder = new StringBuilder();
         builder.append("digraph {\n");
-        for (IntermediaryNode node : nodesByName.values()) {
+        for (IntermediaryNode node : nodes) {
             List<IntermediaryNode> children = node.getChildren();
 
             for (IntermediaryNode child : children) {
@@ -188,8 +343,8 @@ public class IntermediaryGraph {
         return fork;
     }
 
-    private JoinIntermediaryNode getNewJoinNode() {
-        JoinIntermediaryNode join = new JoinIntermediaryNode("join" + joinCounter++);
+    private JoinIntermediaryNode getNewJoinNode(ForkIntermediaryNode correspondingFork) {
+        JoinIntermediaryNode join = new JoinIntermediaryNode("join" + joinCounter++, correspondingFork);
         nodesByName.put(join.getName(), join);
 
         return join;
@@ -258,6 +413,24 @@ public class IntermediaryGraph {
             set = null;
 
             return result;
+        }
+    }
+
+    private class NodeAndDirectionFromFork {
+        private final IntermediaryNode node;
+        private final IntermediaryNode directionFromFork;
+
+        public NodeAndDirectionFromFork(IntermediaryNode node, IntermediaryNode directionFromFork) {
+            this.node = node;
+            this.directionFromFork = directionFromFork;
+        }
+
+        public IntermediaryNode getNode() {
+            return node;
+        }
+
+        public IntermediaryNode getDirectionFromFork() {
+            return directionFromFork;
         }
     }
 

@@ -90,6 +90,28 @@ public class TestNormalIntermediaryNode extends TestIntermediaryNode<NormalInter
     }
 
     @Test
+    public void testClearExistingParent() {
+        final StartIntermediaryNode parent = new StartIntermediaryNode("parent");
+        final NormalIntermediaryNode instance = getInstance("instance");
+
+        instance.addParent(parent);
+
+        instance.clearParents();
+        assertEquals(null, instance.getParent());
+        assertEquals(null, parent.getChild());
+    }
+
+    @Test
+    public void testClearNonExistentParent() {
+        final StartIntermediaryNode parent = new StartIntermediaryNode("parent");
+        final NormalIntermediaryNode instance = getInstance("instance");
+
+        instance.clearParents();
+        assertEquals(null, instance.getParent());
+        assertEquals(null, parent.getChild());
+    }
+
+    @Test
     public void testNormalAddedAsParentWhenItHasNoChild() {
         final NormalIntermediaryNode instance = getInstance("start");
         final IntermediaryNode child = getInstance("child");

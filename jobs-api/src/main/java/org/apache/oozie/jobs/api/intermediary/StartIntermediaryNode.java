@@ -43,6 +43,11 @@ public class StartIntermediaryNode extends IntermediaryNode {
     }
 
     @Override
+    public void clearParents() {
+
+    }
+
+    @Override
     public List<IntermediaryNode> getChildren() {
         if (child == null) {
             return Arrays.asList();

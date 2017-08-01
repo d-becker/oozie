@@ -27,8 +27,11 @@ public class JoinIntermediaryNode extends IntermediaryNode {
     private final List<IntermediaryNode> parents;
     private IntermediaryNode child;
 
-    public JoinIntermediaryNode(final String name) {
+    private final ForkIntermediaryNode fork;
+
+    public JoinIntermediaryNode(final String name, final ForkIntermediaryNode fork) {
         super(name);
+        this.fork = fork;
         parents = new ArrayList<>();
     }
 
@@ -55,6 +58,14 @@ public class JoinIntermediaryNode extends IntermediaryNode {
     }
 
     @Override
+    public void clearParents() {
+        List<IntermediaryNode> oldParents = new ArrayList<>(parents);
+        for (IntermediaryNode parent : oldParents) {
+            removeParent(parent);
+        }
+    }
+
+    @Override
     public List<IntermediaryNode> getChildren() {
         if (child == null) {
             return Arrays.asList();
@@ -65,6 +76,10 @@ public class JoinIntermediaryNode extends IntermediaryNode {
 
     public IntermediaryNode getChild() {
         return child;
+    }
+
+    public ForkIntermediaryNode getCorrespondingFork() {
+        return fork;
     }
 
     @Override

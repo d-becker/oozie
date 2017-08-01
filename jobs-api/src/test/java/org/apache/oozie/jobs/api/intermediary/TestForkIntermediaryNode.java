@@ -80,6 +80,28 @@ public class TestForkIntermediaryNode extends TestIntermediaryNode<ForkIntermedi
     }
 
     @Test
+    public void testClearExistingParent() {
+        final StartIntermediaryNode parent = new StartIntermediaryNode("parent");
+        final ForkIntermediaryNode instance = getInstance("instance");
+
+        instance.addParent(parent);
+
+        instance.clearParents();
+        assertEquals(null, instance.getParent());
+        assertEquals(null, parent.getChild());
+    }
+
+    @Test
+    public void testClearNonExistentParent() {
+        final StartIntermediaryNode parent = new StartIntermediaryNode("parent");
+        final ForkIntermediaryNode instance = getInstance("instance");
+
+        instance.clearParents();
+        assertEquals(null, instance.getParent());
+        assertEquals(null, parent.getChild());
+    }
+
+    @Test
     public void testForkAddedAsParentWhenItHasNoChild() {
         final ForkIntermediaryNode instance = getInstance("instance");
         final IntermediaryNode child = getInstance("child");
