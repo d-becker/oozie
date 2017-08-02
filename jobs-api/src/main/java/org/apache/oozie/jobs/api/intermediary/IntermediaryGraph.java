@@ -166,7 +166,7 @@ public class IntermediaryGraph {
 
             JoinIntermediaryNode newJoin = joinPaths(toClose.getLeft(), toClose.getRight());
 
-            node.addParent(newJoin);
+            addParentWithForkIfNeeded(node, newJoin);
         } else {
             // We have to close a subset of the paths.
             List<IntermediaryNode> newParents = new ArrayList<>(parents);
@@ -201,19 +201,32 @@ public class IntermediaryGraph {
             }
         }
 
-        // TODO: take care of not just siblings but uncles etc..
         for (PathInformation path : paths) {
             IntermediaryNode parent = path.getBottom();
-            // TODO: It is possible that we process a child multiple times, because it may have multiple parents.
-            for (IntermediaryNode childOfParent : parent.getChildren()) {
-                if (childOfParent != newJoin) {
-                    childOfParent.clearParents();
-                    addParentWithForkIfNeeded(childOfParent, newJoin);
+
+            relocateSideBranches(parent, newJoin, newJoin);
+
+            for (ForkAndDirection forkAndDirection : path.getForksAndDirections()) {
+                if (forkAndDirection.getFork() == fork) {
+                    break;
                 }
+
+                relocateSideBranches(forkAndDirection.getFork(), forkAndDirection.getDirectionDownstreams(), newJoin);
             }
         }
 
         return newJoin;
+    }
+
+    private void relocateSideBranches(final IntermediaryNode forkOrParent,
+                                      final IntermediaryNode mainBranch,
+                                      final JoinIntermediaryNode join) {
+        for (IntermediaryNode childOfForkOrParent : forkOrParent.getChildren()) {
+            if (childOfForkOrParent != mainBranch) {
+                removeParentWithForkIfNeeded(childOfForkOrParent, forkOrParent);
+                addParentWithForkIfNeeded(childOfForkOrParent, join);
+            }
+        }
     }
 
     private JoinIntermediaryNode divideForkAndCloseSubFork(final ForkIntermediaryNode correspondingFork,
@@ -358,17 +371,17 @@ public class IntermediaryGraph {
             if (current instanceof JoinIntermediaryNode) {
                 // Get the fork corresponding to this join and go towards that.
                 ForkIntermediaryNode correspondingFork = ((JoinIntermediaryNode) current).getCorrespondingFork();
-                previous = correspondingFork;
-                current = getSingleParent(correspondingFork);
-            } else {
-                if (current instanceof ForkIntermediaryNode && current != node) {
-                    ForkAndDirection forkAndDirection = new ForkAndDirection((ForkIntermediaryNode) current, previous);
-                    forksAndDirections.add(forkAndDirection);
-                }
-
-                previous = current;
-                current = getSingleParent(current);
+                current = correspondingFork;
             }
+
+            if (current instanceof ForkIntermediaryNode && current != node) {
+                ForkAndDirection forkAndDirection = new ForkAndDirection((ForkIntermediaryNode) current, previous);
+                forksAndDirections.add(forkAndDirection);
+            }
+
+            previous = current;
+            current = getSingleParent(current);
+
         }
 
         return new PathInformation(node, forksAndDirections);
@@ -419,6 +432,20 @@ public class IntermediaryGraph {
                 node.addParent(newFork);
                 newFork.addParent(parent);
             }
+        }
+    }
+
+    private void removeParentWithForkIfNeeded(IntermediaryNode node, IntermediaryNode parent) {
+        node.removeParent(parent);
+
+        if (parent instanceof ForkIntermediaryNode && parent.getChildren().size() == 1) {
+            IntermediaryNode grandparent = ((ForkIntermediaryNode) parent).getParent();
+            IntermediaryNode child = parent.getChildren().get(0);
+
+            parent.removeParent(grandparent); // TODO: Should be recursive.
+            child.removeParent(parent);
+            child.addParent(grandparent);
+            nodesByName.remove(parent.getName());
         }
     }
 
