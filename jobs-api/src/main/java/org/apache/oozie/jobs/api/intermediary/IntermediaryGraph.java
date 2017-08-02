@@ -371,17 +371,17 @@ public class IntermediaryGraph {
             if (current instanceof JoinIntermediaryNode) {
                 // Get the fork corresponding to this join and go towards that.
                 ForkIntermediaryNode correspondingFork = ((JoinIntermediaryNode) current).getCorrespondingFork();
-                current = correspondingFork;
+                previous = correspondingFork;
+                current = getSingleParent(correspondingFork);
+            } else {
+                if (current instanceof ForkIntermediaryNode && current != node) {
+                    ForkAndDirection forkAndDirection = new ForkAndDirection((ForkIntermediaryNode) current, previous);
+                    forksAndDirections.add(forkAndDirection);
+                }
+
+                previous = current;
+                current = getSingleParent(current);
             }
-
-            if (current instanceof ForkIntermediaryNode && current != node) {
-                ForkAndDirection forkAndDirection = new ForkAndDirection((ForkIntermediaryNode) current, previous);
-                forksAndDirections.add(forkAndDirection);
-            }
-
-            previous = current;
-            current = getSingleParent(current);
-
         }
 
         return new PathInformation(node, forksAndDirections);
