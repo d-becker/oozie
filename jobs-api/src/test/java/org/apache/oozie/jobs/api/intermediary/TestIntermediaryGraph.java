@@ -327,6 +327,19 @@ public class TestIntermediaryGraph {
     }
 
     @Test
+    public void testTrivialRedundantEdge() {
+        Node a = new MapReduceActionBuilder().withName("A").build();
+
+        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        Node c = new MapReduceActionBuilder().withName("C").withParent(a).withParent(b).build();
+
+        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
+        IntermediaryGraph graph = new IntermediaryGraph(w);
+
+        checkDependencies(w.getNodes(), graph);
+    }
+
+    @Test
     public void testRedundantEdge() {
         fail();
 
