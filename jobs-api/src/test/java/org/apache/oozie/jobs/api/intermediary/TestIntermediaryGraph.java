@@ -22,7 +22,6 @@ import org.apache.oozie.jobs.api.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.Node;
 import org.apache.oozie.jobs.api.Workflow;
 import org.apache.oozie.jobs.api.WorkflowBuilder;
-import org.codehaus.groovy.runtime.powerassert.SourceText;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -267,7 +266,7 @@ public class TestIntermediaryGraph {
     }
 
     @Test
-    public void testStaleUncles() {
+    public void testBranchingUncles() {
         Node a = new MapReduceActionBuilder().withName("A").build();
 
         Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
@@ -287,7 +286,7 @@ public class TestIntermediaryGraph {
     }
 
     @Test
-    public void testWorkflowToIntermediaryGraphRedundantEdge() {
+    public void testRedundantEdge() {
         Node a = new MapReduceActionBuilder().withName("A").build();
 
         Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
@@ -485,14 +484,14 @@ public class TestIntermediaryGraph {
             fail();
         }
 
-        for (IntermediaryNode node : expectedNodes) {
-            IntermediaryNode nodeInOtherGraph = graph2.getNodeByName(node.getName());
+        for (IntermediaryNode expectedNode : expectedNodes) {
+            IntermediaryNode nodeInOtherGraph = graph2.getNodeByName(expectedNode.getName());
 
             if (nodeInOtherGraph == null) {
                 fail();
             }
 
-            List<IntermediaryNode> expectedChildren = node.getChildren();
+            List<IntermediaryNode> expectedChildren = expectedNode.getChildren();
             List<IntermediaryNode> actualChildren = nodeInOtherGraph.getChildren();
 
             List<String> expectedChildrenNames = new ArrayList<>();
@@ -505,7 +504,7 @@ public class TestIntermediaryGraph {
                 actualChildrenNames.add(child.getName());
             }
 
-            if (node instanceof ForkIntermediaryNode) {
+            if (expectedNode instanceof ForkIntermediaryNode) {
                 // The order of the children of fork nodes is not important.
                 Collections.sort(expectedChildrenNames);
                 Collections.sort(actualChildrenNames);
