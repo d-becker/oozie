@@ -18,6 +18,8 @@
 
 package org.apache.oozie.jobs.api.intermediary;
 
+import org.apache.oozie.jobs.api.ModifyOnce;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,9 +28,12 @@ public class ForkIntermediaryNode extends IntermediaryNode {
     private IntermediaryNode parent;
     private final List<IntermediaryNode> children;
 
+    private final ModifyOnce<JoinIntermediaryNode> closingJoin;
+
     public ForkIntermediaryNode(final String name) {
         super(name);
         children = new ArrayList<>();
+        closingJoin = new ModifyOnce<>();
     }
 
     public IntermediaryNode getParent() {
@@ -66,6 +71,18 @@ public class ForkIntermediaryNode extends IntermediaryNode {
     @Override
     public List<IntermediaryNode> getChildren() {
         return Collections.unmodifiableList(new ArrayList<>(children));
+    }
+
+    public JoinIntermediaryNode getClosingJoin() {
+        return closingJoin.get();
+    }
+
+    public boolean isClosed() {
+        return getClosingJoin() != null;
+    }
+
+    /* package private */ void close(final JoinIntermediaryNode join) {
+        closingJoin.set(join);
     }
 
     @Override

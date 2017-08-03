@@ -31,8 +31,11 @@ public class JoinIntermediaryNode extends IntermediaryNode {
 
     public JoinIntermediaryNode(final String name, final ForkIntermediaryNode fork) {
         super(name);
+
         this.fork = fork;
-        parents = new ArrayList<>();
+        fork.close(this);
+
+        this.parents = new ArrayList<>();
     }
 
     public List<IntermediaryNode> getParents() {

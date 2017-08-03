@@ -21,6 +21,7 @@ package org.apache.oozie.jobs.api.intermediary;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 import org.apache.oozie.jobs.api.Node;
 import org.apache.oozie.jobs.api.Workflow;
 
@@ -77,21 +78,13 @@ public class IntermediaryGraph {
             mappings.put(originalNode, convertedNode);
             nodesByName.put(convertedNode.getName(), convertedNode);
 
-            // We are not a join.
-            if (originalNode.getParents().size() <= 1) {
-                handleNonJoinNode(originalNode, mappings);
+            final List<IntermediaryNode> mappedParents = new ArrayList<>();
+
+            for (Node originalParent : originalNode.getParents()) {
+                mappedParents.add(mappings.get(originalParent));
             }
 
-            // We are a join.
-            else {
-                final List<IntermediaryNode> mappedParents = new ArrayList<>();
-
-                for (Node originalParent : originalNode.getParents()) {
-                    mappedParents.add(mappings.get(originalParent));
-                }
-
-                handleJoinNodeWithParents(convertedNode, mappedParents);
-            }
+            handleNodeWithParents(convertedNode, mappedParents);
         }
 
         List<IntermediaryNode> finalNodes = new ArrayList<>();
@@ -101,28 +94,37 @@ public class IntermediaryGraph {
             }
         }
 
-        handleJoinNodeWithParents(end, finalNodes);
+        handleNodeWithParents(end, finalNodes);
     }
 
-    private void handleNonJoinNode(final Node originalNode, final Map<Node, IntermediaryNode> mappings) {
-        IntermediaryNode convertedNode = mappings.get(originalNode);
-        Node parent = originalNode.getParents().isEmpty() ? null : originalNode.getParents().get(0);
-        IntermediaryNode mappedParent = parent == null ? start : mappings.get(parent);
+    private void handleNodeWithParents(final IntermediaryNode node, final List<IntermediaryNode> parents) {
+        if (parents.isEmpty()) {
+            handleNonJoinNode(node, start);
+        }
+        else if (parents.size() == 1) {
+            handleNonJoinNode(node, parents.get(0));
+        }
+        else {
+            handleJoinNodeWithParents(node, parents);
+        }
+    }
 
-        addParentWithForkIfNeeded(convertedNode, mappedParent);
+    private void handleNonJoinNode(final IntermediaryNode node, final IntermediaryNode parent) {
+        addParentWithForkIfNeeded(node, parent);
     }
 
     private void handleJoinNodeWithParents(final IntermediaryNode node, final List<IntermediaryNode> parents) {
-        Set<JoinIntermediaryNode> joinSiblings = new LinkedHashSet<>();
+        Set<IntermediaryNode> replacementParents = new LinkedHashSet<>();
+        Set<IntermediaryNode> parentsToRemove = new LinkedHashSet<>();
         for (IntermediaryNode parent : parents) {
-            for (IntermediaryNode sibling : parent.getChildren()) {
-                if (sibling instanceof JoinIntermediaryNode) {
-                    joinSiblings.add((JoinIntermediaryNode) sibling);
-                }
+            if (closingJoin.containsKey(parent)) {
+                IntermediaryNode replacementParent = closingJoin.get(parent);
+                replacementParents.add(replacementParent);
+                parentsToRemove.add(parent);
             }
         }
 
-        if (joinSiblings.isEmpty()) {
+        if (replacementParents.isEmpty()) {
             if (parents.size() == 1) {
                 addParentWithForkIfNeeded(node, parents.get(0));
             }
@@ -131,14 +133,8 @@ public class IntermediaryGraph {
             }
         }
         else {
-            final List<IntermediaryNode> parentsToRemove = new ArrayList<>();
-
-            for (JoinIntermediaryNode join : joinSiblings) {
-                parentsToRemove.addAll(join.getParents());
-            }
-
             final List<IntermediaryNode> newParents = new ArrayList<>();
-            newParents.addAll(joinSiblings);
+            newParents.addAll(replacementParents);
 
             for (IntermediaryNode parent : parents) {
                 if (!parentsToRemove.contains(parent)) {
@@ -146,7 +142,7 @@ public class IntermediaryGraph {
                 }
             }
 
-            handleJoinNodeWithParents(node, newParents);
+            handleNodeWithParents(node, newParents);
         }
 
     }
@@ -158,11 +154,24 @@ public class IntermediaryGraph {
             paths.add(path);
         }
 
-        Pair<ForkIntermediaryNode, List<PathInformation>> toClose = getOneForkToClose(paths);
+        Pair<IntermediaryNode, List<PathInformation>> toClose = getOneForkToClose(paths);
+
+        ForkIntermediaryNode fork;
+
+        // Eliminating redundant parents.
+        if (toClose.getLeft() instanceof ForkIntermediaryNode) {
+            fork = (ForkIntermediaryNode) toClose.getLeft();
+        } else {
+            final List<IntermediaryNode> parentsWithoutRedundant = new ArrayList<>(parents);
+            parentsWithoutRedundant.remove(toClose.getLeft());
+
+            handleNodeWithParents(node, parentsWithoutRedundant);
+            return;
+        }
 
         if (toClose.getRight().size() == paths.size()) {
             // There are no intermediary fork / join pairs to insert, we have to join all paths in a single join.
-            JoinIntermediaryNode newJoin = joinPaths(toClose.getLeft(), toClose.getRight());
+            JoinIntermediaryNode newJoin = joinPaths(fork, toClose.getRight());
 
             addParentWithForkIfNeeded(node, newJoin);
         } else {
@@ -175,7 +184,7 @@ public class IntermediaryGraph {
                 newParents.remove(path.getBottom());
             }
 
-            JoinIntermediaryNode newJoin = joinPaths(toClose.getLeft(), toClose.getRight());
+            JoinIntermediaryNode newJoin = joinPaths(fork, toClose.getRight());
 
             newParents.add(newJoin);
 
@@ -183,52 +192,113 @@ public class IntermediaryGraph {
         }
     }
 
-    private JoinIntermediaryNode joinPaths(final ForkIntermediaryNode fork, List<PathInformation> paths) {
+    private JoinIntermediaryNode joinPaths(final ForkIntermediaryNode correspondingFork, List<PathInformation> paths) {
+        Set<IntermediaryNode> mainBranchNodes = new HashSet<>();
+
+        for (PathInformation path : paths) {
+            mainBranchNodes.addAll(path.getNodes());
+        }
+
+        // Take care of side branches.
+        Set<IntermediaryNode> closedNodes = new HashSet<>();
+        List<IntermediaryNode> sideBranches = new ArrayList<>();
+        for (PathInformation path : paths) {
+            for (int i = 0; i < path.getNodes().size(); ++i) {
+                IntermediaryNode node = path.getNodes().get(i);
+
+                if (node == correspondingFork) {
+                    break;
+                }
+
+                sideBranches.addAll(cutDownSideBranches(node, mainBranchNodes));
+                closedNodes.add(node);
+            }
+        }
+
         JoinIntermediaryNode newJoin = null;
 
         // Check if we have to divide the fork.
-        if (paths.size() < fork.getChildren().size()) {
+        if (paths.size() < correspondingFork.getChildren().size()) {
             // Dividing the fork.
-            newJoin = divideForkAndCloseSubFork(fork, paths);
+            newJoin = divideForkAndCloseSubFork(correspondingFork, paths);
         } else {
             // We don't divide the fork.
-            newJoin = getNewJoinNode(fork);
+            newJoin = getNewJoinNode(correspondingFork);
 
             for (PathInformation path : paths) {
                 addParentWithForkIfNeeded(newJoin, path.getBottom());
             }
         }
 
-        for (PathInformation path : paths) {
-            IntermediaryNode parent = path.getBottom();
-
-            relocateSideBranches(parent, newJoin, newJoin);
-            markAsClosed(parent, newJoin);
-
-            for (ForkAndDirection forkAndDirection : path.getForksAndDirections()) {
-                if (forkAndDirection.getFork() == fork) {
-                    break;
-                }
-
-                relocateSideBranches(forkAndDirection.getFork(), forkAndDirection.getDirectionDownstreams(), newJoin);
-                markAsClosed(forkAndDirection.getFork(), newJoin);
-            }
+        // Inserting the side branches under the new join node.
+        for (IntermediaryNode sideBranch : sideBranches) {
+            addParentWithForkIfNeeded(sideBranch, newJoin);
         }
+
+        // Marking the nodes as closed.
+        for (IntermediaryNode closedNode : closedNodes) {
+            markAsClosed(closedNode, newJoin);
+        }
+
+//        Set<IntermediaryNode> mainBranchNodes = new HashSet<>();
+//        mainBranchNodes.add(newJoin);
+//
+//        for (PathInformation path : paths) {
+//            mainBranchNodes.addAll(path.getNodes());
+//        }
+//
+//        // Take care of side branches.
+//        for (PathInformation path : paths) {
+//            for (int i = 0; i < path.getNodes().size(); ++i) {
+//                IntermediaryNode node = path.getNodes().get(i);
+//                // IntermediaryNode previousNode = i > 0 ? path.getNodes().get(i - 1) : newJoin;
+//
+//                if (node == correspondingFork) {
+//                    break;
+//                }
+//
+//                relocateSideBranches(node, mainBranchNodes, newJoin);
+//                markAsClosed(node, newJoin);
+//            }
+//        }
 
         return newJoin;
     }
 
     private void markAsClosed(IntermediaryNode node, JoinIntermediaryNode join) {
-        // TODO: Treat forks differently depending on whether they are closed by their own join or are also inside another fork / join pair.
         closingJoin.put(node, join);
     }
 
-    private void relocateSideBranches(final IntermediaryNode forkOrParent,
-                                      final IntermediaryNode mainBranch,
+    private List<IntermediaryNode> cutDownSideBranches(final IntermediaryNode node,
+                                      final Set<IntermediaryNode> mainBranchNodes) {
+        List<IntermediaryNode> sideBranches = new ArrayList<>();
+
+        if (node instanceof ForkIntermediaryNode && ((ForkIntermediaryNode) node).isClosed()) {
+            // Closed forks cannot have side branches.
+        }
+        else {
+            for (IntermediaryNode childOfForkOrParent : node.getChildren()) {
+                if (!mainBranchNodes.contains(childOfForkOrParent)) {
+                    removeParentWithForkIfNeeded(childOfForkOrParent, node);
+                    sideBranches.add(childOfForkOrParent);
+                }
+            }
+        }
+
+        return sideBranches;
+    }
+
+    private void relocateSideBranches(final IntermediaryNode node,
+                                      final Set<IntermediaryNode> mainBranchNodes,
                                       final JoinIntermediaryNode join) {
-        for (IntermediaryNode childOfForkOrParent : forkOrParent.getChildren()) {
-            if (childOfForkOrParent != mainBranch) {
-                removeParentWithForkIfNeeded(childOfForkOrParent, forkOrParent);
+        if (node instanceof ForkIntermediaryNode && ((ForkIntermediaryNode) node).isClosed()) {
+            // Closed forks cannot have side branches.
+            return;
+        }
+
+        for (IntermediaryNode childOfForkOrParent : node.getChildren()) {
+            if (!mainBranchNodes.contains(childOfForkOrParent)) {
+                removeParentWithForkIfNeeded(childOfForkOrParent, node);
                 addParentWithForkIfNeeded(childOfForkOrParent, join);
             }
         }
@@ -238,10 +308,10 @@ public class IntermediaryGraph {
                                                            final List<PathInformation> paths) {
         ForkIntermediaryNode newFork = getNewForkNode();
         for (PathInformation path : paths) {
-            int indexOfFork = path.indexOfFork(correspondingFork);
-            IntermediaryNode childOfOriginalFork = path.getForksAndDirections().get(indexOfFork).getDirectionDownstreams();
+            int indexOfFork = path.getNodes().indexOf(correspondingFork);
+            IntermediaryNode childOfOriginalFork = path.getNodes().get(indexOfFork - 1);
 
-            childOfOriginalFork.clearParents();
+            childOfOriginalFork.removeParent(correspondingFork);
             childOfOriginalFork.addParent(newFork);
         }
 
@@ -256,24 +326,34 @@ public class IntermediaryGraph {
         return newJoin;
     }
 
-    private Pair<ForkIntermediaryNode, List<PathInformation>> getOneForkToClose(final List<PathInformation> paths) {
-        for (int i = 0; ; ++i) { // Upper bound: we always found a fork eventually, if not else then the uppermost join.
-            Pair<ForkIntermediaryNode, List<PathInformation>> foundAtThisLevel = getOneForkToCloseAtLevelN(i, paths);
+    private Pair<IntermediaryNode, List<PathInformation>> getOneForkToClose(final List<PathInformation> paths) {
+        int maxPathLength = 0;
+        for (PathInformation path : paths) {
+            maxPathLength = Math.max(maxPathLength, path.getNodes().size());
+        }
+
+        for (int i = 0; i < maxPathLength; ++i) {
+            Pair<IntermediaryNode, List<PathInformation>> foundAtThisLevel = getOneForkToCloseAtLevelN(i, paths);
 
             if (foundAtThisLevel != null) {
                 return foundAtThisLevel;
             }
         }
+
+        return null;
     }
 
-    private Pair<ForkIntermediaryNode, List<PathInformation>> getOneForkToCloseAtLevelN(final int n,
-                                                                                        final List<PathInformation> paths) {
+    private Pair<IntermediaryNode, List<PathInformation>> getOneForkToCloseAtLevelN(final int n,
+                                                                                    final List<PathInformation> paths) {
         for (PathInformation path : paths) {
-            if (n < path.getForksAndDirections().size()) {
-                ForkIntermediaryNode currentFork = path.getForksAndDirections().get(n).getFork();
-                List<PathInformation> pathsMeetingAtCurrentFork = getPathsContainingFork(currentFork, paths);
+            if (n < path.getNodes().size()) {
+                IntermediaryNode currentFork = path.getNodes().get(n);
+
+                List<PathInformation> pathsMeetingAtCurrentFork = getPathsContainingNode(currentFork, paths);
 
                 if (pathsMeetingAtCurrentFork.size() > 1) {
+
+                    // If currentFork is not really a ForkIntermediaryNode, then it is a redundant parent.
                     return new ImmutablePair<>(currentFork, pathsMeetingAtCurrentFork);
                 }
             }
@@ -282,11 +362,11 @@ public class IntermediaryGraph {
         return null;
     }
 
-    private List<PathInformation> getPathsContainingFork(final ForkIntermediaryNode fork, List<PathInformation> paths) {
+    private List<PathInformation> getPathsContainingNode(final IntermediaryNode node, List<PathInformation> paths) {
         List<PathInformation> result = new ArrayList<>();
 
         for (PathInformation pathInfo : paths) {
-            if (pathInfo.containsFork(fork)) {
+            if (pathInfo.getNodes().contains(node)) {
                 result.add(pathInfo);
             }
         }
@@ -295,29 +375,23 @@ public class IntermediaryGraph {
     }
 
     private PathInformation getPathInfo(final IntermediaryNode node) {
-        IntermediaryNode previous = null;
         IntermediaryNode current = node;
 
-        List<ForkAndDirection> forksAndDirections = new ArrayList<>();
+        final List<IntermediaryNode> nodes = new ArrayList<>();
 
         while (current != start) {
+            nodes.add(current);
+
             if (current instanceof JoinIntermediaryNode) {
                 // Get the fork corresponding to this join and go towards that.
                 ForkIntermediaryNode correspondingFork = ((JoinIntermediaryNode) current).getCorrespondingFork();
-                previous = correspondingFork;
-                current = getSingleParent(correspondingFork);
+                current = correspondingFork;
             } else {
-                if (current instanceof ForkIntermediaryNode) {
-                    ForkAndDirection forkAndDirection = new ForkAndDirection((ForkIntermediaryNode) current, previous);
-                    forksAndDirections.add(forkAndDirection);
-                }
-
-                previous = current;
                 current = getSingleParent(current);
             }
         }
 
-        return new PathInformation(node, forksAndDirections);
+        return new PathInformation(nodes);
     }
 
     private IntermediaryNode getSingleParent(final IntermediaryNode node) {
@@ -344,7 +418,6 @@ public class IntermediaryGraph {
     }
 
     private void addParentWithForkIfNeeded(IntermediaryNode node, IntermediaryNode parent) {
-        // TODO: handle closed nodes, and closed forks differenly.
         if (parent.getChildren().isEmpty() || parent instanceof ForkIntermediaryNode) {
             node.addParent(parent);
         } else {
@@ -356,7 +429,6 @@ public class IntermediaryGraph {
                 node.addParent(child);
             }
             else if (child instanceof JoinIntermediaryNode) {
-                // TODO: It's possible that we don't really need recursion here.
                 addParentWithForkIfNeeded(node, child);
             }
             else {
@@ -376,7 +448,7 @@ public class IntermediaryGraph {
             IntermediaryNode grandparent = ((ForkIntermediaryNode) parent).getParent();
             IntermediaryNode child = parent.getChildren().get(0);
 
-            parent.removeParent(grandparent); // TODO: Should be recursive.
+            removeParentWithForkIfNeeded(parent, grandparent);
             child.removeParent(parent);
             child.addParent(grandparent);
             nodesByName.remove(parent.getName());
@@ -486,60 +558,21 @@ public class IntermediaryGraph {
     }
 
     private static class PathInformation {
-        private final IntermediaryNode bottom;
-        private final List<ForkAndDirection> forksAndDirections;
+        private final ImmutableList<IntermediaryNode> nodes;
 
-        public PathInformation(final IntermediaryNode start,
-                               final List<ForkAndDirection> forksAndDirections) {
-            this.bottom = start;
-            this.forksAndDirections = new ImmutableList.Builder<ForkAndDirection>().addAll(forksAndDirections).build();
+        public PathInformation(final List<IntermediaryNode> nodes) {
+            this.nodes = new ImmutableList.Builder<IntermediaryNode>().addAll(nodes).build();
         }
 
         public IntermediaryNode getBottom() {
-            return bottom;
+            return nodes.get(0);
         }
 
-        public List<ForkAndDirection> getForksAndDirections() {
-            return forksAndDirections;
+        public List<IntermediaryNode> getNodes() {
+            return nodes;
         }
 
-        public int indexOfFork(final ForkIntermediaryNode fork) {
-            for (int i = 0; i < getForksAndDirections().size(); ++i) {
-                if (getForksAndDirections().get(i).getFork() == fork) {
-                    return i;
-                }
-            }
 
-            return -1;
-        }
-
-        public boolean containsFork(final ForkIntermediaryNode fork) {
-            for (ForkAndDirection forkAndDirection : forksAndDirections) {
-                if (forkAndDirection.getFork() == fork) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-    }
-
-    private static class ForkAndDirection {
-        private final ForkIntermediaryNode fork;
-        private final IntermediaryNode directionDownstreams;
-
-        public ForkAndDirection(final ForkIntermediaryNode fork, final IntermediaryNode directionDownstreams) {
-            this.fork = fork;
-            this.directionDownstreams = directionDownstreams;
-        }
-
-        public ForkIntermediaryNode getFork() {
-            return fork;
-        }
-
-        public IntermediaryNode getDirectionDownstreams() {
-            return directionDownstreams;
-        }
     }
 
 }

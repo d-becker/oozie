@@ -25,6 +25,7 @@ import org.junit.rules.ExpectedException;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestForkIntermediaryNode extends TestIntermediaryNode<ForkIntermediaryNode> {
     @Rule
@@ -141,5 +142,15 @@ public class TestForkIntermediaryNode extends TestIntermediaryNode<ForkIntermedi
         child5.removeParent(instance);
 
         assertEquals(Arrays.asList(child1, child2, child3, child4), instance.getChildren());
+    }
+
+    @Test
+    public void testClose() {
+        final ForkIntermediaryNode instance = getInstance("instance");
+
+        final JoinIntermediaryNode join = new JoinIntermediaryNode("join", instance);
+
+        assertEquals(join, instance.getClosingJoin());
+        assertTrue(instance.isClosed());
     }
 }

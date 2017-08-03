@@ -22,7 +22,6 @@ import org.apache.oozie.jobs.api.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.Node;
 import org.apache.oozie.jobs.api.Workflow;
 import org.apache.oozie.jobs.api.WorkflowBuilder;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -327,12 +326,29 @@ public class TestIntermediaryGraph {
     }
 
     @Test
-    @Ignore
     public void testTrivialRedundantEdge() {
         Node a = new MapReduceActionBuilder().withName("A").build();
 
         Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
         Node c = new MapReduceActionBuilder().withName("C").withParent(a).withParent(b).build();
+
+        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
+        IntermediaryGraph graph = new IntermediaryGraph(w);
+
+        checkDependencies(w.getNodes(), graph);
+    }
+
+    @Test
+    public void testRedundantEdge() {
+        Node a = new MapReduceActionBuilder().withName("A").build();
+
+        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+
+        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+
+        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).withParent(a).build();
 
         Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
         IntermediaryGraph graph = new IntermediaryGraph(w);
@@ -361,29 +377,11 @@ public class TestIntermediaryGraph {
         Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
         IntermediaryGraph graph = new IntermediaryGraph(w);
 
-        checkDependencies(w.getNodes(), graph);
-    }
-
-    @Test
-    @Ignore
-    public void testRedundantEdge() {
-        fail();
-
-        Node a = new MapReduceActionBuilder().withName("A").build();
-
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
-
-        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
-        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
-
-        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).withParent(a).build();
-
-        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
-        IntermediaryGraph graph = new IntermediaryGraph(w);
+        System.out.println(graph.toDot());
 
         checkDependencies(w.getNodes(), graph);
     }
+
 
 //
 //    @Test
