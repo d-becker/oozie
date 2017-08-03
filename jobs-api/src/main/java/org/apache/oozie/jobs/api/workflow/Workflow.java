@@ -35,7 +35,13 @@ public class Workflow {
         checkUniqueNames(nodes);
 
         this.nodes = nodes;
-        this.roots = filterRoots(nodes);
+
+        this.roots = nodes.stream()
+                .filter(node -> node.getParents().isEmpty())
+                .collect(ImmutableSet.Builder<Node>::new,
+                        (builder, node) -> builder.add(node),
+                        (builder1, builder2) -> builder1.addAll(builder2.build()))
+                .build();
     }
 
     public String getName() {
@@ -63,14 +69,4 @@ public class Workflow {
         }
     }
 
-    private ImmutableSet<Node> filterRoots(Set<Node> dag) {
-        ImmutableSet.Builder<Node> builder = new ImmutableSet.Builder<>();
-        for (Node node : dag) {
-            if (node.getParents().isEmpty()) {
-                builder.add(node);
-            }
-        }
-
-        return builder.build();
-    }
 }
