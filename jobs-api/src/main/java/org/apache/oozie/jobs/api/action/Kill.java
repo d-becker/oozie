@@ -16,31 +16,21 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api;
+package org.apache.oozie.jobs.api.action;
 
-public class ModifyOnce<T> {
-    private T data;
-    private boolean modified;
+import com.google.common.collect.ImmutableList;
 
-    public ModifyOnce() {
-        this(null);
+public class Kill extends Node {
+    private final String message;
+
+    public Kill(final String name,
+                final ImmutableList<Node> parents,
+                final String message) {
+        super(name, parents);
+        this.message = message;
     }
 
-    public ModifyOnce(T defaultData) {
-        this.data = defaultData;
-        this.modified = false;
-    }
-
-    public T get() {
-        return data;
-    }
-
-    public void set(T data) {
-        if (modified) {
-            throw new IllegalStateException("Has already been modified once.");
-        }
-
-        this.data = data;
-        this.modified = true;
+    public String getMessage() {
+        return message;
     }
 }

@@ -16,31 +16,21 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api;
+package org.apache.oozie.jobs.api.oozie.dag;
 
-public class ModifyOnce<T> {
-    private T data;
-    private boolean modified;
+import org.junit.Test;
 
-    public ModifyOnce() {
-        this(null);
-    }
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-    public ModifyOnce(T defaultData) {
-        this.data = defaultData;
-        this.modified = false;
-    }
+public abstract class TestNodeBase<T extends NodeBase> {
+    public static final String NAME = "node name";
 
-    public T get() {
-        return data;
-    }
+    protected abstract T getInstance(final String name);
 
-    public void set(T data) {
-        if (modified) {
-            throw new IllegalStateException("Has already been modified once.");
-        }
-
-        this.data = data;
-        this.modified = true;
+    @Test
+    public void testNameIsCorrect() {
+        final T instance = getInstance(NAME);
+        assertEquals(NAME, instance.getName());
     }
 }

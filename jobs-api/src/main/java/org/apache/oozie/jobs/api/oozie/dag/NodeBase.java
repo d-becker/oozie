@@ -16,31 +16,27 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api;
+package org.apache.oozie.jobs.api.oozie.dag;
 
-public class ModifyOnce<T> {
-    private T data;
-    private boolean modified;
+import java.util.List;
 
-    public ModifyOnce() {
-        this(null);
+public abstract class NodeBase {
+    private final String name;
+
+    public NodeBase(final String name) {
+        this.name = name;
     }
 
-    public ModifyOnce(T defaultData) {
-        this.data = defaultData;
-        this.modified = false;
+    public String getName() {
+        return name;
     }
 
-    public T get() {
-        return data;
-    }
+    public abstract void addParent(final NodeBase parent);
+    public abstract void removeParent(final NodeBase parent);
+    public abstract void clearParents();
 
-    public void set(T data) {
-        if (modified) {
-            throw new IllegalStateException("Has already been modified once.");
-        }
+    public abstract List<NodeBase> getChildren();
 
-        this.data = data;
-        this.modified = true;
-    }
+    protected abstract void addChild(final NodeBase child);
+    protected abstract void removeChild(final NodeBase child);
 }

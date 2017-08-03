@@ -16,31 +16,34 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api;
+package org.apache.oozie.jobs.api.action;
 
-public class ModifyOnce<T> {
-    private T data;
-    private boolean modified;
+import com.google.common.collect.ImmutableList;
 
-    public ModifyOnce() {
-        this(null);
+public class PrepareBuilder {
+    private final ImmutableList.Builder<Delete> deletes;
+    private final ImmutableList.Builder<Mkdir> mkdirs;
+
+    public PrepareBuilder() {
+        deletes = new ImmutableList.Builder<>();
+        mkdirs = new ImmutableList.Builder<>();
     }
 
-    public ModifyOnce(T defaultData) {
-        this.data = defaultData;
-        this.modified = false;
+    public PrepareBuilder withDelete(String path) {
+        return withDelete(path, null);
     }
 
-    public T get() {
-        return data;
+    public PrepareBuilder withDelete(String path, Boolean skipTrash) {
+        deletes.add(new Delete(path, skipTrash));
+        return this;
     }
 
-    public void set(T data) {
-        if (modified) {
-            throw new IllegalStateException("Has already been modified once.");
-        }
+    public PrepareBuilder withMkdir(String path) {
+        mkdirs.add(new Mkdir(path));
+        return this;
+    }
 
-        this.data = data;
-        this.modified = true;
+    public Prepare build() {
+        return new Prepare(deletes.build(), mkdirs.build());
     }
 }

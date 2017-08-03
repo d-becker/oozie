@@ -16,31 +16,22 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api;
+package org.apache.oozie.jobs.api.action;
 
-public class ModifyOnce<T> {
-    private T data;
-    private boolean modified;
+public class Delete {
+    private final String path;
+    private final Boolean skipTrash;
 
-    public ModifyOnce() {
-        this(null);
+    public Delete(String path, Boolean skipTrash) {
+        this.path = path;
+        this.skipTrash = skipTrash;
     }
 
-    public ModifyOnce(T defaultData) {
-        this.data = defaultData;
-        this.modified = false;
+    public String getPath() {
+        return path;
     }
 
-    public T get() {
-        return data;
-    }
-
-    public void set(T data) {
-        if (modified) {
-            throw new IllegalStateException("Has already been modified once.");
-        }
-
-        this.data = data;
-        this.modified = true;
+    public Boolean getSkipTrash() {
+        return skipTrash;
     }
 }
