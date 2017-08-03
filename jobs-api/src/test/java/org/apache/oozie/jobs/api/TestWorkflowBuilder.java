@@ -18,7 +18,9 @@
 
 package org.apache.oozie.jobs.api;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -27,6 +29,9 @@ import static org.junit.Assert.assertEquals;
 
 public class TestWorkflowBuilder {
     public static final String NAME = "workflow-name";
+
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void testAddName() {
@@ -88,5 +93,24 @@ public class TestWorkflowBuilder {
 
         assertEquals(new HashSet<>(Arrays.asList(mrAction1, mrAction2)), workflow.getRoots());
         assertEquals(new HashSet<>(Arrays.asList(mrAction1, mrAction2, mrAction3)), workflow.getNodes());
+    }
+
+    @Test
+    public void testAddDagThrowOnDuplicateNodeNames() {
+        MapReduceAction mrAction = new MapReduceActionBuilder()
+                .withName("mr-action")
+                .build();
+
+        MapReduceAction mrActionWithTheSameName = new MapReduceActionBuilder()
+                .withName("mr-action")
+                .build();
+
+        WorkflowBuilder builder = new WorkflowBuilder();
+        builder.withName(NAME)
+                .withDagContainingNode(mrAction)
+                .withDagContainingNode(mrActionWithTheSameName);
+
+        expectedException.expect(IllegalArgumentException.class);
+        builder.build();
     }
 }

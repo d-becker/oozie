@@ -240,28 +240,6 @@ public class IntermediaryGraph {
             markAsClosed(closedNode, newJoin);
         }
 
-//        Set<IntermediaryNode> mainBranchNodes = new HashSet<>();
-//        mainBranchNodes.add(newJoin);
-//
-//        for (PathInformation path : paths) {
-//            mainBranchNodes.addAll(path.getNodes());
-//        }
-//
-//        // Take care of side branches.
-//        for (PathInformation path : paths) {
-//            for (int i = 0; i < path.getNodes().size(); ++i) {
-//                IntermediaryNode node = path.getNodes().get(i);
-//                // IntermediaryNode previousNode = i > 0 ? path.getNodes().get(i - 1) : newJoin;
-//
-//                if (node == correspondingFork) {
-//                    break;
-//                }
-//
-//                relocateSideBranches(node, mainBranchNodes, newJoin);
-//                markAsClosed(node, newJoin);
-//            }
-//        }
-
         return newJoin;
     }
 
@@ -286,22 +264,6 @@ public class IntermediaryGraph {
         }
 
         return sideBranches;
-    }
-
-    private void relocateSideBranches(final IntermediaryNode node,
-                                      final Set<IntermediaryNode> mainBranchNodes,
-                                      final JoinIntermediaryNode join) {
-        if (node instanceof ForkIntermediaryNode && ((ForkIntermediaryNode) node).isClosed()) {
-            // Closed forks cannot have side branches.
-            return;
-        }
-
-        for (IntermediaryNode childOfForkOrParent : node.getChildren()) {
-            if (!mainBranchNodes.contains(childOfForkOrParent)) {
-                removeParentWithForkIfNeeded(childOfForkOrParent, node);
-                addParentWithForkIfNeeded(childOfForkOrParent, join);
-            }
-        }
     }
 
     private JoinIntermediaryNode divideForkAndCloseSubFork(final ForkIntermediaryNode correspondingFork,
@@ -340,7 +302,7 @@ public class IntermediaryGraph {
             }
         }
 
-        return null;
+        throw new IllegalStateException("We should never reach here.");
     }
 
     private Pair<IntermediaryNode, List<PathInformation>> getOneForkToCloseAtLevelN(final int n,

@@ -20,6 +20,7 @@ package org.apache.oozie.jobs.api;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class Workflow {
@@ -29,6 +30,9 @@ public class Workflow {
 
     Workflow(String name, ImmutableSet<Node> nodes) {
         this.name = name;
+
+        checkUniqueNames(nodes);
+
         this.nodes = nodes;
         this.roots = filterRoots(nodes);
     }
@@ -45,7 +49,20 @@ public class Workflow {
         return roots;
     }
 
-    private static ImmutableSet<Node> filterRoots(Set<Node> dag) {
+    private void checkUniqueNames(final Set<Node> nodes) {
+        Set<String> names = new HashSet<>();
+
+        for (Node node : nodes) {
+            if (names.contains(node.getName())) {
+                String errorMessage = String.format("Duplicate name '%s' found in workflow '%s'", node.getName(), getName());
+                throw new IllegalArgumentException(errorMessage);
+            }
+
+            names.add(node.getName());
+        }
+    }
+
+    private ImmutableSet<Node> filterRoots(Set<Node> dag) {
         ImmutableSet.Builder<Node> builder = new ImmutableSet.Builder<>();
         for (Node node : dag) {
             if (node.getParents().isEmpty()) {
