@@ -23,13 +23,11 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.oozie.jobs.api.Node;
 import org.apache.oozie.jobs.api.Workflow;
-import org.apache.oozie.jobs.api.generated.FORK;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,11 +41,13 @@ public class IntermediaryGraph {
     private final EndIntermediaryNode end = new EndIntermediaryNode("end");
 
     // TODO: ensure no duplicate names are present.
-    private Map<String, IntermediaryNode> nodesByName;
+    private final Map<String, IntermediaryNode> nodesByName = new HashMap<>();
+
+    // Nodes that have a join downstreams to them are closed, they should never get new children.
+    private final Map<IntermediaryNode, JoinIntermediaryNode> closingJoin = new HashMap<>();
 
     public IntermediaryGraph(final Workflow workflow) {
         List<Node> nodes = getNodesInTopologicalOrder(workflow);
-        nodesByName = new HashMap<>();
         nodesByName.put(start.getName(), start);
         nodesByName.put(end.getName(), end);
         convert(nodes);
@@ -195,7 +195,7 @@ public class IntermediaryGraph {
             newJoin = getNewJoinNode(fork);
 
             for (PathInformation path : paths) {
-                newJoin.addParent(path.getBottom());
+                addParentWithForkIfNeeded(newJoin, path.getBottom());
             }
         }
 
@@ -203,6 +203,7 @@ public class IntermediaryGraph {
             IntermediaryNode parent = path.getBottom();
 
             relocateSideBranches(parent, newJoin, newJoin);
+            markAsClosed(parent, newJoin);
 
             for (ForkAndDirection forkAndDirection : path.getForksAndDirections()) {
                 if (forkAndDirection.getFork() == fork) {
@@ -210,10 +211,16 @@ public class IntermediaryGraph {
                 }
 
                 relocateSideBranches(forkAndDirection.getFork(), forkAndDirection.getDirectionDownstreams(), newJoin);
+                markAsClosed(forkAndDirection.getFork(), newJoin);
             }
         }
 
         return newJoin;
+    }
+
+    private void markAsClosed(IntermediaryNode node, JoinIntermediaryNode join) {
+        // TODO: Treat forks differently depending on whether they are closed by their own join or are also inside another fork / join pair.
+        closingJoin.put(node, join);
     }
 
     private void relocateSideBranches(final IntermediaryNode forkOrParent,
@@ -337,6 +344,7 @@ public class IntermediaryGraph {
     }
 
     private void addParentWithForkIfNeeded(IntermediaryNode node, IntermediaryNode parent) {
+        // TODO: handle closed nodes, and closed forks differenly.
         if (parent.getChildren().isEmpty() || parent instanceof ForkIntermediaryNode) {
             node.addParent(parent);
         } else {

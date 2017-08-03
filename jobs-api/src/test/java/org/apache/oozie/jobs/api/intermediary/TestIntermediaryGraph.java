@@ -327,6 +327,7 @@ public class TestIntermediaryGraph {
     }
 
     @Test
+    @Ignore
     public void testTrivialRedundantEdge() {
         Node a = new MapReduceActionBuilder().withName("A").build();
 
@@ -340,6 +341,31 @@ public class TestIntermediaryGraph {
     }
 
     @Test
+    public void testLateUncle() {
+        Node a = new MapReduceActionBuilder().withName("A").build();
+
+        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+
+        Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
+        Node e = new MapReduceActionBuilder().withName("E").withParent(b).build();
+
+        Node f = new MapReduceActionBuilder().withName("F").withParent(c).build();
+
+        Node g = new MapReduceActionBuilder().withName("G").withParent(e).build();
+        Node h = new MapReduceActionBuilder().withName("H").withParent(f).build();
+        Node i = new MapReduceActionBuilder().withName("I").withParent(d).withParent(g).build();
+        Node j = new MapReduceActionBuilder().withName("J").withParent(e).withParent(h).build();
+        Node k = new MapReduceActionBuilder().withName("K").withParent(i).withParent(j).build();
+
+        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
+        IntermediaryGraph graph = new IntermediaryGraph(w);
+
+        checkDependencies(w.getNodes(), graph);
+    }
+
+    @Test
+    @Ignore
     public void testRedundantEdge() {
         fail();
 
@@ -358,6 +384,7 @@ public class TestIntermediaryGraph {
 
         checkDependencies(w.getNodes(), graph);
     }
+
 //
 //    @Test
 //    public void testWorkflowToIntermediaryGraphWithMultipleRoots() {
