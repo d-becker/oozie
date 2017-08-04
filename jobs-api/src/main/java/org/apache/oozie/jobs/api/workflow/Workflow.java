@@ -39,8 +39,8 @@ public class Workflow {
         this.roots = nodes.stream()
                 .filter(node -> node.getParents().isEmpty())
                 .collect(ImmutableSet.Builder<Node>::new,
-                        (builder, node) -> builder.add(node),
-                        (builder1, builder2) -> builder1.addAll(builder2.build()))
+                         ImmutableSet.Builder::add,
+                         (builder1, builder2) -> builder1.addAll(builder2.build()))
                 .build();
     }
 

@@ -22,7 +22,9 @@ import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +39,36 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class TestGraph {
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
+
+    @Test
+    public void testNameIsCorrect() {
+        Node a = new MapReduceActionBuilder().withName("A").build();
+
+        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+
+        final String name = "workflow-name";
+        Workflow workflow = new WorkflowBuilder().withName(name).withDagContainingNode(a).build();
+
+        Graph graph = new Graph(workflow);
+        assertEquals(name, graph.getName());
+    }
+
+    @Test
+    public void testDuplicateNamesThrow() {
+        Node a = new MapReduceActionBuilder().withName("A").build();
+        Node b = new MapReduceActionBuilder().withName("A").withParent(a).build();
+
+        // The exception will be thrown by the Workflow object,
+        // but if it breaks there, we want to catch duplicates here, too.
+        expectedException.expect(IllegalArgumentException.class);
+        Workflow workflow = new WorkflowBuilder().withDagContainingNode(a).build();
+
+        Graph graph = new Graph(workflow);
+    }
+
     @Test
     public void testWorkflowWithoutJoin() {
         Node a = new MapReduceActionBuilder().withName("A").build();

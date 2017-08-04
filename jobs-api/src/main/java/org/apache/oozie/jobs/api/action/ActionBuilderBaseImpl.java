@@ -40,7 +40,7 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
         super(action);
 
         configuration = action.getConfiguration().entrySet().stream()
-                                .collect(Collectors.toMap(entry -> entry.getKey(),
+                                .collect(Collectors.toMap(Map.Entry::getKey,
                                                           entry -> new ModifyOnce<>(entry.getValue())));
     }
 
