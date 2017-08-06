@@ -25,13 +25,12 @@ import org.apache.oozie.jobs.api.workflow.Workflow;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Graph {
     private final String name;
@@ -84,16 +83,20 @@ public class Graph {
             mappings.put(originalNode, convertedNode);
             storeNode(convertedNode);
 
-            final List<NodeBase> mappedParents = originalNode.getParents().stream()
-                    .map(mappings::get)
-                    .collect(Collectors.toList());
+            final List<NodeBase> mappedParents = new ArrayList<>();
+            for (final Node parent : originalNode.getParents()) {
+                mappedParents.add(mappings.get(parent));
+            }
 
             handleNodeWithParents(convertedNode, mappedParents);
         }
 
-        final List<NodeBase> finalNodes = nodesByName.values().stream()
-                .filter(node -> node.getChildren().isEmpty() && node != end)
-                .collect(Collectors.toList());
+        final List<NodeBase> finalNodes = new ArrayList<>();
+        for (final NodeBase maybeFinalNode : nodesByName.values()) {
+            if (maybeFinalNode.getChildren().isEmpty() && maybeFinalNode != end) {
+                finalNodes.add(maybeFinalNode);
+            }
+        }
 
         handleNodeWithParents(end, finalNodes);
     }
@@ -111,10 +114,13 @@ public class Graph {
 
     private void handleNodeWithParents(final NodeBase node, final List<NodeBase> parents) {
         // Avoiding adding children to nodes that are inside a closed fork / join pair.
-        final List<NodeBase> newParents = parents.stream()
-                .map(this::getFirstNonClosedDescendant)
-                .distinct()
-                .collect(Collectors.toList());
+        final List<NodeBase> newParents = new ArrayList<>();
+        for (final NodeBase parent : parents) {
+            final NodeBase newParent = getFirstNonClosedDescendant(parent);
+            if (!newParents.contains(newParent)) {
+                newParents.add(newParent);
+            }
+        }
 
         if (newParents.isEmpty()) {
             handleNonJoinNode(node, start);
@@ -132,9 +138,10 @@ public class Graph {
     }
 
     private void handleJoinNodeWithParents(final NodeBase node, final List<NodeBase> parents) {
-        final List<PathInformation> paths = parents.stream()
-                .map(this::getPathInfo)
-                .collect(Collectors.toList());
+        final List<PathInformation> paths = new ArrayList<>();
+        for (final NodeBase parent : parents) {
+            paths.add(getPathInfo(parent));
+        }
 
         final ForkToClose toClose = getOneForkToClose(paths);
 
@@ -180,9 +187,10 @@ public class Graph {
     }
 
     private Join joinPaths(final Fork correspondingFork, final List<PathInformation> paths) {
-        final Set<NodeBase> mainBranchNodes = paths.stream()
-                .flatMap(path -> path.getNodes().stream())
-                .collect(Collectors.toSet());
+        final Set<NodeBase> mainBranchNodes = new LinkedHashSet<>();
+        for (final PathInformation pathInformation : paths) {
+            mainBranchNodes.addAll(pathInformation.getNodes());
+        }
 
         // Taking care of side branches.
         final Set<NodeBase> closedNodes = new HashSet<>();
@@ -272,9 +280,12 @@ public class Graph {
     }
 
     private ForkToClose getOneForkToClose(final List<PathInformation> paths) {
-        final int maxPathLength = paths.stream()
-                .map(path -> path.getNodes().size())
-                .max(Comparator.naturalOrder()).orElse(0);
+        int maxPathLength = 0;
+        for (final PathInformation pathInformation : paths) {
+            if (maxPathLength < pathInformation.getNodes().size()) {
+                maxPathLength = pathInformation.getNodes().size();
+            }
+        }
 
         for (int i = 0; i < maxPathLength; ++i) {
             final ForkToClose foundAtThisLevel = getOneForkToCloseAtLevelN(i, paths);
@@ -312,9 +323,15 @@ public class Graph {
     }
 
     private List<PathInformation> getPathsContainingNode(final NodeBase node, final List<PathInformation> paths) {
-        return paths.stream()
-                .filter(path -> path.getNodes().contains(node))
-                .collect(Collectors.toList());
+        final List<PathInformation> pathsContainingNode = new ArrayList<>();
+
+        for (final PathInformation pathInformationMaybeContaining : paths) {
+            if (pathInformationMaybeContaining.getNodes().contains(node)) {
+                pathsContainingNode.add(pathInformationMaybeContaining);
+            }
+        }
+
+        return pathsContainingNode;
     }
 
     private PathInformation getPathInfo(final NodeBase node) {

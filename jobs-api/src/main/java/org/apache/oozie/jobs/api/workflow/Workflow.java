@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableSet;
 import org.apache.oozie.jobs.api.action.Node;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Workflow {
@@ -36,12 +37,14 @@ public class Workflow {
 
         this.nodes = nodes;
 
-        this.roots = nodes.stream()
-                .filter(node -> node.getParents().isEmpty())
-                .collect(ImmutableSet.Builder<Node>::new,
-                         ImmutableSet.Builder::add,
-                         (builder1, builder2) -> builder1.addAll(builder2.build()))
-                .build();
+        final Set<Node> mutableRoots = new LinkedHashSet<>();
+        for (final Node node : nodes) {
+            if (node.getParents().isEmpty()) {
+                mutableRoots.add(node);
+            }
+        }
+
+        this.roots = ImmutableSet.copyOf(mutableRoots);
     }
 
     public String getName() {

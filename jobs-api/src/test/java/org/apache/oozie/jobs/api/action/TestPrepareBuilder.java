@@ -18,17 +18,17 @@
 
 package org.apache.oozie.jobs.api.action;
 
-import org.apache.oozie.jobs.api.action.Delete;
-import org.apache.oozie.jobs.api.action.Mkdir;
-import org.apache.oozie.jobs.api.action.Prepare;
-import org.apache.oozie.jobs.api.action.PrepareBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class TestPrepareBuilder {
-    public static final String[] TEST_FOLDER_NAMES = {"/user/testpath/testdir1", "/user/testpath/testdir2", "/user/testpath/testdir3"};
+    private static final String[] TEST_FOLDER_NAMES = {
+            "/user/testpath/testdir1",
+            "/user/testpath/testdir2",
+            "/user/testpath/testdir3"
+    };
 
     private PrepareBuilder pb;
 

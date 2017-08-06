@@ -24,7 +24,6 @@ import org.apache.oozie.jobs.api.ModifyOnce;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
         extends NodeBuilderBaseImpl<B> {
@@ -39,9 +38,12 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
     ActionBuilderBaseImpl(final Action action) {
         super(action);
 
-        configuration = action.getConfiguration().entrySet().stream()
-                                .collect(Collectors.toMap(Map.Entry::getKey,
-                                                          entry -> new ModifyOnce<>(entry.getValue())));
+        final Map<String, ModifyOnce<String>> modifyOnceEntries = new LinkedHashMap<>();
+        for (final Map.Entry<String, String> keyAndValue : action.getConfiguration().entrySet()) {
+            modifyOnceEntries.put(keyAndValue.getKey(), new ModifyOnce<>(keyAndValue.getValue()));
+        }
+
+        configuration = modifyOnceEntries;
     }
 
     /**
@@ -67,12 +69,14 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
         final String nameStr = this.name.get();
         final ImmutableList<Node> parentsList = new ImmutableList.Builder<Node>().addAll(parents).build();
 
-        final ImmutableMap<String, String> configurationMap = this.configuration.entrySet().stream()
-                .filter(entry -> entry.getValue().get() != null)
-                .collect(ImmutableMap.Builder<String, String>::new,
-                        (builder, entry) -> builder.put(entry.getKey(), entry.getValue().get()),
-                        (builder1, builder2) -> builder1.putAll(builder2.build()))
-                .build();
+        final Map<String, String> mutableConfiguration = new LinkedHashMap<>();
+        for (final Map.Entry<String, ModifyOnce<String>> modifyOnceEntry : this.configuration.entrySet()) {
+            if (modifyOnceEntry.getValue().get() != null) {
+                mutableConfiguration.put(modifyOnceEntry.getKey(), modifyOnceEntry.getValue().get());
+            }
+        }
+
+        final ImmutableMap<String, String> configurationMap = ImmutableMap.copyOf(mutableConfiguration);
 
         return new Action.ConstructionData(nameStr, parentsList, configurationMap);
     }
