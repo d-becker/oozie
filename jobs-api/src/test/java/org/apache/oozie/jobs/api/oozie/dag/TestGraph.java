@@ -18,7 +18,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
-import org.apache.oozie.jobs.api.Visualization;
+import org.apache.oozie.jobs.api.NodesToPng;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.workflow.Workflow;
@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,102 +35,110 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.apache.oozie.jobs.api.Visualization.intermediaryGraphToDot;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class TestGraph {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    @Test
-    public void testNameIsCorrect() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    @Rule
+    public final NodesToPng nodesToPng = new NodesToPng();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+    @Test
+    public void testNameIsCorrect() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
+
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
 
         final String name = "workflow-name";
-        Workflow workflow = new WorkflowBuilder().withName(name).withDagContainingNode(a).build();
+        final Workflow workflow = new WorkflowBuilder().withName(name).withDagContainingNode(a).build();
 
-        Graph graph = new Graph(workflow);
+        final Graph graph = new Graph(workflow);
         assertEquals(name, graph.getName());
+
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     @Test
     public void testDuplicateNamesThrow() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
-        Node b = new MapReduceActionBuilder().withName("A").withParent(a).build();
+        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node b = new MapReduceActionBuilder().withName("A").withParent(a).build();
 
         // The exception will be thrown by the Workflow object,
         // but if it breaks there, we want to catch duplicates here, too.
         expectedException.expect(IllegalArgumentException.class);
-        Workflow workflow = new WorkflowBuilder().withDagContainingNode(a).build();
+        final Workflow workflow = new WorkflowBuilder().withDagContainingNode(a).build();
 
-        Graph graph = new Graph(workflow);
+        new Graph(workflow);
     }
 
     @Test
-    public void testWorkflowWithoutJoin() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    public void testWorkflowWithoutJoin() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
 
-        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(w);
+        final Workflow workflow = new WorkflowBuilder().withName("without-join").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
-        checkDependencies(w.getNodes(), graph);
+        checkDependencies(workflow.getNodes(), graph);
+
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     @Test
-    public void testWorkflowWithTrivialJoin() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    public void testWorkflowWithTrivialJoin() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
-        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
 
-        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(w);
+        final Workflow workflow = new WorkflowBuilder().withName("trivial-join").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
-        System.out.println(intermediaryGraphToDot(graph));
+        checkDependencies(workflow.getNodes(), graph);
 
-        checkDependencies(w.getNodes(), graph);
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     @Test
-    public void testWorkflowNewDependenciesNeeded() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    public void testWorkflowNewDependenciesNeeded() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
 
-        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
-        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+        final Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
 
-        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
+        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
 
-        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(w);
+        final Workflow workflow = new WorkflowBuilder().withName("new-dependencies-needed").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
-        checkDependencies(w.getNodes(), graph);
+        checkDependencies(workflow.getNodes(), graph);
 
-        NodeBase A = new ExplicitNode("A", null);
-        NodeBase B = new ExplicitNode("B", null);
-        NodeBase C = new ExplicitNode("C", null);
-        NodeBase D = new ExplicitNode("D", null);
-        NodeBase E = new ExplicitNode("E", null);
-        NodeBase F = new ExplicitNode("F", null);
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+        final NodeBase E = new ExplicitNode("E", null);
+        final NodeBase F = new ExplicitNode("F", null);
 
-        Start start = new Start("start");
-        End end = new End("end");
-        Fork fork1 = new Fork("fork1");
-        Fork fork2 = new Fork("fork2");
-        Join join1 = new Join("join1", fork1);
-        Join join2 = new Join("join2", fork2);
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork1 = new Fork("fork1");
+        final Fork fork2 = new Fork("fork2");
+        final Join join1 = new Join("join1", fork1);
+        final Join join2 = new Join("join2", fork2);
 
         end.addParent(F);
         F.addParent(join2);
@@ -145,38 +154,39 @@ public class TestGraph {
         fork1.addParent(A);
         A.addParent(start);
 
-        List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
+        final List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
 
         checkEqualStructureByNames(nodes, graph);
 
-        System.out.println(intermediaryGraphToDot(graph));
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     @Test
-    public void testCrossingDependencyLines() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    public void testCrossingDependencyLines() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).withParent(b).build();
+        final Node b = new MapReduceActionBuilder().withName("B").build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).withParent(b).build();
 
-        Node d = new MapReduceActionBuilder().withName("D").withParent(a).withParent(b).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(a).withParent(b).build();
 
-        Workflow workflow = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(workflow);
+        final Workflow workflow = new WorkflowBuilder().withName("crossing-dependencies").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
         checkDependencies(workflow.getNodes(), graph);
 
-        NodeBase A = new ExplicitNode("A", null);
-        NodeBase B = new ExplicitNode("B", null);
-        NodeBase C = new ExplicitNode("C", null);
-        NodeBase D = new ExplicitNode("D", null);
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
 
-        Start start = new Start("start");
-        End end = new End("end");
-        Fork fork1 = new Fork("fork1");
-        Fork fork2 = new Fork("fork2");
-        Join join1 = new Join("join1", fork1);
-        Join join2 = new Join("join2", fork2);
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork1 = new Fork("fork1");
+        final Fork fork2 = new Fork("fork2");
+        final Join join1 = new Join("join1", fork1);
+        final Join join2 = new Join("join2", fork2);
 
         end.addParent(join2);
         join2.addParent(C);
@@ -190,42 +200,43 @@ public class TestGraph {
         B.addParent(fork1);
         fork1.addParent(start);
 
-        List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D);
+        final List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D);
         checkEqualStructureByNames(nodes, graph);
 
-        System.out.println(intermediaryGraphToDot(graph));
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     @Test
-    public void testSplittingJoins() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    public void testSplittingJoins() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(b).build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(b).build();
 
-        Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
-        Node e = new MapReduceActionBuilder().withName("E").withParent(a).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
+        final Node e = new MapReduceActionBuilder().withName("E").withParent(a).build();
 
-        Node f = new MapReduceActionBuilder().withName("F").withParent(c).withParent(d).withParent(e).build();
+        final Node f = new MapReduceActionBuilder().withName("F").withParent(c).withParent(d).withParent(e).build();
 
-        Workflow workflow = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(workflow);
+        final Workflow workflow = new WorkflowBuilder().withName("splitting-joins").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
         checkDependencies(workflow.getNodes(), graph);
 
-        NodeBase A = new ExplicitNode("A", null);
-        NodeBase B = new ExplicitNode("B", null);
-        NodeBase C = new ExplicitNode("C", null);
-        NodeBase D = new ExplicitNode("D", null);
-        NodeBase E = new ExplicitNode("E", null);
-        NodeBase F = new ExplicitNode("F", null);
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+        final NodeBase E = new ExplicitNode("E", null);
+        final NodeBase F = new ExplicitNode("F", null);
 
-        Start start = new Start("start");
-        End end = new End("end");
-        Fork fork1 = new Fork("fork1");
-        Fork fork2 = new Fork("fork2");
-        Join join1 = new Join("join1", fork1);
-        Join join2 = new Join("join2", fork2);
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork1 = new Fork("fork1");
+        final Fork fork2 = new Fork("fork2");
+        final Join join1 = new Join("join1", fork1);
+        final Join join2 = new Join("join2", fork2);
 
         end.addParent(F);
         F.addParent(join1);
@@ -241,43 +252,44 @@ public class TestGraph {
         fork1.addParent(A);
         A.addParent(start);
 
-        List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
-
-        System.out.println(intermediaryGraphToDot(graph));
+        final List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
 
         checkEqualStructureByNames(nodes, graph);
+
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     @Test
-    public void testSplittingForks() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    public void testSplittingForks() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
 
-        Node d = new MapReduceActionBuilder().withName("D").withParent(a).build();
-        Node e = new MapReduceActionBuilder().withName("E").withParent(b).withParent(c).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(a).build();
+        final Node e = new MapReduceActionBuilder().withName("E").withParent(b).withParent(c).build();
 
-        Node f = new MapReduceActionBuilder().withName("F").withParent(e).withParent(d).build();
+        final Node f = new MapReduceActionBuilder().withName("F").withParent(e).withParent(d).build();
 
-        Workflow workflow = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(workflow);
+        final Workflow workflow = new WorkflowBuilder().withName("splitting-forks").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
         checkDependencies(workflow.getNodes(), graph);
 
-        NodeBase A = new ExplicitNode("A", null);
-        NodeBase B = new ExplicitNode("B", null);
-        NodeBase C = new ExplicitNode("C", null);
-        NodeBase D = new ExplicitNode("D", null);
-        NodeBase E = new ExplicitNode("E", null);
-        NodeBase F = new ExplicitNode("F", null);
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+        final NodeBase E = new ExplicitNode("E", null);
+        final NodeBase F = new ExplicitNode("F", null);
 
-        Start start = new Start("start");
-        End end = new End("end");
-        Fork fork1 = new Fork("fork1");
-        Fork fork2 = new Fork("fork2");
-        Join join1 = new Join("join1", fork1);
-        Join join2 = new Join("join2", fork2);
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork1 = new Fork("fork1");
+        final Fork fork2 = new Fork("fork2");
+        final Join join1 = new Join("join1", fork1);
+        final Join join2 = new Join("join2", fork2);
 
         end.addParent(F);
         F.addParent(join1);
@@ -293,50 +305,48 @@ public class TestGraph {
         fork1.addParent(A);
         A.addParent(start);
 
-        List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
-
-        System.out.println(intermediaryGraphToDot(graph));
+        final List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
 
         checkEqualStructureByNames(nodes, graph);
+
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     @Test
-    public void testBranchingUncles() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    public void testBranchingUncles() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
 
-        Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
-        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
+        final Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
 
-        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
-        Node g = new MapReduceActionBuilder().withName("G").withParent(c).build();
-        Node h = new MapReduceActionBuilder().withName("H").withParent(f).withParent(g).build();
+        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
+        final Node g = new MapReduceActionBuilder().withName("G").withParent(c).build();
+        final Node h = new MapReduceActionBuilder().withName("H").withParent(f).withParent(g).build();
 
-        Workflow workflow = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(workflow);
+        final Workflow workflow = new WorkflowBuilder().withName("branching-uncles").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
         checkDependencies(workflow.getNodes(), graph);
 
-        System.out.println(intermediaryGraphToDot(graph));
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+        final NodeBase E = new ExplicitNode("E", null);
+        final NodeBase F = new ExplicitNode("F", null);
+        final NodeBase G = new ExplicitNode("G", null);
+        final NodeBase H = new ExplicitNode("H", null);
 
-        NodeBase A = new ExplicitNode("A", null);
-        NodeBase B = new ExplicitNode("B", null);
-        NodeBase C = new ExplicitNode("C", null);
-        NodeBase D = new ExplicitNode("D", null);
-        NodeBase E = new ExplicitNode("E", null);
-        NodeBase F = new ExplicitNode("F", null);
-        NodeBase G = new ExplicitNode("G", null);
-        NodeBase H = new ExplicitNode("H", null);
-
-        Start start = new Start("start");
-        End end = new End("end");
-        Fork fork1 = new Fork("fork1");
-        Fork fork2 = new Fork("fork3");
-        Join join1 = new Join("join1", fork1);
-        Join join2 = new Join("join3", fork2);
-
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork1 = new Fork("fork1");
+        final Fork fork2 = new Fork("fork3");
+        final Join join1 = new Join("join1", fork1);
+        final Join join2 = new Join("join3", fork2);
 
         end.addParent(H);
         H.addParent(join2);
@@ -354,71 +364,76 @@ public class TestGraph {
         fork1.addParent(A);
         A.addParent(start);
 
-
-        List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F, G, H);
+        final List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F, G, H);
 
         checkEqualStructureByNames(nodes, graph);
+
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     @Test
-    public void testTrivialRedundantEdge() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    public void testTrivialRedundantEdge() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).withParent(b).build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).withParent(b).build();
 
-        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(w);
+        final Workflow workflow = new WorkflowBuilder().withName("trivial-redundant-edge").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
-        checkDependencies(w.getNodes(), graph);
+        checkDependencies(workflow.getNodes(), graph);
 
-        NodeBase A = new ExplicitNode("A", null);
-        NodeBase B = new ExplicitNode("B", null);
-        NodeBase C = new ExplicitNode("C", null);
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
 
-        Start start = new Start("start");
-        End end = new End("end");
+        final Start start = new Start("start");
+        final End end = new End("end");
 
         end.addParent(C);
         C.addParent(B);
         B.addParent(A);
         A.addParent(start);
 
-        List<NodeBase> nodes = Arrays.asList(start, end, A, B, C);
+        final List<NodeBase> nodes = Arrays.asList(start, end, A, B, C);
 
         checkEqualStructureByNames(nodes, graph);
+
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     @Test
-    public void testRedundantEdge() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    public void testRedundantEdge() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
 
-        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
-        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+        final Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
 
-        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).withParent(a).build();
+        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).withParent(a).build();
 
-        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(w);
+        final Workflow workflow = new WorkflowBuilder().withName("redundant-edge").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
-        checkDependencies(w.getNodes(), graph);
+        checkDependencies(workflow.getNodes(), graph);
 
-        NodeBase A = new ExplicitNode("A", null);
-        NodeBase B = new ExplicitNode("B", null);
-        NodeBase C = new ExplicitNode("C", null);
-        NodeBase D = new ExplicitNode("D", null);
-        NodeBase E = new ExplicitNode("E", null);
-        NodeBase F = new ExplicitNode("F", null);
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+        final NodeBase E = new ExplicitNode("E", null);
+        final NodeBase F = new ExplicitNode("F", null);
 
-        Start start = new Start("start");
-        End end = new End("end");
-        Fork fork1 = new Fork("fork1");
-        Fork fork2 = new Fork("fork2");
-        Join join1 = new Join("join1", fork1);
-        Join join2 = new Join("join2", fork2);
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork1 = new Fork("fork1");
+        final Fork fork2 = new Fork("fork2");
+        final Join join1 = new Join("join1", fork1);
+        final Join join2 = new Join("join2", fork2);
 
         end.addParent(F);
         F.addParent(join2);
@@ -434,59 +449,57 @@ public class TestGraph {
         fork1.addParent(A);
         A.addParent(start);
 
-        List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
+        final List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D, E, F);
 
         checkEqualStructureByNames(nodes, graph);
+
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     @Test
-    public void testLateUncle() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
+    public void testLateUncle() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
 
-        Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
-        Node e = new MapReduceActionBuilder().withName("E").withParent(b).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
+        final Node e = new MapReduceActionBuilder().withName("E").withParent(b).build();
 
-        Node f = new MapReduceActionBuilder().withName("F").withParent(c).build();
+        final Node f = new MapReduceActionBuilder().withName("F").withParent(c).build();
 
-        Node g = new MapReduceActionBuilder().withName("G").withParent(e).build();
-        Node h = new MapReduceActionBuilder().withName("H").withParent(f).build();
-        Node i = new MapReduceActionBuilder().withName("I").withParent(d).withParent(g).build();
-        Node j = new MapReduceActionBuilder().withName("J").withParent(e).withParent(h).build();
-        Node k = new MapReduceActionBuilder().withName("K").withParent(i).withParent(j).build();
+        final Node g = new MapReduceActionBuilder().withName("G").withParent(e).build();
+        final Node h = new MapReduceActionBuilder().withName("H").withParent(f).build();
+        final Node i = new MapReduceActionBuilder().withName("I").withParent(d).withParent(g).build();
+        final Node j = new MapReduceActionBuilder().withName("J").withParent(e).withParent(h).build();
+        final Node k = new MapReduceActionBuilder().withName("K").withParent(i).withParent(j).build();
 
-        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(w);
+        final Workflow workflow = new WorkflowBuilder().withName("late-uncle").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
-        System.out.println(intermediaryGraphToDot(graph));
+        checkDependencies(workflow.getNodes(), graph);
 
-        checkDependencies(w.getNodes(), graph);
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+        final NodeBase E = new ExplicitNode("E", null);
+        final NodeBase F = new ExplicitNode("F", null);
+        final NodeBase G = new ExplicitNode("G", null);
+        final NodeBase H = new ExplicitNode("H", null);
+        final NodeBase I = new ExplicitNode("I", null);
+        final NodeBase J = new ExplicitNode("J", null);
+        final NodeBase K = new ExplicitNode("K", null);
 
-        NodeBase A = new ExplicitNode("A", null);
-        NodeBase B = new ExplicitNode("B", null);
-        NodeBase C = new ExplicitNode("C", null);
-        NodeBase D = new ExplicitNode("D", null);
-        NodeBase E = new ExplicitNode("E", null);
-        NodeBase F = new ExplicitNode("F", null);
-        NodeBase G = new ExplicitNode("G", null);
-        NodeBase H = new ExplicitNode("H", null);
-        NodeBase I = new ExplicitNode("I", null);
-        NodeBase J = new ExplicitNode("J", null);
-        NodeBase K = new ExplicitNode("K", null);
-
-
-
-
-        Start start = new Start("start");
-        End end = new End("end");
-        Fork fork1 = new Fork("fork1");
-        Fork fork2 = new Fork("fork2");
-        Fork fork3 = new Fork("fork3");
-        Join join1 = new Join("join1", fork1);
-        Join join2 = new Join("join2", fork2);
-        Join join3 = new Join("join3", fork3);
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork1 = new Fork("fork1");
+        final Fork fork2 = new Fork("fork2");
+        final Fork fork3 = new Fork("fork3");
+        final Join join1 = new Join("join1", fork1);
+        final Join join2 = new Join("join2", fork2);
+        final Join join3 = new Join("join3", fork3);
 
         end.addParent(K);
         K.addParent(join3);
@@ -510,50 +523,51 @@ public class TestGraph {
         fork1.addParent(A);
         A.addParent(start);
 
-        List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, fork3, join1, join2, join3,
+        final List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, fork3, join1, join2, join3,
                                              A, B, C, D, E, F, G, H, I, J, K);
 
         checkEqualStructureByNames(nodes, graph);
+
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
 
 
     @Test
-    public void testMultipleRoots() {
-        Node a = new MapReduceActionBuilder().withName("A").build();
-        Node g = new MapReduceActionBuilder().withName("G").build();
+    public void testMultipleRoots() throws IOException {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node g = new MapReduceActionBuilder().withName("G").build();
 
-        Node b = new MapReduceActionBuilder().withName("B").withParent(a).withParent(g).build();
-        Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).withParent(g).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
 
-        Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
-        Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+        final Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
 
-        Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
+        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
 
-        Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
-        Graph graph = new Graph(w);
+        final Workflow workflow = new WorkflowBuilder().withName("multiple-roots").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
 
-        // System.out.println(Visualization.intermediaryGraphToDot(graph));
+        checkDependencies(workflow.getNodes(), graph);
 
-        checkDependencies(w.getNodes(), graph);
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+        final NodeBase E = new ExplicitNode("E", null);
+        final NodeBase F = new ExplicitNode("F", null);
+        final NodeBase G = new ExplicitNode("G", null);
 
-        NodeBase A = new ExplicitNode("A", null);
-        NodeBase B = new ExplicitNode("B", null);
-        NodeBase C = new ExplicitNode("C", null);
-        NodeBase D = new ExplicitNode("D", null);
-        NodeBase E = new ExplicitNode("E", null);
-        NodeBase F = new ExplicitNode("F", null);
-        NodeBase G = new ExplicitNode("G", null);
-
-        Start start = new Start("start");
-        End end = new End("end");
-        Fork fork1 = new Fork("fork1");
-        Fork fork2 = new Fork("fork2");
-        Fork fork3 = new Fork("fork3");
-        Join join1 = new Join("join1", fork1);
-        Join join2 = new Join("join2", fork2);
-        Join join3 = new Join("join3", fork3);
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork1 = new Fork("fork1");
+        final Fork fork2 = new Fork("fork2");
+        final Fork fork3 = new Fork("fork3");
+        final Join join1 = new Join("join1", fork1);
+        final Join join2 = new Join("join2", fork2);
+        final Join join3 = new Join("join3", fork3);
 
         end.addParent(F);
         F.addParent(join3);
@@ -573,29 +587,33 @@ public class TestGraph {
         A.addParent(fork1);
         fork1.addParent(start);
 
-        List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, fork3, join1, join2, join3, A, B, C, D, E, F, G);
+        final List<NodeBase> nodes = Arrays.asList(
+                start, end, fork1, fork2, fork3, join1, join2, join3, A, B, C, D, E, F, G);
 
         checkEqualStructureByNames(nodes, graph);
+
+        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withGraph(graph);
     }
 
     private void checkEqualStructureByNames(final Collection<NodeBase> expectedNodes, final Graph graph2) {
         assertEquals(expectedNodes.size(), graph2.getNodes().size());
 
-        for (NodeBase expectedNode : expectedNodes) {
-            NodeBase nodeInOtherGraph = graph2.getNodeByName(expectedNode.getName());
+        for (final NodeBase expectedNode : expectedNodes) {
+            final NodeBase nodeInOtherGraph = graph2.getNodeByName(expectedNode.getName());
 
             assertNotNull(nodeInOtherGraph);
 
-            List<NodeBase> expectedChildren = expectedNode.getChildren();
-            List<NodeBase> actualChildren = nodeInOtherGraph.getChildren();
+            final List<NodeBase> expectedChildren = expectedNode.getChildren();
+            final List<NodeBase> actualChildren = nodeInOtherGraph.getChildren();
 
-            List<String> expectedChildrenNames = new ArrayList<>();
-            for (NodeBase child : expectedChildren) {
+            final List<String> expectedChildrenNames = new ArrayList<>();
+            for (final NodeBase child : expectedChildren) {
                 expectedChildrenNames.add(child.getName());
             }
 
-            List<String> actualChildrenNames = new ArrayList<>();
-            for (NodeBase child : actualChildren) {
+            final List<String> actualChildrenNames = new ArrayList<>();
+            for (final NodeBase child : actualChildren) {
                 actualChildrenNames.add(child.getName());
             }
 
@@ -608,8 +626,8 @@ public class TestGraph {
             assertEquals(expectedChildrenNames.size(), actualChildrenNames.size());
 
             for (int i = 0; i < expectedChildren.size(); ++i) {
-                String expectedName = expectedChildrenNames.get(i);
-                String actualName = actualChildrenNames.get(i);
+                final String expectedName = expectedChildrenNames.get(i);
+                final String actualName = actualChildrenNames.get(i);
 
                 if (graph2.getNodeByName(actualName) instanceof ExplicitNode) {
                     assertEquals(expectedName, actualName);
@@ -619,10 +637,10 @@ public class TestGraph {
     }
 
     private void checkDependencies(final Set<Node> originalNodes, final Graph graph) {
-        for (Node originalNode : originalNodes) {
-            for (Node originalParent : originalNode.getParents()) {
-                NodeBase node = graph.getNodeByName(originalNode.getName());
-                NodeBase parent = graph.getNodeByName(originalParent.getName());
+        for (final Node originalNode : originalNodes) {
+            for (final Node originalParent : originalNode.getParents()) {
+                final NodeBase node = graph.getNodeByName(originalNode.getName());
+                final NodeBase parent = graph.getNodeByName(originalParent.getName());
 
                 assertTrue(verifyDependency(parent, node));
             }
@@ -630,9 +648,9 @@ public class TestGraph {
     }
 
     private boolean verifyDependency(final NodeBase dependency, final NodeBase dependent) {
-        List<NodeBase> children = dependency.getChildren();
+        final List<NodeBase> children = dependency.getChildren();
 
-        for (NodeBase child : children) {
+        for (final NodeBase child : children) {
             if (child == dependent || verifyDependency(child, dependent)) {
                 return true;
             }

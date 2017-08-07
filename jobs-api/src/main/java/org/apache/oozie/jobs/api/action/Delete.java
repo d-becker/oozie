@@ -22,7 +22,7 @@ public class Delete {
     private final String path;
     private final Boolean skipTrash;
 
-    public Delete(String path, Boolean skipTrash) {
+    Delete(final String path, final Boolean skipTrash) {
         this.path = path;
         this.skipTrash = skipTrash;
     }
@@ -31,7 +31,7 @@ public class Delete {
         return path;
     }
 
-    public Boolean getSkipTrash() {
+    Boolean getSkipTrash() {
         return skipTrash;
     }
 }

@@ -31,7 +31,7 @@ public class TestModifyOnce {
     @Test
     public void testAllowOneModification() {
         final String defaultValue = "Default value";
-        ModifyOnce<String> instance = new ModifyOnce<>(defaultValue);
+        final ModifyOnce<String> instance = new ModifyOnce<>(defaultValue);
 
         assertEquals(defaultValue, instance.get());
 
@@ -43,7 +43,7 @@ public class TestModifyOnce {
 
     @Test
     public void testThrowOnSecondModification() {
-        ModifyOnce<String> instance = new ModifyOnce();
+        final ModifyOnce<String> instance = new ModifyOnce();
         instance.set("First modification");
 
         expectedException.expect(IllegalStateException.class);

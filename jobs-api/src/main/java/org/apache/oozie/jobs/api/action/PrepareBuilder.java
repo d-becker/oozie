@@ -29,16 +29,16 @@ public class PrepareBuilder {
         mkdirs = new ImmutableList.Builder<>();
     }
 
-    public PrepareBuilder withDelete(String path) {
+    public PrepareBuilder withDelete(final String path) {
         return withDelete(path, null);
     }
 
-    public PrepareBuilder withDelete(String path, Boolean skipTrash) {
+    public PrepareBuilder withDelete(final String path, final Boolean skipTrash) {
         deletes.add(new Delete(path, skipTrash));
         return this;
     }
 
-    public PrepareBuilder withMkdir(String path) {
+    public PrepareBuilder withMkdir(final String path) {
         mkdirs.add(new Mkdir(path));
         return this;
     }

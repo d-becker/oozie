@@ -40,8 +40,7 @@ public class MapReduceAction extends Action {
                     final ImmutableList<String> jobXmls,
                     final String configClass,
                     final ImmutableList<String> files,
-                    final ImmutableList<String> archives)
-    {
+                    final ImmutableList<String> archives) {
         super(constructionData);
 
         this.jobTracker = jobTracker;

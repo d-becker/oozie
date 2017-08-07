@@ -23,14 +23,12 @@ import com.google.common.collect.ImmutableList;
 public class Kill extends Node {
     private final String message;
 
-    public Kill(final String name,
-                final ImmutableList<Node> parents,
-                final String message) {
+    Kill(final String name, final ImmutableList<Node> parents, final String message) {
         super(name, parents);
         this.message = message;
     }
 
-    public String getMessage() {
+    String getMessage() {
         return message;
     }
 }

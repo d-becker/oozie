@@ -110,7 +110,7 @@ public class TestEnd extends TestNodeBase<End> {
 
     @Test
     public void testGetChildren() {
-        End instance = getInstance("end");
+        final End instance = getInstance("end");
 
         assertTrue(instance.getChildren().isEmpty());
     }

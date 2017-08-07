@@ -32,11 +32,14 @@ public abstract class NodeBase {
     }
 
     public abstract void addParent(final NodeBase parent);
+
     public abstract void removeParent(final NodeBase parent);
+
     public abstract void clearParents();
 
     public abstract List<NodeBase> getChildren();
 
     protected abstract void addChild(final NodeBase child);
+
     protected abstract void removeChild(final NodeBase child);
 }

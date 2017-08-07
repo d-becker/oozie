@@ -28,12 +28,12 @@ public class ExplicitNode extends NodeBase {
     private NodeBase child;
     private final Node realNode;
 
-    public ExplicitNode(String name, Node realNode) {
+    ExplicitNode(final String name, final Node realNode) {
         super(name);
         this.realNode = realNode;
     }
 
-    public Node getRealNode() {
+    Node getRealNode() {
         return realNode;
     }
 
@@ -46,7 +46,7 @@ public class ExplicitNode extends NodeBase {
     }
 
     @Override
-    public void addParent(NodeBase parent) {
+    public void addParent(final NodeBase parent) {
         if (this.parent != null) {
             throw new IllegalStateException("A normal node cannot have multiple parents.");
         }
@@ -56,16 +56,16 @@ public class ExplicitNode extends NodeBase {
     }
 
     @Override
-    public void removeParent(NodeBase parent) {
+    public void removeParent(final NodeBase parent) {
         if (this.parent != parent) {
             throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
-        } else {
-            if (this.parent != null) {
-                this.parent.removeChild(this);
-            }
-
-            this.parent = null;
         }
+
+        if (this.parent != null) {
+            this.parent.removeChild(this);
+        }
+
+        this.parent = null;
     }
 
     @Override
@@ -77,9 +77,9 @@ public class ExplicitNode extends NodeBase {
     public List<NodeBase> getChildren() {
         if (child == null) {
             return Arrays.asList();
-        } else {
-            return Arrays.asList(child);
         }
+
+        return Arrays.asList(child);
     }
 
     @Override
@@ -93,10 +93,10 @@ public class ExplicitNode extends NodeBase {
 
     @Override
     protected void removeChild(final NodeBase child) {
-        if (this.child == child) {
-            this.child = null;
-        } else {
+        if (this.child != child) {
             throw new IllegalArgumentException("Trying to remove a nonexistent child.");
         }
+
+        this.child = null;
     }
 }

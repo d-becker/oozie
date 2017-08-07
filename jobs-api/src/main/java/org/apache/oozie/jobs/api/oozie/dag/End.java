@@ -24,7 +24,7 @@ import java.util.List;
 public class End extends NodeBase {
     private NodeBase parent;
 
-    public End(final String name) {
+    End(final String name) {
         super(name);
     }
 
@@ -46,13 +46,13 @@ public class End extends NodeBase {
     public void removeParent(final NodeBase parent) {
         if (this.parent != parent) {
             throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
-        } else {
-            if (this.parent != null) {
-                this.parent.removeChild(this);
-            }
-
-            this.parent = null;
         }
+
+        if (this.parent != null) {
+            this.parent.removeChild(this);
+        }
+
+        this.parent = null;
     }
 
     @Override

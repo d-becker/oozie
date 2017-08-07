@@ -32,68 +32,68 @@ import java.util.HashSet;
 import static org.junit.Assert.assertEquals;
 
 public class TestWorkflowBuilder {
-    public static final String NAME = "workflow-name";
+    private static final String NAME = "workflow-name";
 
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void testAddName() {
-        WorkflowBuilder builder = new WorkflowBuilder();
+        final WorkflowBuilder builder = new WorkflowBuilder();
         builder.withName(NAME);
 
-        Workflow workflow = builder.build();
+        final Workflow workflow = builder.build();
 
         assertEquals(NAME, workflow.getName());
     }
 
     @Test
     public void testAddDagTrivial() {
-        MapReduceAction mrAction1 = new MapReduceActionBuilder()
+        final MapReduceAction mrAction1 = new MapReduceActionBuilder()
                 .withName("mr1")
                 .withNameNode("${nameNode}")
                 .withJobTracker("${jobTracker}")
                 .withConfigProperty("mapred.output.dir", "${outputDir}")
                 .build();
 
-        MapReduceAction mrAction2 = new MapReduceActionBuilder()
+        final MapReduceAction mrAction2 = new MapReduceActionBuilder()
                 .withName("mr2")
                 .withNameNode("${nameNode}")
                 .withJobTracker("${jobTracker}")
                 .withConfigProperty("mapred.output.dir", "${outputDir}")
                 .build();
 
-        WorkflowBuilder builder = new WorkflowBuilder();
+        final WorkflowBuilder builder = new WorkflowBuilder();
 
         builder.withDagContainingNode(mrAction1)
                 .withDagContainingNode(mrAction2);
 
-        Workflow workflow = builder.build();
+        final Workflow workflow = builder.build();
 
         assertEquals(new HashSet<>(Arrays.asList(mrAction1, mrAction2)), workflow.getRoots());
     }
 
     @Test
     public void testAddDagFindRoots() {
-        MapReduceAction mrAction1 = new MapReduceActionBuilder()
+        final MapReduceAction mrAction1 = new MapReduceActionBuilder()
                 .withName("mr1")
                 .build();
 
-        MapReduceAction mrAction2 = new MapReduceActionBuilder()
+        final MapReduceAction mrAction2 = new MapReduceActionBuilder()
                 .withName("mr2")
                 .build();
 
-        MapReduceAction mrAction3 = new MapReduceActionBuilder()
+        final MapReduceAction mrAction3 = new MapReduceActionBuilder()
                 .withName("mr3")
                 .withParent(mrAction1)
                 .withParent(mrAction2)
                 .build();
 
-        WorkflowBuilder builder = new WorkflowBuilder();
+        final WorkflowBuilder builder = new WorkflowBuilder();
 
         builder.withDagContainingNode(mrAction3);
 
-        Workflow workflow = builder.build();
+        final Workflow workflow = builder.build();
 
         assertEquals(new HashSet<>(Arrays.asList(mrAction1, mrAction2)), workflow.getRoots());
         assertEquals(new HashSet<>(Arrays.asList(mrAction1, mrAction2, mrAction3)), workflow.getNodes());
@@ -101,15 +101,15 @@ public class TestWorkflowBuilder {
 
     @Test
     public void testAddDagThrowOnDuplicateNodeNames() {
-        MapReduceAction mrAction = new MapReduceActionBuilder()
+        final MapReduceAction mrAction = new MapReduceActionBuilder()
                 .withName("mr-action")
                 .build();
 
-        MapReduceAction mrActionWithTheSameName = new MapReduceActionBuilder()
+        final MapReduceAction mrActionWithTheSameName = new MapReduceActionBuilder()
                 .withName("mr-action")
                 .build();
 
-        WorkflowBuilder builder = new WorkflowBuilder();
+        final WorkflowBuilder builder = new WorkflowBuilder();
         builder.withName(NAME)
                 .withDagContainingNode(mrAction)
                 .withDagContainingNode(mrActionWithTheSameName);

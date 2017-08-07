@@ -41,11 +41,11 @@ public class TestPrepareBuilder {
     public void testOneDeleteIsAddedWithSkipTrashTrue() {
         pb.withDelete(TEST_FOLDER_NAMES[0], true);
 
-        Prepare prepare = pb.build();
+        final Prepare prepare = pb.build();
 
         assertEquals(1, prepare.getDeletes().size());
 
-        Delete delete = prepare.getDeletes().get(0);
+        final Delete delete = prepare.getDeletes().get(0);
         assertEquals(TEST_FOLDER_NAMES[0], delete.getPath());
         assertEquals(true, delete.getSkipTrash());
 
@@ -54,16 +54,16 @@ public class TestPrepareBuilder {
 
     @Test
     public void testSeveralDeletesAreAddedWithSkipTrashNotSpecified() {
-        for (String testDir : TEST_FOLDER_NAMES) {
+        for (final String testDir : TEST_FOLDER_NAMES) {
             pb.withDelete(testDir);
         }
 
-        Prepare prepare = pb.build();
+        final Prepare prepare = pb.build();
 
         assertEquals(TEST_FOLDER_NAMES.length, prepare.getDeletes().size());
 
         for (int i = 0; i < TEST_FOLDER_NAMES.length; ++i) {
-            Delete delete = prepare.getDeletes().get(i);
+            final Delete delete = prepare.getDeletes().get(i);
             assertEquals(TEST_FOLDER_NAMES[i], delete.getPath());
             assertEquals(null, delete.getSkipTrash());
         }
@@ -75,11 +75,11 @@ public class TestPrepareBuilder {
     public void testOneMkdirIsAdded() {
         pb.withMkdir(TEST_FOLDER_NAMES[0]);
 
-        Prepare prepare = pb.build();
+        final Prepare prepare = pb.build();
 
         assertEquals(1, prepare.getMkdirs().size());
 
-        Mkdir mkdir = prepare.getMkdirs().get(0);
+        final Mkdir mkdir = prepare.getMkdirs().get(0);
         assertEquals(TEST_FOLDER_NAMES[0], mkdir.getPath());
 
         assertEquals(0, prepare.getDeletes().size());
@@ -87,16 +87,16 @@ public class TestPrepareBuilder {
 
     @Test
     public void testSeveralMkdirsAreAdded() {
-        for (String testDir : TEST_FOLDER_NAMES) {
+        for (final String testDir : TEST_FOLDER_NAMES) {
             pb.withMkdir(testDir);
         }
 
-        Prepare prepare = pb.build();
+        final Prepare prepare = pb.build();
 
         assertEquals(TEST_FOLDER_NAMES.length, prepare.getMkdirs().size());
 
         for (int i = 0; i < TEST_FOLDER_NAMES.length; ++i) {
-            Mkdir mkdir = prepare.getMkdirs().get(i);
+            final Mkdir mkdir = prepare.getMkdirs().get(i);
             assertEquals(TEST_FOLDER_NAMES[i], mkdir.getPath());
         }
 

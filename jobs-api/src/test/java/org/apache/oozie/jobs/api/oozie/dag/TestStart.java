@@ -30,7 +30,6 @@ public class TestStart extends TestNodeBase<Start> {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-
     @Override
     protected Start getInstance(final String name) {
         return new Start(name);

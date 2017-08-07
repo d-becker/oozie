@@ -38,19 +38,19 @@ public class WorkflowBuilder {
         addedActions = new ArrayList<>();
     }
 
-    public WorkflowBuilder withName(String name) {
+    public WorkflowBuilder withName(final String name) {
         this.name.set(name);
         return this;
     }
 
-    public WorkflowBuilder withDagContainingNode(Node node) {
+    public WorkflowBuilder withDagContainingNode(final Node node) {
         addedActions.add(node);
         return this;
     }
 
     public Workflow build() {
         final Set<Node> nodes = new HashSet<>();
-        for (Node node : addedActions) {
+        for (final Node node : addedActions) {
             if (!nodes.contains(node)) {
                 nodes.addAll(getNodesInDag(node));
             }
@@ -62,7 +62,7 @@ public class WorkflowBuilder {
         return new Workflow(name.get(), builder.build());
     }
 
-    private static Set<Node> getNodesInDag(Node node) {
+    private static Set<Node> getNodesInDag(final Node node) {
         final Set<Node> visited = new HashSet<>();
         final Queue<Node> queue = new ArrayDeque<>();
         visited.add(node);
@@ -77,8 +77,8 @@ public class WorkflowBuilder {
         return visited;
     }
 
-    private static void visit(List<Node> toVisit, Set<Node> visited, Queue<Node> queue) {
-        for (Node node : toVisit) {
+    private static void visit(final List<Node> toVisit, final Set<Node> visited, final Queue<Node> queue) {
+        for (final Node node : toVisit) {
             if (!visited.contains(node)) {
                 visited.add(node);
                 queue.add(node);

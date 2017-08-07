@@ -28,16 +28,16 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public abstract class TestActionBuilderBaseImpl<ACTION_T extends Action,
-            BUILDER_T extends ActionBuilderBaseImpl<BUILDER_T> & Builder<ACTION_T>>
-        extends TestNodeBuilderBaseImpl<ACTION_T, BUILDER_T>{
-    public static final String QNAME = "mapred.job.queue.name";
-    public static final String DEFAULT = "default";
+public abstract class TestActionBuilderBaseImpl<A extends Action,
+            B extends ActionBuilderBaseImpl<B> & Builder<A>>
+        extends TestNodeBuilderBaseImpl<A, B>{
+    private static final String MAPRED_JOB_QUEUE_NAME = "mapred.job.queue.name";
+    private static final String DEFAULT = "default";
 
     private static final ImmutableMap<String, String> CONFIG_EXAMPLE = getConfigExample();
 
     private static ImmutableMap<String, String> getConfigExample() {
-        ImmutableMap.Builder<String, String> configExampleBuilder = new ImmutableMap.Builder<>();
+        final ImmutableMap.Builder<String, String> configExampleBuilder = new ImmutableMap.Builder<>();
 
         final String[] keys = {"mapred.map.tasks", "mapred.input.dir", "mapred.output.dir"};
         final String[] values = {"1", "${inputDir}", "${outputDir}"};
@@ -51,24 +51,24 @@ public abstract class TestActionBuilderBaseImpl<ACTION_T extends Action,
 
     @Test
     public void testConfigPropertyAdded() {
-        BUILDER_T builder = getBuilderInstance();
-        builder.withConfigProperty(QNAME, DEFAULT);
+        final B builder = getBuilderInstance();
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
 
-        ACTION_T action = builder.build();
-        assertEquals(DEFAULT, action.getConfigProperty(QNAME));
+        final A action = builder.build();
+        assertEquals(DEFAULT, action.getConfigProperty(MAPRED_JOB_QUEUE_NAME));
     }
 
     @Test
     public void testSeveralConfigPropertiesAdded() {
-        BUILDER_T builder = getBuilderInstance();
+        final B builder = getBuilderInstance();
 
-        for (Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
+        for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
             builder.withConfigProperty(entry.getKey(), entry.getValue());
         }
 
-        ACTION_T action = builder.build();
+        final A action = builder.build();
 
-        for (Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
+        for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
             assertEquals(entry.getValue(), action.getConfigProperty(entry.getKey()));
         }
 
@@ -77,41 +77,40 @@ public abstract class TestActionBuilderBaseImpl<ACTION_T extends Action,
 
     @Test
     public void testSameConfigPropertyAddedTwiceThrows() {
-        BUILDER_T builder = getBuilderInstance();
-        builder.withConfigProperty(QNAME, DEFAULT);
+        final B builder = getBuilderInstance();
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
 
         expectedException.expect(IllegalStateException.class);
-        builder.withConfigProperty(QNAME, DEFAULT);
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
     }
 
     @Test
     public void testFromExistingAction() {
-        BUILDER_T builder = getBuilderInstance();
+        final B builder = getBuilderInstance();
 
         builder.withName(NAME);
 
-        for (Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
+        for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
             builder.withConfigProperty(entry.getKey(), entry.getValue());
         }
 
-        ACTION_T action = builder.build();
+        final A action = builder.build();
 
-        List<String> keys = new ArrayList<>(CONFIG_EXAMPLE.keySet());
-        Map<String, String> expectedModifiedConfiguration = new LinkedHashMap<>(CONFIG_EXAMPLE);
+        final List<String> keys = new ArrayList<>(CONFIG_EXAMPLE.keySet());
+        final Map<String, String> expectedModifiedConfiguration = new LinkedHashMap<>(CONFIG_EXAMPLE);
 
-        String keyToModify = keys.get(0);
-        String modifiedValue = "modified-property-value";
+        final String keyToModify = keys.get(0);
+        final String modifiedValue = "modified-property-value";
         expectedModifiedConfiguration.put(keyToModify, modifiedValue);
 
-        String keyToRemove = keys.get(1);
+        final String keyToRemove = keys.get(1);
         expectedModifiedConfiguration.remove(keyToRemove);
 
-
-        String newKey = "new-property-name";
-        String newValue = "new-property-value";
+        final String newKey = "new-property-name";
+        final String newValue = "new-property-value";
         expectedModifiedConfiguration.put(newKey, newValue);
 
-        BUILDER_T fromExistingBuilder = getBuilderInstance(action);
+        final B fromExistingBuilder = getBuilderInstance(action);
 
         final String newName = "fromExisting_" + NAME;
         fromExistingBuilder.withName(newName)
@@ -119,7 +118,7 @@ public abstract class TestActionBuilderBaseImpl<ACTION_T extends Action,
                 .withConfigProperty(keyToRemove, null)
                 .withConfigProperty(newKey, newValue);
 
-        ACTION_T modifiedMrAction = fromExistingBuilder.build();
+        final A modifiedMrAction = fromExistingBuilder.build();
 
         assertEquals(newName, modifiedMrAction.getName());
         assertEquals(expectedModifiedConfiguration, modifiedMrAction.getConfiguration());

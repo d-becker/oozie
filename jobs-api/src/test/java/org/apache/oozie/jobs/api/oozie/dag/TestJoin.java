@@ -41,7 +41,7 @@ public class TestJoin extends TestNodeBase<Join> {
         Fork fork = new Fork("fork");
         Join join = new Join("join", fork);
 
-        assertEquals(fork, join.getCorrespondingFork());
+        assertEquals(fork, join.getForkPair());
 
         assertEquals(join, fork.getClosingJoin());
         assertTrue(fork.isClosed());

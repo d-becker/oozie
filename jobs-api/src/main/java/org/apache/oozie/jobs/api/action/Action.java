@@ -33,7 +33,7 @@ public abstract class Action extends Node {
     }
 
 
-    String getConfigProperty(String property) {
+    String getConfigProperty(final String property) {
         return configuration.get(property);
     }
 

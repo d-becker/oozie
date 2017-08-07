@@ -37,6 +37,7 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
 
     public MapReduceActionBuilder() {
         super();
+
         jobTracker = new ModifyOnce<>();
         nameNode = new ModifyOnce<>();
         prepare = new ModifyOnce<>();
@@ -48,37 +49,37 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
 
     public MapReduceActionBuilder(final MapReduceAction action) {
         super(action);
+
         jobTracker = new ModifyOnce<>(action.getJobTracker());
         nameNode = new ModifyOnce<>(action.getNameNode());
         prepare = new ModifyOnce<>(action.getPrepare());
         jobXmls = new ArrayList<>(action.getJobXmls());
-
         configClass = new ModifyOnce<>(action.getConfigClass());
         files = new ArrayList<>(action.getFiles());
         archives = new ArrayList<>(action.getArchives());
     }
 
-    public MapReduceActionBuilder withJobTracker(String jobTracker) {
+    public MapReduceActionBuilder withJobTracker(final String jobTracker) {
         this.jobTracker.set(jobTracker);
         return this;
     }
 
-    public MapReduceActionBuilder withNameNode(String nameNode) {
+    public MapReduceActionBuilder withNameNode(final String nameNode) {
         this.nameNode.set(nameNode);
         return this;
     }
 
-    public MapReduceActionBuilder withPrepare(Prepare prepare) {
+    public MapReduceActionBuilder withPrepare(final Prepare prepare) {
         this.prepare.set(prepare);
         return this;
     }
 
-    public MapReduceActionBuilder withJobXml(String jobXml) {
+    public MapReduceActionBuilder withJobXml(final String jobXml) {
         this.jobXmls.add(jobXml);
         return this;
     }
 
-    public MapReduceActionBuilder withoutJobXml(String jobXml) {
+    public MapReduceActionBuilder withoutJobXml(final String jobXml) {
         jobXmls.remove(jobXml);
         return this;
     }
@@ -88,17 +89,17 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
         return this;
     }
 
-    public MapReduceActionBuilder withConfigClass(String configClass) {
+    public MapReduceActionBuilder withConfigClass(final String configClass) {
         this.configClass.set(configClass);
         return this;
     }
 
-    public MapReduceActionBuilder withFile(String file) {
+    public MapReduceActionBuilder withFile(final String file) {
         this.files.add(file);
         return this;
     }
 
-    public MapReduceActionBuilder withoutFile(String file) {
+    public MapReduceActionBuilder withoutFile(final String file) {
         files.remove(file);
         return this;
     }
@@ -108,12 +109,12 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
         return this;
     }
 
-    public MapReduceActionBuilder withArchive(String archive) {
+    public MapReduceActionBuilder withArchive(final String archive) {
         this.archives.add(archive);
         return this;
     }
 
-    public MapReduceActionBuilder withoutArchive(String archive) {
+    public MapReduceActionBuilder withoutArchive(final String archive) {
         archives.remove(archive);
         return this;
     }
@@ -134,7 +135,7 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
         final ImmutableList<String> filesList = new ImmutableList.Builder<String>().addAll(this.files).build();
         final ImmutableList<String> archivesList = new ImmutableList.Builder<String>().addAll(this.archives).build();
 
-        MapReduceAction instance = new MapReduceAction(
+        final MapReduceAction instance = new MapReduceAction(
                 constructionData,
                 jobTrackerStr,
                 nameNodeStr,
@@ -144,9 +145,9 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
                 filesList,
                 archivesList);
 
-        List<Node> parentsList = instance.getParents();
+        final List<Node> parentsList = instance.getParents();
         if (parentsList != null) {
-            for (Node parent : parentsList) {
+            for (final Node parent : parentsList) {
                 parent.addChild(instance);
             }
         }
@@ -155,8 +156,7 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
     }
 
     @Override
-    protected MapReduceActionBuilder getThis() {
+    protected MapReduceActionBuilder getRuntimeSelfReference() {
         return this;
     }
-
 }

@@ -30,7 +30,7 @@ public class Workflow {
     private final ImmutableSet<Node> nodes;
     private final ImmutableSet<Node> roots;
 
-    Workflow(String name, ImmutableSet<Node> nodes) {
+    Workflow(final String name, final ImmutableSet<Node> nodes) {
         this.name = name;
 
         checkUniqueNames(nodes);
@@ -60,11 +60,11 @@ public class Workflow {
     }
 
     private void checkUniqueNames(final Set<Node> nodes) {
-        Set<String> names = new HashSet<>();
+        final Set<String> names = new HashSet<>();
 
-        for (Node node : nodes) {
+        for (final Node node : nodes) {
             if (names.contains(node.getName())) {
-                String errorMessage = String.format("Duplicate name '%s' found in workflow '%s'", node.getName(), getName());
+                final String errorMessage = String.format("Duplicate name '%s' found in workflow '%s'", node.getName(), getName());
                 throw new IllegalArgumentException(errorMessage);
             }
 

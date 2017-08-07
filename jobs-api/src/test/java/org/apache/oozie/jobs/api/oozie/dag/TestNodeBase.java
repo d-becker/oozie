@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public abstract class TestNodeBase<T extends NodeBase> {
-    public static final String NAME = "node name";
+    static final String NAME = "node name";
 
     protected abstract T getInstance(final String name);
 

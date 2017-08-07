@@ -28,23 +28,23 @@ public class KillBuilder extends NodeBuilderBaseImpl<KillBuilder> implements Bui
         message = new ModifyOnce<>();
     }
 
-    public KillBuilder(Kill kill) {
+    public KillBuilder(final Kill kill) {
         super(kill);
         message = new ModifyOnce<>(kill.getMessage());
     }
 
-    public KillBuilder withMessage(String message) {
+    public KillBuilder withMessage(final String message) {
         this.message.set(message);
         return this;
     }
 
     @Override
     public Kill build() {
-        ImmutableList<Node> parentsList = new ImmutableList.Builder<Node>().addAll(parents).build();
-        Kill instance = new Kill(name.get(), parentsList, message.get());
+        final ImmutableList<Node> parentsList = new ImmutableList.Builder<Node>().addAll(parents).build();
+        final Kill instance = new Kill(name.get(), parentsList, message.get());
 
         if (parentsList != null) {
-            for (Node parent : parentsList) {
+            for (final Node parent : parentsList) {
                 parent.addChild(instance);
             }
         }
@@ -53,7 +53,7 @@ public class KillBuilder extends NodeBuilderBaseImpl<KillBuilder> implements Bui
     }
 
     @Override
-    protected KillBuilder getThis() {
+    protected KillBuilder getRuntimeSelfReference() {
         return this;
     }
 }

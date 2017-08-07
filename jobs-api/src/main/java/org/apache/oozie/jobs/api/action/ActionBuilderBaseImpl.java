@@ -52,7 +52,7 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
      * @param value
      * @return
      */
-    public B withConfigProperty(String key, String value) {
+    public B withConfigProperty(final String key, final String value) {
         ModifyOnce<String> mappedValue = this.configuration.get(key);
 
         if (mappedValue == null) {

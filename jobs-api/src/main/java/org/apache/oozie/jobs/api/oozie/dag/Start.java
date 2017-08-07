@@ -24,7 +24,7 @@ import java.util.List;
 public class Start extends NodeBase {
     private NodeBase child;
 
-    public Start(final String name) {
+    Start(final String name) {
         super(name);
     }
 
@@ -67,10 +67,10 @@ public class Start extends NodeBase {
 
     @Override
     protected void removeChild(final NodeBase child) {
-        if (this.child == child) {
-            this.child = null;
-        } else {
+        if (this.child != child) {
             throw new IllegalArgumentException("Trying to remove a nonexistent child.");
         }
+
+        this.child = null;
     }
 }

@@ -25,7 +25,7 @@ import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 
 public class TestKillBuilder extends TestNodeBuilderBaseImpl<Kill, KillBuilder> {
-    public static final String MESSAGE = "Error message.";
+    private static final String MESSAGE = "Error message.";
 
     @Override
     protected KillBuilder getBuilderInstance() {
@@ -33,19 +33,19 @@ public class TestKillBuilder extends TestNodeBuilderBaseImpl<Kill, KillBuilder> 
     }
 
     @Override
-    protected KillBuilder getBuilderInstance(Kill kill) {
+    protected KillBuilder getBuilderInstance(final Kill kill) {
         return new KillBuilder(kill);
     }
 
     @Test
     public void testMessageAdded() {
-        KillBuilder builder = new KillBuilder();
+        final KillBuilder builder = new KillBuilder();
         builder.withMessage(MESSAGE);
     }
 
     @Test
     public void testMessageAddedTwiceThrows() {
-        KillBuilder builder = new KillBuilder();
+        final KillBuilder builder = new KillBuilder();
         builder.withMessage(MESSAGE);
 
         expectedException.expect(IllegalStateException.class);
@@ -54,27 +54,27 @@ public class TestKillBuilder extends TestNodeBuilderBaseImpl<Kill, KillBuilder> 
 
     @Test
     public void testFromExistingKill() {
-        Node parent1 = new MapReduceActionBuilder().withName("parent1").build();
-        Node parent2 = new MapReduceActionBuilder().withName("parent2").build();
-        Node parent3 = new MapReduceActionBuilder().withName("parent3").build();
+        final Node parent1 = new MapReduceActionBuilder().withName("parent1").build();
+        final Node parent2 = new MapReduceActionBuilder().withName("parent2").build();
+        final Node parent3 = new MapReduceActionBuilder().withName("parent3").build();
 
-        KillBuilder builder = getBuilderInstance();
+        final KillBuilder builder = getBuilderInstance();
 
         builder.withName(NAME)
                 .withMessage(MESSAGE)
                 .withParent(parent1)
                 .withParent(parent2);
 
-        Kill kill = builder.build();
+        final Kill kill = builder.build();
 
-        KillBuilder fromExistingBuilder = getBuilderInstance(kill);
+        final KillBuilder fromExistingBuilder = getBuilderInstance(kill);
 
         final String newMessage = "From existing: " + MESSAGE;
         fromExistingBuilder.withMessage(newMessage)
                 .withoutParent(parent2)
                 .withParent(parent3);
 
-        Kill modifiedNode = fromExistingBuilder.build();
+        final Kill modifiedNode = fromExistingBuilder.build();
 
         assertEquals(NAME, modifiedNode.getName());
         assertEquals(newMessage, modifiedNode.getMessage());

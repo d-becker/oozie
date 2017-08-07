@@ -29,7 +29,7 @@ public class Join extends NodeBase {
 
     private final Fork fork;
 
-    public Join(final String name, final Fork fork) {
+    Join(final String name, final Fork fork) {
         super(name);
 
         this.fork = fork;
@@ -62,8 +62,8 @@ public class Join extends NodeBase {
 
     @Override
     public void clearParents() {
-        List<NodeBase> oldParents = new ArrayList<>(parents);
-        for (NodeBase parent : oldParents) {
+        final List<NodeBase> oldParents = new ArrayList<>(parents);
+        for (final NodeBase parent : oldParents) {
             removeParent(parent);
         }
     }
@@ -72,16 +72,16 @@ public class Join extends NodeBase {
     public List<NodeBase> getChildren() {
         if (child == null) {
             return Arrays.asList();
-        } else {
-            return Arrays.asList(child);
         }
+
+        return Arrays.asList(child);
     }
 
     public NodeBase getChild() {
         return child;
     }
 
-    public Fork getCorrespondingFork() {
+    Fork getForkPair() {
         return fork;
     }
 
@@ -96,10 +96,10 @@ public class Join extends NodeBase {
 
     @Override
     protected void removeChild(final NodeBase child) {
-        if (this.child == child) {
-            this.child = null;
-        } else {
+        if (this.child != child) {
             throw new IllegalArgumentException("Trying to remove a nonexistent child.");
         }
+
+        this.child = null;
     }
 }

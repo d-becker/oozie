@@ -26,18 +26,16 @@ public class Prepare {
     private final ImmutableList<Delete> deletes;
     private final ImmutableList<Mkdir> mkdirs;
 
-
-    Prepare(ImmutableList<Delete> deletes, ImmutableList<Mkdir> mkdirs) {
+    Prepare(final ImmutableList<Delete> deletes, final ImmutableList<Mkdir> mkdirs) {
         this.deletes = deletes;
         this.mkdirs = mkdirs;
     }
 
-    public List<Delete> getDeletes() {
+    List<Delete> getDeletes() {
         return deletes;
     }
 
-    public List<Mkdir> getMkdirs() {
+    List<Mkdir> getMkdirs() {
         return mkdirs;
     }
-
 }

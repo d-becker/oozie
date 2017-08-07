@@ -30,7 +30,7 @@ public class Fork extends NodeBase {
 
     private final ModifyOnce<Join> closingJoin;
 
-    public Fork(final String name) {
+    Fork(final String name) {
         super(name);
         children = new ArrayList<>();
         closingJoin = new ModifyOnce<>();
@@ -54,13 +54,13 @@ public class Fork extends NodeBase {
     public void removeParent(final NodeBase parent) {
         if (this.parent != parent) {
             throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
-        } else {
-            if (this.parent != null) {
-                this.parent.removeChild(this);
-            }
-
-            this.parent = null;
         }
+
+        if (this.parent != null) {
+            this.parent.removeChild(this);
+        }
+
+        this.parent = null;
     }
 
     @Override
@@ -73,11 +73,11 @@ public class Fork extends NodeBase {
         return Collections.unmodifiableList(new ArrayList<>(children));
     }
 
-    public Join getClosingJoin() {
+    Join getClosingJoin() {
         return closingJoin.get();
     }
 
-    public boolean isClosed() {
+    boolean isClosed() {
         return getClosingJoin() != null;
     }
 

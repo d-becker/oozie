@@ -26,7 +26,7 @@ public class ModifyOnce<T> {
         this(null);
     }
 
-    public ModifyOnce(T defaultData) {
+    public ModifyOnce(final T defaultData) {
         this.data = defaultData;
         this.modified = false;
     }
@@ -35,7 +35,7 @@ public class ModifyOnce<T> {
         return data;
     }
 
-    public void set(T data) {
+    public void set(final T data) {
         if (modified) {
             throw new IllegalStateException("Has already been modified once.");
         }

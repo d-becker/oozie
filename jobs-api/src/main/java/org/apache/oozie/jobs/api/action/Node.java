@@ -45,7 +45,7 @@ public abstract class Node {
         return parents;
     }
 
-    void addChild(Node child) {
+    void addChild(final Node child) {
         this.children.add(child);
     }
 

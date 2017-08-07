@@ -23,7 +23,7 @@ import org.apache.oozie.jobs.api.ModifyOnce;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class NodeBuilderBaseImpl <BUILDER_T extends NodeBuilderBaseImpl<BUILDER_T>> {
+public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
     protected final ModifyOnce<String> name;
     protected final List<Node> parents;
 
@@ -37,35 +37,35 @@ public abstract class NodeBuilderBaseImpl <BUILDER_T extends NodeBuilderBaseImpl
         name = new ModifyOnce<>(node.getName());
     }
 
-    public BUILDER_T withName(String name) {
+    public B withName(final String name) {
         this.name.set(name);
         return ensureRuntimeSelfReference();
     }
 
-    public BUILDER_T withParent(Node action) {
+    public B withParent(final Node action) {
         parents.add(action);
         return ensureRuntimeSelfReference();
     }
 
-    BUILDER_T withoutParent(Node parent) {
+    B withoutParent(final Node parent) {
         parents.remove(parent);
         return ensureRuntimeSelfReference();
     }
 
-    public BUILDER_T clearParents() {
+    public B clearParents() {
         parents.clear();
         return ensureRuntimeSelfReference();
     }
 
-    final BUILDER_T ensureRuntimeSelfReference() {
-        BUILDER_T concrete = getThis();
+    final B ensureRuntimeSelfReference() {
+        final B concrete = getRuntimeSelfReference();
         if (concrete != this) {
             throw new IllegalStateException(
-                    "The concrete builder type BUILDER_T doesn't extend ActionBuilderBaseImpl<BUILDER_T>.");
+                    "The builder type B doesn't extend ActionBuilderBaseImpl<B>.");
         }
 
         return concrete;
     }
 
-    protected abstract BUILDER_T getThis();
+    protected abstract B getRuntimeSelfReference();
 }

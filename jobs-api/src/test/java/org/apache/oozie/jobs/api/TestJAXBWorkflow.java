@@ -109,7 +109,6 @@ public class TestJAXBWorkflow {
         assertEquals("org.apache.oozie.example.SampleMapper", mapper.getValue());
     }
 
-
     /**
      * Tests whether a programmatically built JAXB element tree is serialized correctly to xml.
      *
@@ -119,7 +118,7 @@ public class TestJAXBWorkflow {
     @Test
     public void marshallingWorkflowProducesCorrectXml() throws JAXBException, URISyntaxException, IOException,
                                                  ParserConfigurationException, SAXException {
-        WORKFLOWAPP programmaticallyCreatedWfApp = getWfApp();
+        final WORKFLOWAPP programmaticallyCreatedWfApp = getWfApp();
         final String outputXml = marshalWorkflowApp(programmaticallyCreatedWfApp);
 
         final Diff diff = DiffBuilder.compare(Input.fromURL(getClass().getResource(EXAMPLE_WORKFLOW_RESOURCE_NAME)))
@@ -135,7 +134,7 @@ public class TestJAXBWorkflow {
 
     private static class IgnoreWhitespaceInTextValueDifferenceEvaluator implements DifferenceEvaluator {
         @Override
-        public ComparisonResult evaluate(Comparison comparison, ComparisonResult comparisonResult) {
+        public ComparisonResult evaluate(final Comparison comparison, final ComparisonResult comparisonResult) {
             // We want to ignore whitespace differences in TEXT_VALUE comparisons but not anywhere else,
             // for example not in attribute names.
             if (isTextValueComparison(comparison) && expectedAndActualValueTrimmedAreEqual(comparison)) {
@@ -145,13 +144,13 @@ public class TestJAXBWorkflow {
             }
         }
 
-        private boolean isTextValueComparison(Comparison comparison) {
+        private boolean isTextValueComparison(final Comparison comparison) {
             return comparison.getType().equals(ComparisonType.TEXT_VALUE);
         }
 
-        private boolean expectedAndActualValueTrimmedAreEqual(Comparison comparison) {
-            String expectedNodeValue = comparison.getControlDetails().getTarget().getNodeValue();
-            String actualNodeValue = comparison.getTestDetails().getTarget().getNodeValue();
+        private boolean expectedAndActualValueTrimmedAreEqual(final Comparison comparison) {
+            final String expectedNodeValue = comparison.getControlDetails().getTarget().getNodeValue();
+            final String actualNodeValue = comparison.getTestDetails().getTarget().getNodeValue();
 
             if (expectedNodeValue == null || actualNodeValue == null) {
                 return false;
@@ -180,7 +179,7 @@ public class TestJAXBWorkflow {
         return sf.newSchema(schemaURL);
     }
 
-    private String marshalWorkflowApp(WORKFLOWAPP wfApp) throws JAXBException, UnsupportedEncodingException {
+    private String marshalWorkflowApp(final WORKFLOWAPP wfApp) throws JAXBException, UnsupportedEncodingException {
         final JAXBElement wfElement = new ObjectFactory().createWorkflowApp(wfApp);
 
         final JAXBContext jc = JAXBContext.newInstance(GENERATED_PACKAGE);
@@ -202,7 +201,7 @@ public class TestJAXBWorkflow {
         final END end = new END();
         end.setName("end");
 
-        WORKFLOWAPP wfApp = new WORKFLOWAPP();
+        final WORKFLOWAPP wfApp = new WORKFLOWAPP();
         wfApp.setName("jaxb-example-wf");
         wfApp.setStart(start);
         wfApp.getDecisionOrForkOrJoin().add(getAction());
@@ -253,7 +252,7 @@ public class TestJAXBWorkflow {
         final CONFIGURATION config = new CONFIGURATION();
         final List<CONFIGURATION.Property> properties = config.getProperty();
 
-        for (String[] pair : nameValuePairs) {
+        for (final String[] pair : nameValuePairs) {
             final CONFIGURATION.Property property = new CONFIGURATION.Property();
             property.setName(pair[0]);
             property.setValue(pair[1]);

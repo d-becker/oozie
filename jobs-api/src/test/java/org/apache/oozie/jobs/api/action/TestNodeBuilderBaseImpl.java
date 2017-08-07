@@ -18,11 +18,6 @@
 
 package org.apache.oozie.jobs.api.action;
 
-import org.apache.oozie.jobs.api.action.Builder;
-import org.apache.oozie.jobs.api.action.MapReduceAction;
-import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
-import org.apache.oozie.jobs.api.action.Node;
-import org.apache.oozie.jobs.api.action.NodeBuilderBaseImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,25 +27,25 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
-public abstract class TestNodeBuilderBaseImpl <NODE_T extends Node,
-        BUILDER_T extends NodeBuilderBaseImpl<BUILDER_T> & Builder<NODE_T>> {
-    public static final String NAME = "map-reduce-name";
+public abstract class TestNodeBuilderBaseImpl <N extends Node,
+        B extends NodeBuilderBaseImpl<B> & Builder<N>> {
+    static final String NAME = "map-reduce-name";
 
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    protected abstract BUILDER_T getBuilderInstance();
-    protected abstract BUILDER_T getBuilderInstance(NODE_T action);
+    protected abstract B getBuilderInstance();
+    protected abstract B getBuilderInstance(N action);
 
     @Test
     public final void testIncorrectSubclassingThrows() {
         class WrongBuilder extends NodeBuilderBaseImpl<MapReduceActionBuilder> implements Builder<MapReduceAction> {
 
-            public WrongBuilder() {
+            private WrongBuilder() {
                 super();
             }
 
-            public MapReduceActionBuilder getThis() {
+            public MapReduceActionBuilder getRuntimeSelfReference() {
                 return new MapReduceActionBuilder();
             }
 
@@ -67,14 +62,14 @@ public abstract class TestNodeBuilderBaseImpl <NODE_T extends Node,
 
     @Test
     public void testAddParents() {
-        NODE_T parent1 = Mockito.spy(getBuilderInstance().build());
-        NODE_T parent2 = Mockito.spy(getBuilderInstance().build());
+        final N parent1 = Mockito.spy(getBuilderInstance().build());
+        final N parent2 = Mockito.spy(getBuilderInstance().build());
 
-        BUILDER_T builder = getBuilderInstance();
+        final B builder = getBuilderInstance();
         builder.withParent(parent1)
                 .withParent(parent2);
 
-        NODE_T child = builder.build();
+        final N child = builder.build();
 
         assertEquals(Arrays.asList(parent1, parent2), child.getParents());
 
@@ -87,16 +82,16 @@ public abstract class TestNodeBuilderBaseImpl <NODE_T extends Node,
 
     @Test
     public void testWithoutParent() {
-        NODE_T parent1 = Mockito.spy(getBuilderInstance().build());
-        NODE_T parent2 = Mockito.spy(getBuilderInstance().build());
+        final N parent1 = Mockito.spy(getBuilderInstance().build());
+        final N parent2 = Mockito.spy(getBuilderInstance().build());
 
-        BUILDER_T builder = getBuilderInstance();
+        final B builder = getBuilderInstance();
         builder.withParent(parent1)
                 .withParent(parent2);
 
         builder.withoutParent(parent2);
 
-        NODE_T child = builder.build();
+        final N child = builder.build();
 
         assertEquals(Arrays.asList(parent1), child.getParents());
 
@@ -108,16 +103,16 @@ public abstract class TestNodeBuilderBaseImpl <NODE_T extends Node,
 
     @Test
     public void testClearParents() {
-        NODE_T parent1 = Mockito.spy(getBuilderInstance().build());
-        NODE_T parent2 = Mockito.spy(getBuilderInstance().build());
+        final N parent1 = Mockito.spy(getBuilderInstance().build());
+        final N parent2 = Mockito.spy(getBuilderInstance().build());
 
-        BUILDER_T builder = getBuilderInstance();
+        final B builder = getBuilderInstance();
         builder.withParent(parent1)
                 .withParent(parent2);
 
         builder.clearParents();
 
-        NODE_T child = builder.build();
+        final N child = builder.build();
 
         assertEquals(0, child.getParents().size());
 
@@ -127,16 +122,16 @@ public abstract class TestNodeBuilderBaseImpl <NODE_T extends Node,
 
     @Test
     public void testNameAdded() {
-        BUILDER_T builder = getBuilderInstance();
+        final B builder = getBuilderInstance();
         builder.withName(NAME);
 
-        NODE_T action = builder.build();
+        final N action = builder.build();
         assertEquals(NAME, action.getName());
     }
 
     @Test
     public void testNameAddedTwiceThrows() {
-        BUILDER_T builder = getBuilderInstance();
+        final B builder = getBuilderInstance();
         builder.withName(NAME);
 
         expectedException.expect(IllegalStateException.class);
@@ -145,26 +140,26 @@ public abstract class TestNodeBuilderBaseImpl <NODE_T extends Node,
 
     @Test
     public void testFromExistingNode() {
-        Node parent1 = new MapReduceActionBuilder().withName("parent1").build();
-        Node parent2 = new MapReduceActionBuilder().withName("parent2").build();
-        Node parent3 = new MapReduceActionBuilder().withName("parent3").build();
+        final Node parent1 = new MapReduceActionBuilder().withName("parent1").build();
+        final Node parent2 = new MapReduceActionBuilder().withName("parent2").build();
+        final Node parent3 = new MapReduceActionBuilder().withName("parent3").build();
 
-        BUILDER_T builder = getBuilderInstance();
+        final B builder = getBuilderInstance();
 
         builder.withName(NAME)
                 .withParent(parent1)
                 .withParent(parent2);
 
-        NODE_T node = builder.build();
+        final N node = builder.build();
 
-        BUILDER_T fromExistingBuilder = getBuilderInstance(node);
+        final B fromExistingBuilder = getBuilderInstance(node);
 
         final String newName = "fromExisting_" + NAME;
         fromExistingBuilder.withName(newName)
                 .withoutParent(parent2)
                 .withParent(parent3);
 
-        Node modifiedNode = fromExistingBuilder.build();
+        final Node modifiedNode = fromExistingBuilder.build();
 
         assertEquals(newName, modifiedNode.getName());
         assertEquals(Arrays.asList(parent1, parent3), modifiedNode.getParents());
