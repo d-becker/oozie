@@ -41,13 +41,12 @@ public class KillBuilder extends NodeBuilderBaseImpl<KillBuilder> implements Bui
     @Override
     public Kill build() {
         final ImmutableList<Node> parentsList = new ImmutableList.Builder<Node>().addAll(parents).build();
-        final Kill instance = new Kill(name.get(), parentsList, message.get());
+        final ImmutableList<Node.NodeWithCondition> parentsWithConditionsList
+                = new ImmutableList.Builder<Node.NodeWithCondition>().addAll(parentsWithConditions).build();
 
-        if (parentsList != null) {
-            for (final Node parent : parentsList) {
-                parent.addChild(instance);
-            }
-        }
+        final Kill instance = new Kill(name.get(), parentsList, parentsWithConditionsList, message.get());
+
+        addAsChildToAllParents(instance);
 
         return instance;
     }

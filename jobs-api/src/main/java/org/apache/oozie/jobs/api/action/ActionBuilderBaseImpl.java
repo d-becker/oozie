@@ -67,7 +67,10 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
 
     Action.ConstructionData getConstructionData() {
         final String nameStr = this.name.get();
+
         final ImmutableList<Node> parentsList = new ImmutableList.Builder<Node>().addAll(parents).build();
+        final ImmutableList<Node.NodeWithCondition> parentsWithConditionsList
+                = new ImmutableList.Builder<Node.NodeWithCondition>().addAll(parentsWithConditions).build();
 
         final Map<String, String> mutableConfiguration = new LinkedHashMap<>();
         for (final Map.Entry<String, ModifyOnce<String>> modifyOnceEntry : this.configuration.entrySet()) {
@@ -78,6 +81,6 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
 
         final ImmutableMap<String, String> configurationMap = ImmutableMap.copyOf(mutableConfiguration);
 
-        return new Action.ConstructionData(nameStr, parentsList, configurationMap);
+        return new Action.ConstructionData(nameStr, parentsList, parentsWithConditionsList, configurationMap);
     }
 }

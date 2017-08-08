@@ -459,7 +459,7 @@ public class Graph {
         for (int i = 0; i < nodes.size(); ++i) {
             final Node current  = nodes.get(i);
 
-            for (final Node child : current.getChildren()) {
+            for (final Node child : current.getAllChildren()) {
                 // Checking if every dependency has been processed, if not, we do not add the start to the list.
                 final List<Node> dependencies = child.getParents();
                 if (nodes.containsAll(dependencies) && !nodes.contains(child)) {

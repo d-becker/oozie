@@ -26,15 +26,18 @@ import java.util.List;
 public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
     protected final ModifyOnce<String> name;
     protected final List<Node> parents;
+    protected final List<Node.NodeWithCondition> parentsWithConditions;
 
     NodeBuilderBaseImpl() {
-        parents = new ArrayList<>();
         name = new ModifyOnce<>();
+        parents = new ArrayList<>();
+        parentsWithConditions = new ArrayList<>();
     }
 
     NodeBuilderBaseImpl(final Node node) {
-        parents = new ArrayList<>(node.getParents());
         name = new ModifyOnce<>(node.getName());
+        parents = new ArrayList<>(node.getParentsWithoutConditions());
+        parentsWithConditions = new ArrayList<>(node.getParentsWithConditions());
     }
 
     public B withName(final String name) {
@@ -42,18 +45,34 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
         return ensureRuntimeSelfReference();
     }
 
-    public B withParent(final Node action) {
-        parents.add(action);
+    public B withParent(final Node parent) {
+        checkNoDuplicateParent(parent);
+
+        parents.add(parent);
+        return ensureRuntimeSelfReference();
+    }
+
+    public B withParentWithCondition(final Node parent, final String condition) {
+        checkNoDuplicateParent(parent);
+
+        parentsWithConditions.add(new Node.NodeWithCondition(parent, condition));
         return ensureRuntimeSelfReference();
     }
 
     B withoutParent(final Node parent) {
-        parents.remove(parent);
+        if (parents.contains(parent)) {
+            parents.remove(parent);
+        } else {
+            int index = indexOfParent(parent);
+            parentsWithConditions.remove(index);
+        }
+
         return ensureRuntimeSelfReference();
     }
 
     public B clearParents() {
         parents.clear();
+        parentsWithConditions.clear();
         return ensureRuntimeSelfReference();
     }
 
@@ -65,6 +84,40 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
         }
 
         return concrete;
+    }
+
+    private void checkNoDuplicateParent(final Node parent) {
+        if (parents.contains(parent) || indexOfParent(parent) != -1) {
+            throw new IllegalArgumentException("Trying to add a parent that is already a parent of this node.");
+        }
+    }
+
+    private int indexOfParent(final Node parent) {
+        for (int i = 0; i < parentsWithConditions.size(); ++i) {
+            if (parent == parentsWithConditions.get(i).getNode()) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    protected void addAsChildToAllParents(final Node child) {
+        final List<Node> parentsList = child.getParentsWithoutConditions();
+        if (parentsList != null) {
+            for (final Node parent : parentsList) {
+                parent.addChild(child);
+            }
+        }
+
+        final List<Node.NodeWithCondition> parentsWithConditionsList = child.getParentsWithConditions();
+        if (parentsWithConditionsList != null) {
+            for (final Node.NodeWithCondition parentWithCondition : parentsWithConditionsList) {
+                final Node parent = parentWithCondition.getNode();
+                final String condition = parentWithCondition.getCondition();
+                parent.addChildWithCondition(child, condition);
+            }
+        }
     }
 
     protected abstract B getRuntimeSelfReference();

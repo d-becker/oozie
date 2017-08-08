@@ -20,7 +20,6 @@ package org.apache.oozie.jobs.api;
 
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import guru.nidi.graphviz.model.Label;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.parse.Parser;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
@@ -68,7 +67,7 @@ public class GraphVisualization {
         final StringBuilder builder = new StringBuilder();
         builder.append("digraph {\n");
         for (final Node node : nodes) {
-            final List<Node> children = node.getChildren();
+            final List<Node> children = node.getAllChildren();
 
             for (final Node child : children) {
                 builder.append(String.format("\t%s -> %s%n", node.getName(), child.getName()));

@@ -26,15 +26,20 @@ import java.util.List;
 
 public abstract class Node {
     private final String name;
-    private final ImmutableList<Node> parents;
-    private final List<Node> children; // MUTABLE!
+    private final ImmutableList<Node> parentsWithoutConditions;
+    private final ImmutableList<Node.NodeWithCondition> parentsWithConditions;
+    private final List<Node> childrenWithoutConditions; // MUTABLE!
+    private final List<NodeWithCondition> childrenWithConditions; // MUTABLE!
 
     Node(final String name,
-         final ImmutableList<Node> parents)
+         final ImmutableList<Node> parentsWithoutConditions,
+         final ImmutableList<Node.NodeWithCondition> parentsWithConditions)
     {
         this.name = name;
-        this.parents = parents;
-        this.children = new ArrayList<>();
+        this.parentsWithoutConditions = parentsWithoutConditions;
+        this.parentsWithConditions = parentsWithConditions;
+        this.childrenWithoutConditions = new ArrayList<>();
+        this.childrenWithConditions = new ArrayList<>();
     }
 
     public String getName() {
@@ -42,18 +47,87 @@ public abstract class Node {
     }
 
     public List<Node> getParents() {
-        return parents;
+        final List<Node> allParents = new ArrayList<>(parentsWithoutConditions);
+
+        for (NodeWithCondition parentWithCondition : parentsWithConditions) {
+            allParents.add(parentWithCondition.getNode());
+        }
+
+        return Collections.unmodifiableList(allParents);
+    }
+
+    public List<Node> getParentsWithoutConditions() {
+        return parentsWithoutConditions;
+    }
+
+    public List<Node.NodeWithCondition> getParentsWithConditions() {
+        return parentsWithConditions;
     }
 
     void addChild(final Node child) {
-        this.children.add(child);
+        if (!childrenWithConditions.isEmpty()) {
+            throw new IllegalStateException(
+                    "Trying to add a child without condition to a node that already has at least one child with a condition.");
+        }
+
+        this.childrenWithoutConditions.add(child);
+    }
+
+    void addChildWithCondition(final Node child, final String condition) {
+        if (!childrenWithoutConditions.isEmpty()) {
+            throw new IllegalStateException(
+                    "Trying to add a child with condition to a node that already has at least one child without a condition.");
+        }
+
+        this.childrenWithConditions.add(new NodeWithCondition(child, condition));
     }
 
     /**
      * Returns an unmodifiable view of list of the children of this <code>Action</code>.
      * @return An unmodifiable view of list of the children of this <code>Action</code>.
      */
-    public List<Node> getChildren() {
-        return Collections.unmodifiableList(children);
+    public List<Node> getAllChildren() {
+        final List<Node> allChildren = new ArrayList<>(childrenWithoutConditions);
+
+        for (NodeWithCondition nodeWithCondition : childrenWithConditions) {
+            allChildren.add(nodeWithCondition.getNode());
+        }
+
+        return Collections.unmodifiableList(childrenWithoutConditions);
+    }
+
+    /**
+     * Returns an unmodifiable view of list of the children without condition of this <code>Action</code>.
+     * @return An unmodifiable view of list of the children without condition of this <code>Action</code>.
+     */
+    public List<Node> getChildrenWithoutConditions() {
+        return Collections.unmodifiableList(childrenWithoutConditions);
+    }
+
+    /**
+     * Returns an unmodifiable view of list of the childrenWithoutConditions with condition of this <code>Action</code>.
+     * @return An unmodifiable view of list of the childrenWithoutConditions with condition of this <code>Action</code>.
+     */
+    public List<NodeWithCondition> getChildrenWithConditions() {
+        return Collections.unmodifiableList(childrenWithConditions);
+    }
+
+    public static class NodeWithCondition {
+        private final Node node;
+        private final String condition;
+
+        public NodeWithCondition(final Node child,
+                                 final String condition) {
+            this.node = child;
+            this.condition = condition;
+        }
+
+        public Node getNode() {
+            return node;
+        }
+
+        public String getCondition() {
+            return condition;
+        }
     }
 }

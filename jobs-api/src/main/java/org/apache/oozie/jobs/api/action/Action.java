@@ -28,7 +28,7 @@ public abstract class Action extends Node {
     private final ImmutableMap<String, String> configuration;
 
     Action(final ConstructionData data) {
-        super(data.name, data.parents);
+        super(data.name, data.parents, data.parentsWithConditions);
         this.configuration = data.configuration;
     }
 
@@ -45,14 +45,17 @@ public abstract class Action extends Node {
 
         ConstructionData(final String name,
                          final ImmutableList<Node> parents,
+                         final ImmutableList<Node.NodeWithCondition> parentsWithConditions,
                          final ImmutableMap<String, String> configuration) {
             this.name = name;
             this.parents = parents;
+            this.parentsWithConditions = parentsWithConditions;
             this.configuration = configuration;
         }
 
         private final String name;
         private final ImmutableList<Node> parents;
+        private final ImmutableList<Node.NodeWithCondition> parentsWithConditions;
         private final ImmutableMap<String, String> configuration;
     }
 }
