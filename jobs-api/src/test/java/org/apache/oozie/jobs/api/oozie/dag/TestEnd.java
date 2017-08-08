@@ -26,46 +26,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestEnd extends TestNodeBase<End> {
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
     @Override
     protected End getInstance(final String name) {
         return new End(name);
-    }
-
-    @Test
-    public void testAddParentWhenNoneAlreadyExists() {
-        final Start parent = new Start("parent");
-        final End instance = getInstance("instance");
-
-        instance.addParent(parent);
-        assertEquals(parent, instance.getParent());
-        assertEquals(instance, parent.getChild());
-    }
-
-    @Test
-    public void testAddParentWhenItAlreadyExists() {
-        final Start parent1 = new Start("parent1");
-        final Start parent2 = new Start("parent2");
-        final End instance = getInstance("instance");
-
-        instance.addParent(parent1);
-
-        expectedException.expect(IllegalStateException.class);
-        instance.addParent(parent2);
-    }
-
-    @Test
-    public void testRemoveExistingParent() {
-        final Start parent = new Start("parent");
-        final End instance = getInstance("instance");
-
-        instance.addParent(parent);
-
-        instance.removeParent(parent);
-        assertEquals(null, instance.getParent());
-        assertEquals(null, parent.getChild());
     }
 
     @Test
@@ -75,28 +38,6 @@ public class TestEnd extends TestNodeBase<End> {
 
         expectedException.expect(IllegalArgumentException.class);
         instance.removeParent(parent);
-    }
-
-    @Test
-    public void testClearExistingParent() {
-        final Start parent = new Start("parent");
-        final End instance = getInstance("instance");
-
-        instance.addParent(parent);
-
-        instance.clearParents();
-        assertEquals(null, instance.getParent());
-        assertEquals(null, parent.getChild());
-    }
-
-    @Test
-    public void testClearNonExistentParent() {
-        final Start parent = new Start("parent");
-        final End instance = getInstance("instance");
-
-        instance.clearParents();
-        assertEquals(null, instance.getParent());
-        assertEquals(null, parent.getChild());
     }
 
     @Test

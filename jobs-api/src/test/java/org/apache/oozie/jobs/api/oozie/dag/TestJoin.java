@@ -28,9 +28,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestJoin extends TestNodeBase<Join> {
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
     @Override
     protected Join getInstance(final String name) {
         return new Join(name, new Fork("fork"));
@@ -45,77 +42,6 @@ public class TestJoin extends TestNodeBase<Join> {
 
         assertEquals(join, fork.getClosingJoin());
         assertTrue(fork.isClosed());
-    }
-
-    @Test
-    public void testAddParentWhenNoneAlreadyExists() {
-        final ExplicitNode parent = new ExplicitNode("parent", null);
-        final Join instance = getInstance("instance");
-
-        instance.addParent(parent);
-        assertEquals(Arrays.asList(parent), instance.getParents());
-        assertEquals(instance, parent.getChild());
-    }
-
-    @Test
-    public void testAddParentWhenSomeAlreadyExist() {
-        final NodeBase parent1 = new ExplicitNode("parent1", null);
-        final NodeBase parent2 = new ExplicitNode("parent2", null);
-
-        final Join instance = getInstance("instance");
-
-        instance.addParent(parent1);
-        instance.addParent(parent2);
-
-        assertEquals(Arrays.asList(parent1, parent2), instance.getParents());
-    }
-
-    @Test
-    public void testRemoveExistingParent() {
-        final ExplicitNode parent1 = new ExplicitNode("parent1", null);
-        final ExplicitNode parent2 = new ExplicitNode("parent2", null);
-
-        final Join instance = getInstance("instance");
-
-        instance.addParent(parent1);
-        instance.addParent(parent2);
-
-        instance.removeParent(parent2);
-        assertEquals(Arrays.asList(parent1), instance.getParents());
-        assertEquals(null, parent2.getChild());
-    }
-
-    @Test
-    public void testRemoveNonexistentParentThrows() {
-        final ExplicitNode parent = new ExplicitNode("parent", null);
-        final Join instance = getInstance("instance");
-
-        expectedException.expect(IllegalArgumentException.class);
-        instance.removeParent(parent);
-    }
-
-    @Test
-    public void testClearExistingParent() {
-        final ExplicitNode parent1 = new ExplicitNode("parent1", null);
-        final ExplicitNode parent2 = new ExplicitNode("parent2", null);
-
-        final Join instance = getInstance("instance");
-
-        instance.addParent(parent1);
-        instance.addParent(parent2);
-
-        instance.clearParents();
-        assertEquals(0, instance.getParents().size());
-        assertEquals(null, parent1.getChild());
-        assertEquals(null, parent2.getChild());
-    }
-
-    @Test
-    public void testClearNonExistentParent() {
-        final Join instance = getInstance("instance");
-
-        instance.clearParents();
-        assertEquals(0, instance.getParents().size());
     }
 
     @Test

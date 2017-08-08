@@ -22,52 +22,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class End extends NodeBase {
-    private NodeBase parent;
 
     End(final String name) {
         super(name);
-    }
-
-    public NodeBase getParent() {
-        return parent;
-    }
-
-    @Override
-    public void addParent(final NodeBase parent) {
-        if (this.parent != null) {
-            throw new IllegalStateException("End nodes cannot have multiple parents.");
-        }
-
-        this.parent = parent;
-        parent.addChild(this);
-    }
-
-    @Override
-    public void addParentWithCondition(Decision parent, String condition) {
-        if (this.parent != null) {
-            throw new IllegalStateException("End nodes cannot have multiple parents.");
-        }
-
-        this.parent = parent;
-        parent.addChildWithCondition(this, condition);
-    }
-
-    @Override
-    public void removeParent(final NodeBase parent) {
-        if (this.parent != parent) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
-        }
-
-        if (this.parent != null) {
-            this.parent.removeChild(this);
-        }
-
-        this.parent = null;
-    }
-
-    @Override
-    public void clearParents() {
-        removeParent(parent);
     }
 
     @Override

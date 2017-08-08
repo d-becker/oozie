@@ -29,78 +29,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class TestDecision extends TestNodeBase<Decision> {
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
     @Override
     protected Decision getInstance(String name) {
         return new Decision(name);
-    }
-
-    @Test
-    public void testAddParentWhenNoneAlreadyExists() {
-        final Start parent = new Start("parent");
-        final Decision instance = getInstance("instance");
-
-        instance.addParent(parent);
-        assertEquals(parent, instance.getParent());
-        assertEquals(instance, parent.getChild());
-    }
-
-    @Test
-    public void testAddParentWhenItAlreadyExistsThrows() {
-        final NodeBase parent1 = new ExplicitNode("parent1", null);
-        final NodeBase parent2 = new ExplicitNode("parent2", null);
-
-        final Decision instance = getInstance("instance");
-
-        instance.addParent(parent1);
-
-        expectedException.expect(IllegalStateException.class);
-        instance.addParent(parent2);
-    }
-
-    @Test
-    public void testRemoveExistingParent() {
-        final Start parent = new Start("parent");
-        final Decision instance = getInstance("instance");
-
-        instance.addParent(parent);
-
-        instance.removeParent(parent);
-        assertEquals(null, instance.getParent());
-        assertEquals(null, parent.getChild());
-    }
-
-    @Test
-    public void testRemoveNonexistentParentThrows() {
-        final Start parent = new Start("parent");
-        final Decision instance = getInstance("instance");
-
-        expectedException.expect(IllegalArgumentException.class);
-        instance.removeParent(parent);
-    }
-
-    @Test
-    public void testClearExistingParent() {
-        final Start parent = new Start("parent");
-        final Decision instance = getInstance("instance");
-
-        instance.addParent(parent);
-
-        instance.clearParents();
-        assertEquals(null, instance.getParent());
-        assertEquals(null, parent.getChild());
-    }
-
-    @Test
-    public void testClearNonExistentParent() {
-        final Start parent = new Start("parent");
-        final Decision instance = getInstance("instance");
-
-        instance.clearParents();
-        assertEquals(null, instance.getParent());
-        assertEquals(null, parent.getChild());
     }
 
     @Test
@@ -122,9 +53,6 @@ public class TestDecision extends TestNodeBase<Decision> {
 
         assertEquals(child1, childrenWithConditions.get(0).getNode());
         assertEquals(condition1, childrenWithConditions.get(0).getCondition());
-
-        assertEquals(child2, childrenWithConditions.get(1).getNode());
-        assertEquals(condition2, childrenWithConditions.get(1).getCondition());
     }
 
     @Test

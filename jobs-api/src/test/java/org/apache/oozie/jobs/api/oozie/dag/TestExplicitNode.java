@@ -29,9 +29,6 @@ import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 
 public class TestExplicitNode extends TestNodeBase<ExplicitNode> {
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
     @Override
     protected ExplicitNode getInstance(final String name) {
         return new ExplicitNode(name, null);
@@ -46,73 +43,7 @@ public class TestExplicitNode extends TestNodeBase<ExplicitNode> {
     }
 
     @Test
-    public void testAddParentWhenNoneAlreadyExists() {
-        final ExplicitNode parent = getInstance("parent");
-        final ExplicitNode instance = getInstance("instance");
-
-        instance.addParent(parent);
-        assertEquals(parent, instance.getParent());
-        assertEquals(instance, parent.getChild());
-    }
-
-    @Test
-    public void testAddingParentWhenItAlreadyExistsThrows() {
-        final NodeBase parent1 = getInstance("parent1");
-        final NodeBase parent2 = getInstance("parent2");
-
-        final ExplicitNode instance = getInstance("instance");
-
-        instance.addParent(parent1);
-
-        expectedException.expect(IllegalStateException.class);
-        instance.addParent(parent2);
-    }
-
-    @Test
-    public void testRemoveExistingParent() {
-        final ExplicitNode parent = getInstance("parent");
-        final ExplicitNode instance = getInstance("instance");
-
-        instance.addParent(parent);
-
-        instance.removeParent(parent);
-        assertEquals(null, instance.getParent());
-        assertEquals(null, parent.getChild());
-    }
-
-    @Test
-    public void testRemoveNonexistentParentThrows() {
-        final ExplicitNode parent = getInstance("parent");
-        final ExplicitNode instance = getInstance("instance");
-
-        expectedException.expect(IllegalArgumentException.class);
-        instance.removeParent(parent);
-    }
-
-    @Test
-    public void testClearExistingParent() {
-        final Start parent = new Start("parent");
-        final ExplicitNode instance = getInstance("instance");
-
-        instance.addParent(parent);
-
-        instance.clearParents();
-        assertEquals(null, instance.getParent());
-        assertEquals(null, parent.getChild());
-    }
-
-    @Test
-    public void testClearNonExistentParent() {
-        final Start parent = new Start("parent");
-        final ExplicitNode instance = getInstance("instance");
-
-        instance.clearParents();
-        assertEquals(null, instance.getParent());
-        assertEquals(null, parent.getChild());
-    }
-
-    @Test
-    public void testNormalAddedAsParentWhenItHasNoChild() {
+    public void testExplicitNodeAddedAsParentWhenItHasNoChild() {
         final ExplicitNode instance = getInstance("start");
         final NodeBase child = getInstance("child");
 
@@ -122,7 +53,7 @@ public class TestExplicitNode extends TestNodeBase<ExplicitNode> {
     }
 
     @Test
-    public void testNormalAddedAsParentWhenItAlreadyHasAChildThrows() {
+    public void testExplicitNodeAddedAsParentWhenItAlreadyHasAChildThrows() {
         final ExplicitNode instance = getInstance("instance");
         final NodeBase child1 = new ExplicitNode("child1", null);
         final NodeBase child2 = new ExplicitNode("child2", null);
