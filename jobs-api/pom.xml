@@ -132,7 +132,16 @@
                 </executions>
                 <configuration>
                     <sources>
+                        <source>../client/src/main/resources/distcp-action-0.2.xsd</source>
+                        <source>../client/src/main/resources/email-action-0.2.xsd</source>
+                        <source>../client/src/main/resources/hive2-action-0.2.xsd</source>
+                        <source>../client/src/main/resources/hive-action-0.6.xsd</source>
+                        <source>../client/src/main/resources/oozie-sla-0.2.xsd</source>
                         <source>../client/src/main/resources/oozie-workflow-0.5.xsd</source>
+                        <source>../client/src/main/resources/shell-action-0.3.xsd</source>
+                        <source>../client/src/main/resources/spark-action-0.2.xsd</source>
+                        <source>../client/src/main/resources/sqoop-action-0.4.xsd</source>
+                        <source>../client/src/main/resources/ssh-action-0.2.xsd</source>
                     </sources>
                 </configuration>
             </plugin>

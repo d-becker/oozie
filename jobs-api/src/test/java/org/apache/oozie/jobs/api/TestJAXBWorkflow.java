@@ -18,17 +18,17 @@
 
 package org.apache.oozie.jobs.api;
 
-import org.apache.oozie.jobs.api.generated.ACTION;
-import org.apache.oozie.jobs.api.generated.ACTIONTRANSITION;
-import org.apache.oozie.jobs.api.generated.CONFIGURATION;
-import org.apache.oozie.jobs.api.generated.DELETE;
-import org.apache.oozie.jobs.api.generated.END;
-import org.apache.oozie.jobs.api.generated.KILL;
-import org.apache.oozie.jobs.api.generated.MAPREDUCE;
-import org.apache.oozie.jobs.api.generated.ObjectFactory;
-import org.apache.oozie.jobs.api.generated.PREPARE;
-import org.apache.oozie.jobs.api.generated.START;
-import org.apache.oozie.jobs.api.generated.WORKFLOWAPP;
+import org.apache.oozie.jobs.api.generated.workflow.ACTION;
+import org.apache.oozie.jobs.api.generated.workflow.ACTIONTRANSITION;
+import org.apache.oozie.jobs.api.generated.workflow.CONFIGURATION;
+import org.apache.oozie.jobs.api.generated.workflow.DELETE;
+import org.apache.oozie.jobs.api.generated.workflow.END;
+import org.apache.oozie.jobs.api.generated.workflow.KILL;
+import org.apache.oozie.jobs.api.generated.workflow.MAPREDUCE;
+import org.apache.oozie.jobs.api.generated.workflow.ObjectFactory;
+import org.apache.oozie.jobs.api.generated.workflow.PREPARE;
+import org.apache.oozie.jobs.api.generated.workflow.START;
+import org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP;
 
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -48,9 +48,12 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -66,8 +69,19 @@ import static org.junit.Assert.assertFalse;
  * are serialized correctly to xml.
  */
 public class TestJAXBWorkflow {
-    private static final String GENERATED_PACKAGE = "org.apache.oozie.jobs.api.generated";
-    private static final String EXAMPLE_WORKFLOW_RESOURCE_NAME = "/workflow.xml";
+    private static final String GENERATED_PACKAGES_ALL = "org.apache.oozie.jobs.api.generated.action.distcp:" +
+            "org.apache.oozie.jobs.api.generated.action.email:" +
+            "org.apache.oozie.jobs.api.generated.action.hive2:" +
+            "org.apache.oozie.jobs.api.generated.action.hive:" +
+            "org.apache.oozie.jobs.api.generated.sla:" +
+            "org.apache.oozie.jobs.api.generated.workflow:" +
+            "org.apache.oozie.jobs.api.generated.action.shell:" +
+            "org.apache.oozie.jobs.api.generated.action.spark:" +
+            "org.apache.oozie.jobs.api.generated.action.sqoop:" +
+            "org.apache.oozie.jobs.api.generated.action.ssh";
+    private static final String GENERATED_PACKAGES_WORKFLOW = "org.apache.oozie.jobs.api.generated.workflow";
+    private static final String WORKFLOW_MAPREDUCE_ACTION = "/workflow-mapreduce-action.xml";
+    private static final String WORKFLOW_ALL_ACTIONS = "/workflow-all-actions.xml";
 
     /**
      * Tests whether a workflow.xml object is parsed correctly into a JAXB element tree by checking some of the main
@@ -77,8 +91,9 @@ public class TestJAXBWorkflow {
      *         <tt>Unmarshaller</tt> objects.
      */
     @Test
-    public void whenWorkflowXmlIsUnmarshaledAttributesArePreserved() throws SAXException, JAXBException {
-        final WORKFLOWAPP wf = unmarshalExampleWorkflow();
+    public void whenWorkflowXmlWithAllActionTypesIsUnmarshalledAttributesArePreserved()
+            throws SAXException, JAXBException, URISyntaxException {
+        final WORKFLOWAPP wf = unmarshalWorkflowWithAllActionTypes();
 
         assertEquals("jaxb-example-wf", wf.getName());
         assertEquals("mr-node", wf.getStart().getTo());
@@ -86,12 +101,59 @@ public class TestJAXBWorkflow {
 
         final List<Object> actions = wf.getDecisionOrForkOrJoin();
 
-        final KILL kill = (KILL) actions.get(1);
-        assertEquals("fail", kill.getName());
-        assertEquals("Map/Reduce failed, error message[${wf:errorMessage(wf:lastErrorNode())}]", kill.getMessage());
+        final KILL kill = (KILL) actions.get(9);
+        assertKill(kill);
 
         final MAPREDUCE mr = ((ACTION) actions.get(0)).getMapReduce();
+        assertMapReduce(mr);
 
+        final org.apache.oozie.jobs.api.generated.action.distcp.ACTION distcp =
+                (org.apache.oozie.jobs.api.generated.action.distcp.ACTION)
+                        ((JAXBElement) ((ACTION) actions.get(1)).getOther()).getValue();
+        assertDistcp(distcp);
+
+        final org.apache.oozie.jobs.api.generated.action.email.ACTION email =
+                (org.apache.oozie.jobs.api.generated.action.email.ACTION)
+                        ((JAXBElement) ((ACTION) actions.get(2)).getOther()).getValue();
+        assertEmail(email);
+
+        final org.apache.oozie.jobs.api.generated.action.hive2.ACTION hive2 =
+                (org.apache.oozie.jobs.api.generated.action.hive2.ACTION)
+                        ((JAXBElement) ((ACTION) actions.get(3)).getOther()).getValue();
+        assertHive2(hive2);
+
+        final org.apache.oozie.jobs.api.generated.action.hive.ACTION hive =
+                (org.apache.oozie.jobs.api.generated.action.hive.ACTION)
+                        ((JAXBElement) ((ACTION) actions.get(4)).getOther()).getValue();
+        assertHive(hive);
+
+        final org.apache.oozie.jobs.api.generated.action.shell.ACTION shell =
+                (org.apache.oozie.jobs.api.generated.action.shell.ACTION)
+                        ((JAXBElement) ((ACTION) actions.get(5)).getOther()).getValue();
+        assertShell(shell);
+
+        final org.apache.oozie.jobs.api.generated.action.spark.ACTION spark =
+                (org.apache.oozie.jobs.api.generated.action.spark.ACTION)
+                        ((JAXBElement) ((ACTION) actions.get(6)).getOther()).getValue();
+        assertSpark(spark);
+
+        final org.apache.oozie.jobs.api.generated.action.sqoop.ACTION sqoop =
+                (org.apache.oozie.jobs.api.generated.action.sqoop.ACTION)
+                        ((JAXBElement) ((ACTION) actions.get(7)).getOther()).getValue();
+        assertSqoop(sqoop);
+
+        final org.apache.oozie.jobs.api.generated.action.ssh.ACTION ssh =
+                (org.apache.oozie.jobs.api.generated.action.ssh.ACTION)
+                        ((JAXBElement) ((ACTION) actions.get(8)).getOther()).getValue();
+        assertSsh(ssh);
+    }
+
+    private void assertKill(final KILL kill) {
+        assertEquals("fail", kill.getName());
+        assertEquals("Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]", kill.getMessage());
+    }
+
+    private void assertMapReduce(final MAPREDUCE mr) {
         final PREPARE prepare = mr.getPrepare();
         assertEquals(0, prepare.getMkdir().size());
 
@@ -109,6 +171,53 @@ public class TestJAXBWorkflow {
         assertEquals("org.apache.oozie.example.SampleMapper", mapper.getValue());
     }
 
+    private void assertDistcp(final org.apache.oozie.jobs.api.generated.action.distcp.ACTION distcp) {
+        assertEquals(1, distcp.getPrepare().getDelete().size());
+        assertEquals(1, distcp.getPrepare().getMkdir().size());
+        assertEquals(2, distcp.getConfiguration().getProperty().size());
+        assertEquals(2, distcp.getArg().size());
+    }
+
+    private void assertEmail(final org.apache.oozie.jobs.api.generated.action.email.ACTION email) {
+        assertEquals("foo@bar.com", email.getTo());
+        assertEquals("foo", email.getSubject());
+        assertEquals("bar", email.getBody());
+    }
+
+    private void assertHive2(final org.apache.oozie.jobs.api.generated.action.hive2.ACTION hive2) {
+        assertEquals(1, hive2.getPrepare().getDelete().size());
+        assertEquals(1, hive2.getConfiguration().getProperty().size());
+        assertEquals(2, hive2.getParam().size());
+    }
+
+    private void assertHive(final org.apache.oozie.jobs.api.generated.action.hive.ACTION hive) {
+        assertEquals(1, hive.getPrepare().getDelete().size());
+        assertEquals(1, hive.getConfiguration().getProperty().size());
+        assertEquals(2, hive.getParam().size());
+    }
+
+    private void assertShell(final org.apache.oozie.jobs.api.generated.action.shell.ACTION shell) {
+        assertEquals("echo", shell.getExec());
+        assertEquals(1, shell.getArgument().size());
+    }
+
+    private void assertSpark(final org.apache.oozie.jobs.api.generated.action.spark.ACTION spark) {
+        assertEquals(1, spark.getPrepare().getDelete().size());
+        assertEquals(1, spark.getConfiguration().getProperty().size());
+        assertEquals(2, spark.getArg().size());
+    }
+
+    private void assertSqoop(final org.apache.oozie.jobs.api.generated.action.sqoop.ACTION sqoop) {
+        assertEquals(1, sqoop.getPrepare().getDelete().size());
+        assertEquals(1, sqoop.getConfiguration().getProperty().size());
+    }
+
+    private void assertSsh(final org.apache.oozie.jobs.api.generated.action.ssh.ACTION ssh) {
+        assertEquals("foo@bar.com", ssh.getHost());
+        assertEquals("uploaddata", ssh.getCommand());
+        assertEquals(2, ssh.getArgs().size());
+    }
+
     /**
      * Tests whether a programmatically built JAXB element tree is serialized correctly to xml.
      *
@@ -121,7 +230,7 @@ public class TestJAXBWorkflow {
         final WORKFLOWAPP programmaticallyCreatedWfApp = getWfApp();
         final String outputXml = marshalWorkflowApp(programmaticallyCreatedWfApp);
 
-        final Diff diff = DiffBuilder.compare(Input.fromURL(getClass().getResource(EXAMPLE_WORKFLOW_RESOURCE_NAME)))
+        final Diff diff = DiffBuilder.compare(Input.fromURL(getClass().getResource(WORKFLOW_MAPREDUCE_ACTION)))
                 .withTest(Input.fromString(outputXml))
                 .ignoreComments()
                 .withDifferenceEvaluator(DifferenceEvaluators.chain(
@@ -160,29 +269,42 @@ public class TestJAXBWorkflow {
         }
     }
 
-    private WORKFLOWAPP unmarshalExampleWorkflow() throws SAXException, JAXBException {
-        final JAXBContext jc = JAXBContext.newInstance(GENERATED_PACKAGE);
+    private WORKFLOWAPP unmarshalWorkflowWithAllActionTypes() throws SAXException, JAXBException, URISyntaxException {
+        final JAXBContext jc = JAXBContext.newInstance(GENERATED_PACKAGES_ALL);
         final Unmarshaller u = jc.createUnmarshaller();
         final Schema wfSchema = getSchema();
         u.setSchema(wfSchema);
 
-        final URL wfUrl = getClass().getResource(EXAMPLE_WORKFLOW_RESOURCE_NAME);
+        final URL wfUrl = getClass().getResource(WORKFLOW_ALL_ACTIONS);
         final JAXBElement element = (JAXBElement) u.unmarshal(wfUrl);
 
         return (WORKFLOWAPP) element.getValue();
     }
 
-    private Schema getSchema() throws SAXException {
-        final URL schemaURL = getClass().getResource("/oozie-workflow-0.5.xsd");
-
+    private Schema getSchema() throws SAXException, URISyntaxException {
         final SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        return sf.newSchema(schemaURL);
+        return sf.newSchema(new Source [] {
+                getStreamSource("/distcp-action-0.2.xsd"),
+                getStreamSource("/email-action-0.2.xsd"),
+                getStreamSource("/hive2-action-0.2.xsd"),
+                getStreamSource("/hive-action-0.6.xsd"),
+                getStreamSource("/oozie-sla-0.2.xsd"),
+                getStreamSource("/oozie-workflow-0.5.xsd"),
+                getStreamSource("/shell-action-0.3.xsd"),
+                getStreamSource("/spark-action-0.2.xsd"),
+                getStreamSource("/sqoop-action-0.4.xsd"),
+                getStreamSource("/ssh-action-0.2.xsd")
+        });
+    }
+
+    private Source getStreamSource(final String resourceURI) throws URISyntaxException {
+        return new StreamSource(new File(getClass().getResource(resourceURI).toURI()));
     }
 
     private String marshalWorkflowApp(final WORKFLOWAPP wfApp) throws JAXBException, UnsupportedEncodingException {
         final JAXBElement wfElement = new ObjectFactory().createWorkflowApp(wfApp);
 
-        final JAXBContext jc = JAXBContext.newInstance(GENERATED_PACKAGE);
+        final JAXBContext jc = JAXBContext.newInstance(GENERATED_PACKAGES_WORKFLOW);
         final Marshaller m =  jc.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -204,14 +326,14 @@ public class TestJAXBWorkflow {
         final WORKFLOWAPP wfApp = new WORKFLOWAPP();
         wfApp.setName("jaxb-example-wf");
         wfApp.setStart(start);
-        wfApp.getDecisionOrForkOrJoin().add(getAction());
+        wfApp.getDecisionOrForkOrJoin().add(getMapReduceAction());
         wfApp.getDecisionOrForkOrJoin().add(kill);
         wfApp.setEnd(end);
 
         return wfApp;
     }
 
-    private ACTION getAction() {
+    private ACTION getMapReduceAction() {
         final ACTION action = new ACTION();
 
         action.setName("mr-node");

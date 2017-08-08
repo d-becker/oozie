@@ -21,14 +21,71 @@
 <jaxb:bindings xmlns:xs="http://www.w3.org/2001/XMLSchema"
                xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" version="2.1">
 
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/distcp-action-0.2.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.distcp"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/email-action-0.2.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.email"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/hive2-action-0.2.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.hive2"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/hive-action-0.6.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.hive"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/oozie-sla-0.2.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name = "org.apache.oozie.jobs.api.generated.sla"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
     <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/oozie-workflow-0.5.xsd">
         <jaxb:schemaBindings>
-            <jaxb:package name = "org.apache.oozie.jobs.api.generated"/>
+            <jaxb:package name = "org.apache.oozie.jobs.api.generated.workflow"/>
         </jaxb:schemaBindings>
 
-        <jaxb:bindings node="//xs:complexType[@name='ACTION']
-                                   /xs:sequence/xs:any[@namespace='uri:oozie:sla:0.1 uri:oozie:sla:0.2']">
-            <jaxb:property name="anySLA"/>
+        <jaxb:bindings node="//xs:complexType[@name='ACTION']/xs:sequence/xs:any[@namespace='uri:oozie:sla:0.1 uri:oozie:sla:0.2']">
+            <jaxb:property name="sla"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="//xs:complexType[@name='ACTION']/xs:sequence/xs:choice/xs:any[@namespace='##other']">
+            <jaxb:property name="other"/>
         </jaxb:bindings>
     </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/shell-action-0.3.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.shell"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/spark-action-0.2.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.spark"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/sqoop-action-0.4.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.sqoop"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/ssh-action-0.2.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.ssh"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
 </jaxb:bindings>
