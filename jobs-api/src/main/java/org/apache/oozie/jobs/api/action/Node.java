@@ -116,9 +116,9 @@ public abstract class Node {
         private final Node node;
         private final String condition;
 
-        public NodeWithCondition(final Node child,
+        public NodeWithCondition(final Node node,
                                  final String condition) {
-            this.node = child;
+            this.node = node;
             this.condition = condition;
         }
 

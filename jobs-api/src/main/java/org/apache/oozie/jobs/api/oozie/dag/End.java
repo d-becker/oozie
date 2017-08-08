@@ -39,7 +39,17 @@ public class End extends NodeBase {
         }
 
         this.parent = parent;
-        this.parent.addChild(this);
+        parent.addChild(this);
+    }
+
+    @Override
+    public void addParentWithCondition(Decision parent, String condition) {
+        if (this.parent != null) {
+            throw new IllegalStateException("End nodes cannot have multiple parents.");
+        }
+
+        this.parent = parent;
+        parent.addChildWithCondition(this, condition);
     }
 
     @Override

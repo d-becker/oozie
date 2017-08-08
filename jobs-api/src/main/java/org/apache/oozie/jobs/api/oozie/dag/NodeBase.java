@@ -33,6 +33,8 @@ public abstract class NodeBase {
 
     public abstract void addParent(final NodeBase parent);
 
+    public abstract void addParentWithCondition(final Decision parent, final String condition);
+
     public abstract void removeParent(final NodeBase parent);
 
     public abstract void clearParents();

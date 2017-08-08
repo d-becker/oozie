@@ -38,6 +38,11 @@ public class Start extends NodeBase {
     }
 
     @Override
+    public void addParentWithCondition(Decision parent, String condition) {
+        throw new IllegalStateException("Start nodes cannot have parents.");
+    }
+
+    @Override
     public void removeParent(NodeBase parent) {
         throw new IllegalStateException("Start nodes cannot have parents.");
     }

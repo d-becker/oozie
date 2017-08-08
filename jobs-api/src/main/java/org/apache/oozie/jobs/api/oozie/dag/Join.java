@@ -52,6 +52,15 @@ public class Join extends NodeBase {
     }
 
     @Override
+    public void addParentWithCondition(Decision parent, String condition) {
+        if (parent != null) {
+            parent.addChild(this);
+        }
+
+        parent.addChildWithCondition(this,  condition);
+    }
+
+    @Override
     public void removeParent(final NodeBase parent) {
         if (!parents.remove(parent)) {
             throw new IllegalArgumentException("Trying to remove a nonexistent parent");

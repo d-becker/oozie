@@ -32,6 +32,7 @@ public class Fork extends NodeBase {
 
     Fork(final String name) {
         super(name);
+        parent = null;
         children = new ArrayList<>();
         closingJoin = new ModifyOnce<>();
     }
@@ -47,7 +48,17 @@ public class Fork extends NodeBase {
         }
 
         this.parent = parent;
-        this.parent.addChild(this);
+        parent.addChild(this);
+    }
+
+    @Override
+    public void addParentWithCondition(Decision parent, String condition) {
+        if (this.parent != null) {
+            throw new IllegalStateException("Fork nodes cannot have multiple parents.");
+        }
+
+        this.parent = parent;
+        parent.addChildWithCondition(this, condition);
     }
 
     @Override
