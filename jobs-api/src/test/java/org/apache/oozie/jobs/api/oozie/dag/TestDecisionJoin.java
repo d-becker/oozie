@@ -18,24 +18,19 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+public class TestDecisionJoin extends TestJoiningNodeBase<Decision, DecisionJoin> {
+    @Override
+    protected Decision getBranchingInstance(String name) {
+        return new Decision(name);
+    }
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+    @Override
+    protected DecisionJoin getJoiningInstance(String name, Decision branchingPair) {
+        return new DecisionJoin(name, branchingPair);
+    }
 
-public abstract class TestNodeBase<T extends NodeBase> {
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    static final String NAME = "node name";
-
-    protected abstract T getInstance(final String name);
-
-    @Test
-    public void testNameIsCorrect() {
-        final T instance = getInstance(NAME);
-        assertEquals(NAME, instance.getName());
+    @Override
+    protected JoiningNodeBase getInstance(String name) {
+        return getJoiningInstance(name);
     }
 }

@@ -18,24 +18,15 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+/**
+ * This class represents a joining point where two or more (but not necessarily all) conditional branches originating
+ * from the same decision node meet.
+ * This class will NOT be mapped to JAXB classes and XML as decision nodes don't need to be joined is Oozie, this class
+ * only exists to make implementing the algorithms easier.
+ */
+public class DecisionJoin extends JoiningNodeBase<Decision> {
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-public abstract class TestNodeBase<T extends NodeBase> {
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    static final String NAME = "node name";
-
-    protected abstract T getInstance(final String name);
-
-    @Test
-    public void testNameIsCorrect() {
-        final T instance = getInstance(NAME);
-        assertEquals(NAME, instance.getName());
+    DecisionJoin(String name, Decision branching) {
+        super(name, branching);
     }
 }

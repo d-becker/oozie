@@ -59,8 +59,8 @@ public class TestGraph {
         final Graph graph = new Graph(workflow);
         assertEquals(name, graph.getName());
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -88,8 +88,8 @@ public class TestGraph {
 
         checkDependencies(workflow.getNodes(), graph);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -105,8 +105,8 @@ public class TestGraph {
 
         checkDependencies(workflow.getNodes(), graph);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -158,8 +158,8 @@ public class TestGraph {
 
         checkEqualStructureByNames(nodes, graph);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -203,8 +203,8 @@ public class TestGraph {
         final List<NodeBase> nodes = Arrays.asList(start, end, fork1, fork2, join1, join2, A, B, C, D);
         checkEqualStructureByNames(nodes, graph);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -256,8 +256,8 @@ public class TestGraph {
 
         checkEqualStructureByNames(nodes, graph);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -309,8 +309,8 @@ public class TestGraph {
 
         checkEqualStructureByNames(nodes, graph);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -368,8 +368,8 @@ public class TestGraph {
 
         checkEqualStructureByNames(nodes, graph);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -399,9 +399,9 @@ public class TestGraph {
         final List<NodeBase> nodes = Arrays.asList(start, end, A, B, C);
 
         checkEqualStructureByNames(nodes, graph);
-
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -453,8 +453,8 @@ public class TestGraph {
 
         checkEqualStructureByNames(nodes, graph);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -528,8 +528,8 @@ public class TestGraph {
 
         checkEqualStructureByNames(nodes, graph);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
 
@@ -592,8 +592,46 @@ public class TestGraph {
 
         checkEqualStructureByNames(nodes, graph);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
+    }
+
+    @Test
+    public void testTrivialDecision() {
+        final String conditionGotoB = "condition_goto_B";
+        final String conditionGotoC = "condition_goto_C";
+
+        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParentWithCondition(a, conditionGotoB).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParentWithCondition(a, conditionGotoC).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+
+        final Workflow workflow = new WorkflowBuilder().withName("trivial-decision").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
+
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Decision decision = new Decision("decision");
+        final DecisionJoin decisionJoin = new DecisionJoin("decision-join", decision);
+
+        end.addParent(D);
+        D.addParent(decisionJoin);
+        decisionJoin.addParent(B);
+        decisionJoin.addParent(C);
+        B.addParentWithCondition(decision, conditionGotoB);
+        C.addParentWithCondition(decision, conditionGotoC);
+        decision.addParent(A);
+        A.addParent(start);
+
+        final List<NodeBase> nodes = Arrays.asList(
+                start, end, decision, decisionJoin, A, B, C, D);
+
+        checkEqualStructureByNames(nodes, graph);
     }
 
     private void checkEqualStructureByNames(final Collection<NodeBase> expectedNodes, final Graph graph2) {

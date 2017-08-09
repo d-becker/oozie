@@ -145,7 +145,7 @@ public class Graph {
             paths.add(getPathInfo(parent));
         }
 
-        final ForkToClose toClose = chooseForkToClose(paths);
+        final BranchingToClose toClose = chooseBranchingToClose(paths);
 
         // Eliminating redundant parents.
         if (toClose.isRedundantParent()) {
@@ -159,18 +159,18 @@ public class Graph {
         }
     }
 
-    private void insertJoin(final List<NodeBase> parents, final NodeBase node, final ForkToClose forkToClose) {
-        if (forkToClose.isSplittingJoinNeeded()) {
+    private void insertJoin(final List<NodeBase> parents, final NodeBase node, final BranchingToClose branchingToClose) {
+        if (branchingToClose.isSplittingJoinNeeded()) {
             // We have to close a subset of the paths.
             final List<NodeBase> newParents = new ArrayList<>(parents);
             final List<NodeBase> parentsInToClose = new ArrayList<>();
 
-            for (final PathInformation path : forkToClose.getPaths()) {
+            for (final PathInformation path : branchingToClose.getPaths()) {
                 parentsInToClose.add(path.getBottom());
                 newParents.remove(path.getBottom());
             }
 
-            final Join newJoin = joinPaths(forkToClose.getFork(), forkToClose.getPaths());
+            final Join newJoin = joinPaths(branchingToClose.getFork(), branchingToClose.getPaths());
 
             newParents.add(newJoin);
 
@@ -178,7 +178,7 @@ public class Graph {
         }
         else {
             // There are no intermediary fork / join pairs to insert, we have to join all paths in a single join.
-            final Join newJoin = joinPaths(forkToClose.getFork(), forkToClose.getPaths());
+            final Join newJoin = joinPaths(branchingToClose.getFork(), branchingToClose.getPaths());
 
             addParentWithForkIfNeeded(node, newJoin);
         }
@@ -280,7 +280,7 @@ public class Graph {
         return newJoin;
     }
 
-    private ForkToClose chooseForkToClose(final List<PathInformation> paths) {
+    private BranchingToClose chooseBranchingToClose(final List<PathInformation> paths) {
         int maxPathLength = 0;
         for (final PathInformation pathInformation : paths) {
             if (maxPathLength < pathInformation.getNodes().size()) {
@@ -289,7 +289,7 @@ public class Graph {
         }
 
         for (int ixLevel = 0; ixLevel < maxPathLength; ++ixLevel) {
-            final ForkToClose foundAtThisLevel = chooseForkToClose(paths, ixLevel);
+            final BranchingToClose foundAtThisLevel = chooseBranchingToClose(paths, ixLevel);
 
             if (foundAtThisLevel != null) {
                 return foundAtThisLevel;
@@ -299,22 +299,25 @@ public class Graph {
         throw new IllegalStateException("We should never reach here.");
     }
 
-    private ForkToClose chooseForkToClose(final List<PathInformation> paths, final int ixLevel) {
+    private BranchingToClose chooseBranchingToClose(final List<PathInformation> paths, final int ixLevel) {
         for (final PathInformation path : paths) {
             if (ixLevel < path.getNodes().size()) {
-                final NodeBase currentFork = path.getNodes().get(ixLevel);
+                final NodeBase branching = path.getNodes().get(ixLevel);
 
-                final List<PathInformation> pathsMeetingAtCurrentFork = getPathsContainingNode(currentFork, paths);
+                final List<PathInformation> pathsMeetingAtCurrentFork = getPathsContainingNode(branching, paths);
 
                 if (pathsMeetingAtCurrentFork.size() > 1) {
                     final boolean needToSplitJoin = pathsMeetingAtCurrentFork.size() < paths.size();
 
-                    // If currentFork is not really a Fork, then it is a redundant parent.
-                    if (currentFork instanceof Fork) {
-                        return ForkToClose.withFork((Fork) currentFork, pathsMeetingAtCurrentFork, needToSplitJoin);
+                    // If branching is not a Fork or a Decision, then it is a redundant parent.
+                    if (branching instanceof Fork) {
+                        return BranchingToClose.withFork((Fork) branching, pathsMeetingAtCurrentFork, needToSplitJoin);
+                    } else if (branching instanceof Decision) {
+                        return BranchingToClose.withDecision((Decision) branching, pathsMeetingAtCurrentFork, needToSplitJoin);
                     }
-
-                    return ForkToClose.withRedundantParent(currentFork, pathsMeetingAtCurrentFork, needToSplitJoin);
+                    else {
+                        return BranchingToClose.withRedundantParent(branching, pathsMeetingAtCurrentFork, needToSplitJoin);
+                    }
                 }
             }
         }
@@ -344,7 +347,7 @@ public class Graph {
 
             if (current instanceof Join) {
                 // Get the fork pair of this join and go towards that
-                final Fork forkPair = ((Join) current).getForkPair();
+                final Fork forkPair = ((Join) current).getBranchingPair();
                 current = forkPair;
             }
             else {
@@ -361,6 +364,9 @@ public class Graph {
         }
         else if (node instanceof Fork) {
             return ((Fork) node).getParent();
+        }
+        else if (node instanceof Decision) {
+            return ((Decision) node).getParent();
         }
         else if (node instanceof ExplicitNode) {
             return ((ExplicitNode) node).getParent();
@@ -488,34 +494,40 @@ public class Graph {
 
     }
 
-    private static class ForkToClose {
+    private static class BranchingToClose {
         private final Fork fork;
+        private final Decision decision;
         private final NodeBase redundantParent;
         private final ImmutableList<PathInformation> paths;
         private final boolean needToSplitJoin;
 
-        static ForkToClose withFork(final Fork fork,
-                                    final List<PathInformation> paths,
-                                    final boolean needToSplitJoin) {
-            return new ForkToClose(fork, null, paths, needToSplitJoin);
+        static BranchingToClose withFork(final Fork fork,
+                                         final List<PathInformation> paths,
+                                         final boolean needToSplitJoin) {
+            return new BranchingToClose(fork, null, null, paths, needToSplitJoin);
         }
 
-        static ForkToClose withRedundantParent(final NodeBase redundantParent,
-                                               final List<PathInformation> paths,
-                                               final boolean needToSplitJoin) {
-            return new ForkToClose(null, redundantParent, paths, needToSplitJoin);
+        static BranchingToClose withDecision(final Decision decision,
+                                             final List<PathInformation> paths,
+                                             final boolean needToSplitJoin) {
+            return new BranchingToClose(null, decision, null, paths, needToSplitJoin);
         }
 
-        private ForkToClose(final Fork fork,
-                            final NodeBase redundantParent,
-                            final List<PathInformation> paths,
-                            final boolean needToSplitJoin) {
-            if ((fork != null && redundantParent != null)
-                    || (fork == null && redundantParent == null)) {
-                throw new IllegalArgumentException("Exactly one of 'fork' and 'redundantParent' must be non-null.");
-            }
+        static BranchingToClose withRedundantParent(final NodeBase redundantParent,
+                                                    final List<PathInformation> paths,
+                                                    final boolean needToSplitJoin) {
+            return new BranchingToClose(null, null, redundantParent, paths, needToSplitJoin);
+        }
+
+        private BranchingToClose(final Fork fork,
+                                 final Decision decision,
+                                 final NodeBase redundantParent,
+                                 final List<PathInformation> paths,
+                                 final boolean needToSplitJoin) {
+            checkOnlyOneIsNotNull(fork, decision, redundantParent);
 
             this.fork = fork;
+            this.decision = decision;
             this.redundantParent = redundantParent;
             this.paths = ImmutableList.copyOf(paths);
             this.needToSplitJoin = needToSplitJoin;
@@ -523,6 +535,10 @@ public class Graph {
 
         public Fork getFork() {
             return fork;
+        }
+
+        public Decision getDecision() {
+            return decision;
         }
 
         NodeBase getRedundantParent() {
@@ -533,12 +549,40 @@ public class Graph {
             return paths;
         }
 
+        boolean isFork() {
+            return fork != null;
+        }
+
+        boolean isDecision() {
+            return decision != null;
+        }
+
         boolean isRedundantParent() {
             return redundantParent != null;
         }
 
         boolean isSplittingJoinNeeded() {
             return needToSplitJoin;
+        }
+
+        private void checkOnlyOneIsNotNull(final Fork fork, final Decision decision, final NodeBase redundantParent) {
+            int counter = 0;
+
+            if (fork != null) {
+                ++counter;
+            }
+
+            if (decision != null) {
+                ++counter;
+            }
+
+            if (redundantParent != null) {
+                ++counter;
+            }
+
+            if (counter != 1) {
+                throw new IllegalArgumentException("Exactly one of 'fork' and 'redundantParent' must be non-null.");
+            }
         }
     }
 }

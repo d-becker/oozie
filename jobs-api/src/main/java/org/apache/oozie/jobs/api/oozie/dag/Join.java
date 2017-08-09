@@ -18,97 +18,9 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-public class Join extends NodeBase {
-    private final List<NodeBase> parents;
-    private NodeBase child;
-
-    private final Fork fork;
-
+public class Join extends JoiningNodeBase<Fork> {
     Join(final String name, final Fork fork) {
-        super(name);
-
-        this.fork = fork;
+        super(name, fork);
         fork.close(this);
-
-        this.parents = new ArrayList<>();
-    }
-
-    public List<NodeBase> getParents() {
-        return Collections.unmodifiableList(parents);
-    }
-
-    @Override
-    public void addParent(final NodeBase parent) {
-        if (parent != null) {
-            parent.addChild(this);
-        }
-
-        parents.add(parent);
-    }
-
-    @Override
-    public void addParentWithCondition(Decision parent, String condition) {
-        if (parent != null) {
-            parent.addChild(this);
-        }
-
-        parent.addChildWithCondition(this,  condition);
-    }
-
-    @Override
-    public void removeParent(final NodeBase parent) {
-        if (!parents.remove(parent)) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent parent");
-        }
-
-        parent.removeChild(this);
-    }
-
-    @Override
-    public void clearParents() {
-        final List<NodeBase> oldParents = new ArrayList<>(parents);
-        for (final NodeBase parent : oldParents) {
-            removeParent(parent);
-        }
-    }
-
-    @Override
-    public List<NodeBase> getChildren() {
-        if (child == null) {
-            return Arrays.asList();
-        }
-
-        return Arrays.asList(child);
-    }
-
-    public NodeBase getChild() {
-        return child;
-    }
-
-    Fork getForkPair() {
-        return fork;
-    }
-
-    @Override
-    protected void addChild(final NodeBase child) {
-        if (this.child != null) {
-            throw new IllegalStateException("Join nodes cannot have multiple children.");
-        }
-
-        this.child = child;
-    }
-
-    @Override
-    protected void removeChild(final NodeBase child) {
-        if (this.child != child) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent child.");
-        }
-
-        this.child = null;
     }
 }
