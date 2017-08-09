@@ -28,23 +28,28 @@ public class Start extends NodeBase {
         super(name);
     }
 
+    public NodeBase getChild() {
+        return child;
+    }
+
     @Override
     public void addParent(final NodeBase parent) {
         throw new IllegalStateException("Start nodes cannot have parents.");
     }
 
     @Override
-    public void addParentWithCondition(final Decision parent, final String condition) {
+    public void addParentWithCondition(Decision parent, String condition) {
         throw new IllegalStateException("Start nodes cannot have parents.");
     }
 
     @Override
-    public void removeParent(final NodeBase parent) {
+    public void removeParent(NodeBase parent) {
         throw new IllegalStateException("Start nodes cannot have parents.");
     }
 
-    public NodeBase getChild() {
-        return child;
+    @Override
+    public void clearParents() {
+
     }
 
     @Override

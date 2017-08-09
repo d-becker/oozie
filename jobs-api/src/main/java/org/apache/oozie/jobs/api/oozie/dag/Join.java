@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Join extends NodeBase {
+    private final List<NodeBase> parents;
     private NodeBase child;
 
     private final Fork fork;
@@ -33,6 +34,47 @@ public class Join extends NodeBase {
 
         this.fork = fork;
         fork.close(this);
+
+        this.parents = new ArrayList<>();
+    }
+
+    public List<NodeBase> getParents() {
+        return Collections.unmodifiableList(parents);
+    }
+
+    @Override
+    public void addParent(final NodeBase parent) {
+        if (parent != null) {
+            parent.addChild(this);
+        }
+
+        parents.add(parent);
+    }
+
+    @Override
+    public void addParentWithCondition(Decision parent, String condition) {
+        if (parent != null) {
+            parent.addChild(this);
+        }
+
+        parent.addChildWithCondition(this,  condition);
+    }
+
+    @Override
+    public void removeParent(final NodeBase parent) {
+        if (!parents.remove(parent)) {
+            throw new IllegalArgumentException("Trying to remove a nonexistent parent");
+        }
+
+        parent.removeChild(this);
+    }
+
+    @Override
+    public void clearParents() {
+        final List<NodeBase> oldParents = new ArrayList<>(parents);
+        for (final NodeBase parent : oldParents) {
+            removeParent(parent);
+        }
     }
 
     @Override

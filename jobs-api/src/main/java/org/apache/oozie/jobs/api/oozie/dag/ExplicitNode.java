@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ExplicitNode extends NodeBase {
+    private NodeBase parent;
     private NodeBase child;
     private final Node realNode;
 
@@ -36,8 +37,50 @@ public class ExplicitNode extends NodeBase {
         return realNode;
     }
 
+    public NodeBase getParent() {
+        return parent;
+    }
+
     public NodeBase getChild() {
         return child;
+    }
+
+    @Override
+    public void addParent(final NodeBase parent) {
+        if (this.parent != null) {
+            throw new IllegalStateException("A normal node cannot have multiple parents.");
+        }
+
+        this.parent = parent;
+        parent.addChild(this);
+    }
+
+    @Override
+    public void addParentWithCondition(Decision parent, String condition) {
+        if (this.parent != null) {
+            throw new IllegalStateException("A normal node cannot have multiple parents.");
+        }
+
+        this.parent = parent;
+        parent.addChildWithCondition(this, condition);
+    }
+
+    @Override
+    public void removeParent(final NodeBase parent) {
+        if (this.parent != parent) {
+            throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
+        }
+
+        if (this.parent != null) {
+            this.parent.removeChild(this);
+        }
+
+        this.parent = null;
+    }
+
+    @Override
+    public void clearParents() {
+        removeParent(parent);
     }
 
     @Override

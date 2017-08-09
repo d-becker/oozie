@@ -28,9 +28,78 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestFork extends TestNodeBase<Fork> {
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
+
     @Override
     protected Fork getInstance(final String name) {
         return new Fork(name);
+    }
+
+    @Test
+    public void testAddParentWhenNoneAlreadyExists() {
+        final Start parent = new Start("parent");
+        final Fork instance = getInstance("instance");
+
+        instance.addParent(parent);
+        assertEquals(parent, instance.getParent());
+        assertEquals(instance, parent.getChild());
+    }
+
+    @Test
+    public void testAddParentWhenItAlreadyExistsThrows() {
+        final NodeBase parent1 = getInstance("parent1");
+        final NodeBase parent2 = getInstance("parent2");
+
+        final Fork instance = getInstance("instance");
+
+        instance.addParent(parent1);
+
+        expectedException.expect(IllegalStateException.class);
+        instance.addParent(parent2);
+    }
+
+    @Test
+    public void testRemoveExistingParent() {
+        final Start parent = new Start("parent");
+        final Fork instance = getInstance("instance");
+
+        instance.addParent(parent);
+
+        instance.removeParent(parent);
+        assertEquals(null, instance.getParent());
+        assertEquals(null, parent.getChild());
+    }
+
+    @Test
+    public void testRemoveNonexistentParentThrows() {
+        final Start parent = new Start("parent");
+        final Fork instance = getInstance("instance");
+
+        expectedException.expect(IllegalArgumentException.class);
+        instance.removeParent(parent);
+    }
+
+    @Test
+    public void testClearExistingParent() {
+        final Start parent = new Start("parent");
+        final Fork instance = getInstance("instance");
+
+        instance.addParent(parent);
+
+        instance.clearParents();
+        assertEquals(null, instance.getParent());
+        assertEquals(null, parent.getChild());
+    }
+
+    @Test
+    public void testClearNonExistentParent() {
+        final Start parent = new Start("parent");
+        final Fork instance = getInstance("instance");
+
+        instance.clearParents();
+        assertEquals(null, instance.getParent());
+        assertEquals(null, parent.getChild());
     }
 
     @Test

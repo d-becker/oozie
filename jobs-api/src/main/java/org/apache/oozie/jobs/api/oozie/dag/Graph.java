@@ -115,7 +115,7 @@ public class Graph {
     }
 
     private void handleNodeWithParents(final List<NodeBase> parents, final NodeBase node) {
-        // Avoiding adding children to nodes that are inside a closed fork / join pair.
+        // Avoiding adding children to nodes that are inside a closed fork / join pair
         final List<NodeBase> newParents = new ArrayList<>();
         for (final NodeBase parent : parents) {
             final NodeBase newParent = getNearestNonClosedDescendant(parent);
@@ -356,28 +356,27 @@ public class Graph {
     }
 
     private NodeBase getSingleParent(final NodeBase node) {
-        // TODO: handle multiple parents that exist because of decision nodes.
         if (node instanceof End) {
-            return ((End) node).getAllParents().get(0);
+            return ((End) node).getParent();
         }
         else if (node instanceof Fork) {
-            return ((Fork) node).getAllParents().get(0);
+            return ((Fork) node).getParent();
         }
         else if (node instanceof ExplicitNode) {
-            return ((ExplicitNode) node).getAllParents().get(0);
+            return ((ExplicitNode) node).getParent();
         }
         else if (node instanceof Start) {
             throw new IllegalStateException("Start nodes have no parent.");
         }
         else if (node instanceof Join) {
             final Join join = (Join) node;
-            final int numberOfParents = join.getAllParents().size(); // TODO: handle multiple parents that exist because of decision nodes.
+            final int numberOfParents = join.getParents().size();
             if (numberOfParents != 1) {
                 throw new IllegalStateException("The join node called '" + node.getName()
                         + "' has " + numberOfParents + " parents instead of 1.");
             }
 
-            return join.getAllParents().get(0); // TODO: handle multiple parents that exist because of decision nodes.
+            return join.getParents().get(0);
         }
 
         throw new IllegalArgumentException("Unknown node type.");
@@ -425,7 +424,7 @@ public class Graph {
 
         final boolean isParentForkAndHasOneChild = parent instanceof Fork && parent.getChildren().size() == 1;
         if (isParentForkAndHasOneChild) {
-            final NodeBase grandparent = ((Fork) parent).getAllParents().get(0); // TODO: handle multiple parents that exist because of decision nodes.
+            final NodeBase grandparent = ((Fork) parent).getParent();
             final NodeBase child = parent.getChildren().get(0);
 
             removeParentWithForkIfNeeded(parent, grandparent);

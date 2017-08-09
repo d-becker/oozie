@@ -596,42 +596,6 @@ public class TestGraph {
         nodesToPng.withGraph(graph);
     }
 
-    @Test
-    public void testTrivialDecision() {
-        final String conditionGotoB = "condition_goto_B";
-        final String conditionGotoC = "condition_goto_C";
-
-        final Node a = new MapReduceActionBuilder().withName("A").build();
-        final Node b = new MapReduceActionBuilder().withName("B").withParentWithCondition(a, conditionGotoB).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParentWithCondition(a, conditionGotoC).build();
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
-
-        final Workflow workflow = new WorkflowBuilder().withName("trivial-decision").withDagContainingNode(a).build();
-        final Graph graph = new Graph(workflow);
-
-        final NodeBase A = new ExplicitNode("A", null);
-        final NodeBase B = new ExplicitNode("B", null);
-        final NodeBase C = new ExplicitNode("C", null);
-        final NodeBase D = new ExplicitNode("D", null);
-
-        final Start start = new Start("start");
-        final End end = new End("end");
-        final Decision decision = new Decision("decision");
-
-        end.addParent(D);
-        D.addParent(B);
-        D.addParent(C);
-        B.addParentWithCondition(decision, conditionGotoB);
-        C.addParentWithCondition(decision, conditionGotoC);
-        decision.addParent(A);
-        A.addParent(start);
-
-        final List<NodeBase> nodes = Arrays.asList(
-                start, end, decision, A, B, C, D);
-
-        checkEqualStructureByNames(nodes, graph);
-    }
-
     private void checkEqualStructureByNames(final Collection<NodeBase> expectedNodes, final Graph graph2) {
         assertEquals(expectedNodes.size(), graph2.getNodes().size());
 
@@ -672,7 +636,6 @@ public class TestGraph {
         }
     }
 
-    // Should only be used where there are no decisions in the workflow.
     private void checkDependencies(final Set<Node> originalNodes, final Graph graph) {
         for (final Node originalNode : originalNodes) {
             for (final Node originalParent : originalNode.getParents()) {

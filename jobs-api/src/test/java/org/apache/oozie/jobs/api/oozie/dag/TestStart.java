@@ -18,22 +18,25 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class TestStart extends TestNodeBase<Start> {
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
+
     @Override
     protected Start getInstance(final String name) {
         return new Start(name);
     }
 
     @Test
-    @Override
-    public void testAddParentWithoutCondition() {
+    public void testAddParent() {
         final ExplicitNode parent = new ExplicitNode("parent", null);
         final Start start = getInstance("start");
 
@@ -42,18 +45,7 @@ public class TestStart extends TestNodeBase<Start> {
     }
 
     @Test
-    @Override
-    public void testAddParentWithCondition() {
-        final Decision parent = new Decision("parent");
-        final Start start = getInstance("start");
-
-        expectedException.expect(IllegalStateException.class);
-        start.addParentWithCondition(parent, "any_condition");
-    }
-
-    @Test
-    @Override
-    public void testRemoveParentWithoutCondition() {
+    public void testRemoveParent() {
         final Start start = getInstance("start");
 
         expectedException.expect(IllegalStateException.class);
@@ -61,25 +53,19 @@ public class TestStart extends TestNodeBase<Start> {
     }
 
     @Test
-    @Override
-    public void testRemoveParentWithCondition() {
-        // Start nodes cannot have parents, so we cannot test removing it.
+    public void testClearExistingParent() {
+        final NodeBase parent = new Start("parent");
+        final Start instance = getInstance("instance");
+
+        instance.clearParents();
     }
 
     @Test
-    @Override
-    public void testRemoveNonExistentParentThrows() {
-        final NodeBase parent = new ExplicitNode("parent", null);
-        final Start child = getInstance("child");
+    public void testClearNonExistentParent() {
+        final Start parent = new Start("parent");
+        final Start instance = getInstance("instance");
 
-        expectedException.expect(IllegalStateException.class);
-        child.removeParent(parent);
-    }
-
-    @Test
-    @Override
-    public void testClearExistingParents() {
-        // Start nodes cannot have parents, so we cannot test removing it.
+        instance.clearParents();
     }
 
     @Test
@@ -113,7 +99,6 @@ public class TestStart extends TestNodeBase<Start> {
         child.removeParent(instance);
 
         assertEquals(null, instance.getChild());
-        assertTrue(instance.getChildren().isEmpty());
     }
 
     @Test
