@@ -73,7 +73,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
 
         final N child = builder.build();
 
-        assertEquals(Arrays.asList(parent1, parent2), child.getParents());
+        assertEquals(Arrays.asList(parent1, parent2), child.getAllParents());
 
         Mockito.verify(parent1).addChild(child);
         Mockito.verify(parent2).addChild(child);
@@ -143,7 +143,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
 
         final N child = builder.build();
 
-        assertEquals(Arrays.asList(parent1), child.getParents());
+        assertEquals(Arrays.asList(parent1), child.getAllParents());
 
         Mockito.verify(parent1).addChild(child);
 
@@ -163,7 +163,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
                 .withParentWithCondition(parent2, condition)
                 .build();
 
-        assertEquals(Arrays.asList(parent1, parent2), child.getParents());
+        assertEquals(Arrays.asList(parent1, parent2), child.getAllParents());
         assertEquals(Arrays.asList(parent1), child.getParentsWithoutConditions());
 
         final List<Node.NodeWithCondition> parentsWithConditions = child.getParentsWithConditions();
@@ -191,7 +191,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
 
         final N child = builder.build();
 
-        assertEquals(Arrays.asList(parent3, parent4, parent1), child.getParents());
+        assertEquals(Arrays.asList(parent3, parent4, parent1), child.getAllParents());
         assertEquals(Arrays.asList(parent3, parent4), child.getParentsWithoutConditions());
 
         final List<Node.NodeWithCondition> parentsWithConditions = child.getParentsWithConditions();
@@ -277,7 +277,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
 
         final N child = builder.build();
 
-        assertEquals(0, child.getParents().size());
+        assertEquals(0, child.getAllParents().size());
 
         Mockito.verifyNoMoreInteractions(parent1);
         Mockito.verifyNoMoreInteractions(parent2);
@@ -330,7 +330,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
         final Node modifiedNode = fromExistingBuilder.build();
 
         assertEquals(newName, modifiedNode.getName());
-        assertEquals(Arrays.asList(parent1, parent3, parent4), modifiedNode.getParents());
+        assertEquals(Arrays.asList(parent1, parent3, parent4), modifiedNode.getAllParents());
         assertEquals(Arrays.asList(parent1, parent3), modifiedNode.getParentsWithoutConditions());
 
         final List<Node.NodeWithCondition> parentsWithConditions = modifiedNode.getParentsWithConditions();

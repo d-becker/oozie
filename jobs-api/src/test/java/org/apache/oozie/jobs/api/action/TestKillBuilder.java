@@ -78,6 +78,6 @@ public class TestKillBuilder extends TestNodeBuilderBaseImpl<Kill, KillBuilder> 
 
         assertEquals(NAME, modifiedNode.getName());
         assertEquals(newMessage, modifiedNode.getMessage());
-        assertEquals(Arrays.asList(parent1, parent3), modifiedNode.getParents());
+        assertEquals(Arrays.asList(parent1, parent3), modifiedNode.getAllParents());
     }
 }

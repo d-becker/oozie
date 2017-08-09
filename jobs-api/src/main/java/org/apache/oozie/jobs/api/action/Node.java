@@ -46,7 +46,7 @@ public abstract class Node {
         return name;
     }
 
-    public List<Node> getParents() {
+    public List<Node> getAllParents() {
         final List<Node> allParents = new ArrayList<>(parentsWithoutConditions);
 
         for (NodeWithCondition parentWithCondition : parentsWithConditions) {
@@ -93,7 +93,7 @@ public abstract class Node {
             allChildren.add(nodeWithCondition.getNode());
         }
 
-        return Collections.unmodifiableList(childrenWithoutConditions);
+        return Collections.unmodifiableList(allChildren);
     }
 
     /**

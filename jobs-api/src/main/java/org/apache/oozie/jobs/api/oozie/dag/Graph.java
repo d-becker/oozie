@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +40,16 @@ public class Graph {
     private final Map<Fork, Integer> forkNumbers = new HashMap<>();
     private int forkCounter = 1;
 
+    private final Map<NodeBase, Decision> originalParentToCorrespondingDecision = new HashMap<>();
+    private int decisionCounter = 1;
+    private int decisionJoinCounter = 1;
+
     /**
      * Nodes that have a join downstream to them are closed, they should never get new children.
      */
     private final Map<NodeBase, Join> closingJoins = new HashMap<>();
+
+    private final Map<Decision, DecisionJoin> closingDecisionJoins = new HashMap<>();
 
     public Graph(final Workflow workflow) {
         this.name = workflow.getName();
@@ -83,8 +90,15 @@ public class Graph {
             nodeToNodeBase.put(originalNode, convertedNode);
             storeNode(convertedNode);
 
+            if (!originalNode.getChildrenWithConditions().isEmpty()) {
+                // We insert a decision node below the current convertedNode.
+                final Decision decision = newDecision();
+                decision.addParent(convertedNode);
+                originalParentToCorrespondingDecision.put(convertedNode, decision);
+            }
+
             final List<NodeBase> mappedParents = new ArrayList<>();
-            for (final Node parent : originalNode.getParents()) {
+            for (final Node parent : originalNode.getAllParents()) {
                 mappedParents.add(nodeToNodeBase.get(parent));
             }
 
@@ -115,31 +129,38 @@ public class Graph {
     }
 
     private void handleNodeWithParents(final List<NodeBase> parents, final NodeBase node) {
-        // Avoiding adding children to nodes that are inside a closed fork / join pair
+        // Avoiding adding children to nodes that are inside a closed fork / join pair and to original parents of decision nodes.
         final List<NodeBase> newParents = new ArrayList<>();
         for (final NodeBase parent : parents) {
-            final NodeBase newParent = getNearestNonClosedDescendant(parent);
+            NodeBase newParent = parent;
+
+            if (originalParentToCorrespondingDecision.containsKey(parent)) {
+                newParent = originalParentToCorrespondingDecision.get(parent);
+            }
+
+            newParent = getNearestNonClosedDescendant(newParent);
+
             if (!newParents.contains(newParent)) {
                 newParents.add(newParent);
             }
         }
 
         if (newParents.isEmpty()) {
-            handleNonJoinNode(start, node);
+            handleSingleParentNode(start, node);
         }
         else if (newParents.size() == 1) {
-            handleNonJoinNode(newParents.get(0), node);
+            handleSingleParentNode(newParents.get(0), node);
         }
         else {
-            handleJoinNodeWithParents(node, newParents);
+            handleMultiParentNodeWithParents(node, newParents);
         }
     }
 
-    private void handleNonJoinNode(final NodeBase parent, final NodeBase node) {
+    private void handleSingleParentNode(final NodeBase parent, final NodeBase node) {
         addParentWithForkIfNeeded(node, parent);
     }
 
-    private void handleJoinNodeWithParents(final NodeBase node, final List<NodeBase> parents) {
+    private void handleMultiParentNodeWithParents(final NodeBase node, final List<NodeBase> parents) {
         final List<PathInformation> paths = new ArrayList<>();
         for (final NodeBase parent : parents) {
             paths.add(getPathInfo(parent));
@@ -147,16 +168,30 @@ public class Graph {
 
         final BranchingToClose toClose = chooseBranchingToClose(paths);
 
-        // Eliminating redundant parents.
+        // Eliminating redundant parents. TODO: handle conditional paths - in those cases these parents are not necessarily redundant.
         if (toClose.isRedundantParent()) {
             final List<NodeBase> parentsWithoutRedundant = new ArrayList<>(parents);
             parentsWithoutRedundant.remove(toClose.getRedundantParent());
 
             handleNodeWithParents(parentsWithoutRedundant, node);
         }
+        else if (toClose.isDecision()) {
+            insertDecisionJoin(node, parents, toClose);
+        }
         else {
             insertJoin(parents, node, toClose);
         }
+    }
+
+    private void insertDecisionJoin(final NodeBase node, final List<NodeBase> parents, final BranchingToClose branchingToClose) {
+        final Decision decision = branchingToClose.getDecision();
+        final DecisionJoin decisionJoin = newDecisionJoin(decision);
+
+        for (NodeBase parent : parents) {
+            addParentWithForkIfNeeded(decisionJoin, parent);
+        }
+
+        addParentWithForkIfNeeded(node, decisionJoin);
     }
 
     private void insertJoin(final List<NodeBase> parents, final NodeBase node, final BranchingToClose branchingToClose) {
@@ -174,17 +209,49 @@ public class Graph {
 
             newParents.add(newJoin);
 
-            handleJoinNodeWithParents(node, newParents);
+            handleMultiParentNodeWithParents(node, newParents);
         }
         else {
             // There are no intermediary fork / join pairs to insert, we have to join all paths in a single join.
             final Join newJoin = joinPaths(branchingToClose.getFork(), branchingToClose.getPaths());
 
-            addParentWithForkIfNeeded(node, newJoin);
+            if (newJoin != null) {
+                addParentWithForkIfNeeded(node, newJoin);
+            }
+            else {
+                // Null means a part of the paths was relocated because of a decision node.
+                handleNodeWithParents(parents, node);
+            }
         }
     }
 
+    // Returning null means we have relocated a part of the paths because of decision nodes, so the caller should try
+    // adding the node again.
     private Join joinPaths(final Fork fork, final List<PathInformation> pathsToJoin) {
+        // TODO: Handle decision nodes where no branch goes out of this fork / join pair.
+        final Map<PathInformation, Decision> highestDecisionNodes = new LinkedHashMap<>();
+        for (final PathInformation path : pathsToJoin) {
+            for (int ixNodeOnPath = 0; ixNodeOnPath < path.getNodes().size(); ++ixNodeOnPath) {
+                final NodeBase nodeOnPath = path.getNodes().get(ixNodeOnPath);
+
+                if (nodeOnPath instanceof Decision) {
+                    highestDecisionNodes.put(path, (Decision) nodeOnPath);
+                }
+                else if (nodeOnPath == fork) {
+                    break;
+                }
+            }
+        }
+
+        if (highestDecisionNodes.isEmpty()) {
+            return joinPathsWithoutDecisions(fork, pathsToJoin);
+        }
+        else {
+            return joinPathsWithDecisions(fork, pathsToJoin, highestDecisionNodes);
+        }
+    }
+
+    private Join joinPathsWithoutDecisions(final Fork fork, final List<PathInformation> pathsToJoin) {
         final Set<NodeBase> mainBranchNodes = new LinkedHashSet<>();
         for (final PathInformation pathInformation : pathsToJoin) {
             mainBranchNodes.addAll(pathInformation.getNodes());
@@ -213,8 +280,7 @@ public class Graph {
         if (hasMoreForkedChildren) {
             // Dividing the fork.
             newJoin = divideForkAndCloseSubFork(fork, pathsToJoin);
-        }
-        else {
+        } else {
             // We don't divide the fork.
             newJoin = newJoin(fork);
 
@@ -234,6 +300,33 @@ public class Graph {
         }
 
         return newJoin;
+    }
+
+    private Join joinPathsWithDecisions(final Fork fork,
+                                        final List<PathInformation> pathsToJoin,
+                                        final Map<PathInformation, Decision> highestDecisionNodes) {
+        final Set<Decision> decisions = new HashSet<>(highestDecisionNodes.values());
+
+        final List<PathInformation> newPaths = new ArrayList<>();
+        for (Decision decision : decisions) {
+            final NodeBase parentOfDecision = decision.getParent();
+            newPaths.add(getPathInfo(parentOfDecision));
+            removeParentWithForkIfNeeded(decision, decision.getParent());
+        }
+
+        for (PathInformation path : pathsToJoin) {
+            if (!highestDecisionNodes.containsKey(path)) {
+                newPaths.add(path);
+            }
+        }
+
+        final Join newJoin = joinPaths(fork, newPaths);
+
+        for (Decision decision : decisions) {
+            addParentWithForkIfNeeded(decision, newJoin);
+        }
+
+        return null;
     }
 
     private void markAsClosed(final NodeBase node, final Join join) {
@@ -350,6 +443,10 @@ public class Graph {
                 final Fork forkPair = ((Join) current).getBranchingPair();
                 current = forkPair;
             }
+            else if (current instanceof DecisionJoin) {
+                final Decision decisionPair = ((DecisionJoin) current).getBranchingPair();
+                current = decisionPair;
+            }
             else {
                 current = getSingleParent(current);
             }
@@ -400,7 +497,7 @@ public class Graph {
     }
 
     private void addParentWithForkIfNeeded(final NodeBase node, final NodeBase parent) {
-        if (parent.getChildren().isEmpty() || parent instanceof Fork) {
+        if (parent.getChildren().isEmpty() || parent instanceof Fork || parent instanceof Decision) {
             node.addParent(parent);
         }
         else {
@@ -459,6 +556,26 @@ public class Graph {
         return join;
     }
 
+    private Decision newDecision() {
+        final Decision decision = new Decision("decision" + decisionCounter);
+
+        decisionCounter++;
+
+        storeNode(decision);
+
+        return decision;
+    }
+
+    private DecisionJoin newDecisionJoin(final Decision correspondingDecision) {
+        final DecisionJoin decisionJoin = new DecisionJoin("decisionJoin" + decisionJoinCounter, correspondingDecision);
+
+        decisionJoinCounter++;
+
+        storeNode(decisionJoin);
+
+        return decisionJoin;
+    }
+
     private static List<Node> getNodesInTopologicalOrder(final Workflow workflow) {
         final List<Node> nodes = new ArrayList<>(workflow.getRoots());
 
@@ -467,7 +584,7 @@ public class Graph {
 
             for (final Node child : current.getAllChildren()) {
                 // Checking if every dependency has been processed, if not, we do not add the start to the list.
-                final List<Node> dependencies = child.getParents();
+                final List<Node> dependencies = child.getAllParents();
                 if (nodes.containsAll(dependencies) && !nodes.contains(child)) {
                     nodes.add(child);
                 }

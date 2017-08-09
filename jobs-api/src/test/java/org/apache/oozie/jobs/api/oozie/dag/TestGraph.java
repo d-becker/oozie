@@ -616,8 +616,8 @@ public class TestGraph {
 
         final Start start = new Start("start");
         final End end = new End("end");
-        final Decision decision = new Decision("decision");
-        final DecisionJoin decisionJoin = new DecisionJoin("decision-join", decision);
+        final Decision decision = new Decision("decision1");
+        final DecisionJoin decisionJoin = new DecisionJoin("decisionJoin1", decision);
 
         end.addParent(D);
         D.addParent(decisionJoin);
@@ -632,6 +632,143 @@ public class TestGraph {
                 start, end, decision, decisionJoin, A, B, C, D);
 
         checkEqualStructureByNames(nodes, graph);
+    }
+
+    @Test
+    public void testDecisionAndJoin() throws IOException {
+        final String conditionGotoD = "condition_goto_D";
+        final String conditionGotoE = "condition_goto_E";
+
+        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParentWithCondition(c, conditionGotoD).build();
+        final Node e = new MapReduceActionBuilder().withName("E").withParentWithCondition(c, conditionGotoE).build();
+        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).build();
+        final Node g = new MapReduceActionBuilder().withName("G").withParent(e).build();
+
+        final Workflow workflow = new WorkflowBuilder().withName("decision-and-join").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
+
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+        final NodeBase E = new ExplicitNode("E", null);
+        final NodeBase F = new ExplicitNode("F", null);
+        final NodeBase G = new ExplicitNode("G", null);
+
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork = new Fork("fork1");
+        final Join join = new Join("join1", fork);
+        final Decision decision = new Decision("decision1");
+        final DecisionJoin decisionJoin = new DecisionJoin("decisionJoin1", decision);
+
+        end.addParent(decisionJoin);
+        decisionJoin.addParent(F);
+        decisionJoin.addParent(G);
+        F.addParent(D);
+        D.addParent(decision);
+        G.addParent(E);
+        E.addParent(decision);
+        decision.addParent(join);
+        join.addParent(B);
+        join.addParent(C);
+        B.addParent(fork);
+        C.addParent(fork);
+        fork.addParent(A);
+        A.addParent(start);
+
+        final List<NodeBase> nodes = Arrays.asList(
+                start, end, fork, join, decision, decisionJoin, A, B, C, D, E, F, G);
+
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
+
+        checkEqualStructureByNames(nodes, graph);
+    }
+
+    @Test
+    public void testDecisionAtUncleOfJoin() throws IOException {
+        final String conditionGotoD = "condition_goto_D";
+        final String conditionGotoF = "condition_goto_F";
+
+        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParentWithCondition(c, conditionGotoD).build();
+        final Node e = new MapReduceActionBuilder().withName("E").withParent(b).withParent(d).build();
+        final Node f = new MapReduceActionBuilder().withName("F").withParentWithCondition(c, conditionGotoF).build();
+        final Node g = new MapReduceActionBuilder().withName("G").withParent(e).build();
+        final Node h = new MapReduceActionBuilder().withName("H").withParent(f).build();
+
+        final Workflow workflow = new WorkflowBuilder().withName("decision-at-uncle-of-join").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
+
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+        final NodeBase E = new ExplicitNode("E", null);
+        final NodeBase F = new ExplicitNode("F", null);
+        final NodeBase G = new ExplicitNode("G", null);
+        final NodeBase H = new ExplicitNode("H", null);
+
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork = new Fork("fork1");
+        final Join join = new Join("join1", fork);
+        final Decision decision = new Decision("decision1");
+        final DecisionJoin decisionJoin = new DecisionJoin("decisionJoin1", decision);
+
+        end.addParent(decisionJoin);
+        decisionJoin.addParent(G);
+        decisionJoin.addParent(H);
+        G.addParent(E);
+        H.addParent(F);
+        E.addParent(D);
+        D.addParent(decision);
+        F.addParent(decision);
+        decision.addParent(join);
+        join.addParent(B);
+        join.addParent(C);
+        B.addParent(fork);
+        C.addParent(fork);
+        fork.addParent(A);
+        A.addParent(start);
+
+        final List<NodeBase> nodes = Arrays.asList(
+                start, end, fork, join, decision, decisionJoin, A, B, C, D, E, F, G, H);
+
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
+
+        checkEqualStructureByNames(nodes, graph);
+    }
+
+    @Test
+    public void testIncomingConditionalBranchesFromDifferentDecisions() {
+        final Node a = new MapReduceActionBuilder().withName("A").build();
+
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParent(a).build();
+
+        final Node e = new MapReduceActionBuilder().withName("E").withParentWithCondition(c, "condition_goto_E").build();
+        final Node f = new MapReduceActionBuilder().withName("F").withParentWithCondition(c, "condition_goto_F").build();
+
+        final Node g = new MapReduceActionBuilder().withName("G").withParentWithCondition(d, "condition_goto_G").build();
+        final Node h = new MapReduceActionBuilder().withName("H").withParentWithCondition(d, "condition_goto_H").build();
+
+        final Node i = new MapReduceActionBuilder().withName("I").withParent(b).withParent(f).withParent(g).build();
+        final Node j = new MapReduceActionBuilder().withName("J").withParent(h).build();
+
+        final Workflow workflow = new WorkflowBuilder()
+                .withName("incoming-conditional-branches-from-different-decisions")
+                .withDagContainingNode(a)
+                .build();
+        final Graph graph = new Graph(workflow);
     }
 
     private void checkEqualStructureByNames(final Collection<NodeBase> expectedNodes, final Graph graph2) {
@@ -676,7 +813,7 @@ public class TestGraph {
 
     private void checkDependencies(final Set<Node> originalNodes, final Graph graph) {
         for (final Node originalNode : originalNodes) {
-            for (final Node originalParent : originalNode.getParents()) {
+            for (final Node originalParent : originalNode.getAllParents()) {
                 final NodeBase node = graph.getNodeByName(originalNode.getName());
                 final NodeBase parent = graph.getNodeByName(originalParent.getName());
 

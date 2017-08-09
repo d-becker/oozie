@@ -39,7 +39,7 @@ public class Workflow {
 
         final Set<Node> mutableRoots = new LinkedHashSet<>();
         for (final Node node : nodes) {
-            if (node.getParents().isEmpty()) {
+            if (node.getAllParents().isEmpty()) {
                 mutableRoots.add(node);
             }
         }

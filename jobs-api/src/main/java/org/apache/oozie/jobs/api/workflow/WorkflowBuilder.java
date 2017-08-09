@@ -70,7 +70,7 @@ public class WorkflowBuilder {
 
         Node current;
         while ((current = queue.poll()) != null) {
-            visit(current.getParents(), visited, queue);
+            visit(current.getAllParents(), visited, queue);
             visit(current.getAllChildren(), visited, queue);
         }
 
