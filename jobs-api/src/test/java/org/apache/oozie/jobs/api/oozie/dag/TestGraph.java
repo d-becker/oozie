@@ -748,6 +748,63 @@ public class TestGraph {
     }
 
     @Test
+    public void testAlreadyClosedDecisionBranching() throws IOException {
+        final String conditionGotoD = "condition_goto_D";
+        final String conditionGotoE = "condition_goto_E";
+
+        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node d = new MapReduceActionBuilder().withName("D").withParentWithCondition(b, conditionGotoD).build();
+        final Node e = new MapReduceActionBuilder().withName("E").withParentWithCondition(b, conditionGotoE).build();
+
+        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
+        final Node g = new MapReduceActionBuilder().withName("G").withParent(f).withParent(c).build();
+
+        final Workflow workflow = new WorkflowBuilder().withName("already-closed-decision-branching").withDagContainingNode(a).build();
+        final Graph graph = new Graph(workflow);
+
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+        final NodeBase D = new ExplicitNode("D", null);
+        final NodeBase E = new ExplicitNode("E", null);
+        final NodeBase F = new ExplicitNode("F", null);
+        final NodeBase G = new ExplicitNode("G", null);
+
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Fork fork = new Fork("fork1");
+        final Join join = new Join("join1", fork);
+        final Decision decision = new Decision("decision1");
+        final DecisionJoin decisionJoin = new DecisionJoin("decisionJoin1", decision);
+
+        end.addParent(G);
+        G.addParent(join);
+        join.addParent(F);
+        join.addParent(C);
+        F.addParent(decisionJoin);
+        decisionJoin.addParent(D);
+        decisionJoin.addParent(E);
+        D.addParent(decision);
+        E.addParent(decision);
+        decision.addParent(B);
+        B.addParent(fork);
+        C.addParent(fork);
+        fork.addParent(A);
+        A.addParent(start);
+
+        final List<NodeBase> nodes = Arrays.asList(
+                start, end, fork, join, decision, decisionJoin, A, B, C, D, E, F, G);
+
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
+
+        checkEqualStructureByNames(nodes, graph);
+
+    }
+
+    @Test
     public void testIncomingConditionalBranchesFromDifferentDecisionsThrows() {
         final Node a = new MapReduceActionBuilder().withName("A").build();
 

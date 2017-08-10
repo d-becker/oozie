@@ -19,13 +19,11 @@
 package org.apache.oozie.jobs.api.oozie.dag;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.oozie.jobs.api.GraphVisualization;
+import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.workflow.Workflow;
-import org.apache.zookeeper.KeeperException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,6 +42,7 @@ public class Graph {
     private int forkCounter = 1;
 
     private final Map<NodeBase, Decision> originalParentToCorrespondingDecision = new HashMap<>();
+    private final Map<Decision, Integer> closedPathsOfDecisionNodes = new HashMap<>();
     private int decisionCounter = 1;
     private int decisionJoinCounter = 1;
 
@@ -191,7 +190,7 @@ public class Graph {
 
     private void insertDecisionJoin(final NodeBase node, final List<NodeBase> parents, final BranchingToClose branchingToClose) {
         final Decision decision = branchingToClose.getDecision();
-        final DecisionJoin decisionJoin = newDecisionJoin(decision);
+        final DecisionJoin decisionJoin = newDecisionJoin(decision, branchingToClose.getPaths().size());
 
         for (NodeBase parent : parents) {
             addParentWithForkIfNeeded(decisionJoin, parent);
@@ -241,7 +240,9 @@ public class Graph {
                 final NodeBase nodeOnPath = path.getNodes().get(ixNodeOnPath);
 
                 if (nodeOnPath instanceof Decision) {
-                    highestDecisionNodes.put(path, (Decision) nodeOnPath);
+                    if (!isDecisionClosed((Decision) nodeOnPath)) {
+                        highestDecisionNodes.put(path, (Decision) nodeOnPath);
+                    }
                 }
                 else if (nodeOnPath == fork) {
                     break;
@@ -271,6 +272,10 @@ public class Graph {
                 final NodeBase nodeOnPath = path.getNodes().get(ixNodeOnPath);
 
                 if (nodeOnPath == fork) {
+                    break;
+                }
+
+                if (nodeOnPath instanceof Decision && isDecisionClosed((Decision) nodeOnPath)) {
                     break;
                 }
 
@@ -478,6 +483,11 @@ public class Graph {
         return new PathInformation(nodes);
     }
 
+    private boolean isDecisionClosed(final Decision decision) {
+        Integer closedPathsOfDecisionNode = closedPathsOfDecisionNodes.get(decision);
+        return closedPathsOfDecisionNode != null && decision.getChildren().size() == closedPathsOfDecisionNode;
+    }
+
     private NodeBase getSingleParent(final NodeBase node) {
         if (node instanceof End) {
             return ((End) node).getParent();
@@ -592,8 +602,13 @@ public class Graph {
         return decision;
     }
 
-    private DecisionJoin newDecisionJoin(final Decision correspondingDecision) {
+    private DecisionJoin newDecisionJoin(final Decision correspondingDecision, final int numberOfPathsClosed) {
         final DecisionJoin decisionJoin = new DecisionJoin("decisionJoin" + decisionJoinCounter, correspondingDecision);
+
+        Integer numberOfAlreadyClosedChildren = closedPathsOfDecisionNodes.get(correspondingDecision);
+        int newNumber = numberOfPathsClosed + (numberOfAlreadyClosedChildren == null ? 0 : numberOfAlreadyClosedChildren);
+
+        closedPathsOfDecisionNodes.put(correspondingDecision, newNumber);
 
         decisionJoinCounter++;
 
