@@ -748,7 +748,7 @@ public class TestGraph {
     }
 
     @Test
-    public void testIncomingConditionalBranchesFromDifferentDecisions() {
+    public void testIncomingConditionalBranchesFromDifferentDecisionsThrows() {
         final Node a = new MapReduceActionBuilder().withName("A").build();
 
         final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
@@ -768,6 +768,9 @@ public class TestGraph {
                 .withName("incoming-conditional-branches-from-different-decisions")
                 .withDagContainingNode(a)
                 .build();
+
+        // TODO: We might choose to implement it later without an exception.
+        expectedException.expect(IllegalStateException.class);
         final Graph graph = new Graph(workflow);
     }
 

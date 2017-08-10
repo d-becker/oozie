@@ -19,10 +19,13 @@
 package org.apache.oozie.jobs.api.oozie.dag;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.oozie.jobs.api.GraphVisualization;
 import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.workflow.Workflow;
+import org.apache.zookeeper.KeeperException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +39,7 @@ public class Graph {
     private final String name;
     private final Start start = new Start("start");
     private final End end = new End("end");
-    private final Map<String, NodeBase> nodesByName = new HashMap<>();
+    private final Map<String, NodeBase> nodesByName = new LinkedHashMap<>();
     private final Map<Fork, Integer> forkNumbers = new HashMap<>();
     private int forkCounter = 1;
 
@@ -48,8 +51,6 @@ public class Graph {
      * Nodes that have a join downstream to them are closed, they should never get new children.
      */
     private final Map<NodeBase, Join> closingJoins = new HashMap<>();
-
-    private final Map<Decision, DecisionJoin> closingDecisionJoins = new HashMap<>();
 
     public Graph(final Workflow workflow) {
         this.name = workflow.getName();
@@ -128,18 +129,23 @@ public class Graph {
         nodesByName.put(node.getName(), node);
     }
 
+    private NodeBase getNewParent(final NodeBase originalParent) {
+        NodeBase newParent = originalParent;
+
+        if (originalParentToCorrespondingDecision.containsKey(newParent)) {
+            newParent = originalParentToCorrespondingDecision.get(newParent);
+        }
+
+        newParent = getNearestNonClosedDescendant(newParent);
+
+        return newParent;
+    }
+
     private void handleNodeWithParents(final List<NodeBase> parents, final NodeBase node) {
         // Avoiding adding children to nodes that are inside a closed fork / join pair and to original parents of decision nodes.
         final List<NodeBase> newParents = new ArrayList<>();
         for (final NodeBase parent : parents) {
-            NodeBase newParent = parent;
-
-            if (originalParentToCorrespondingDecision.containsKey(parent)) {
-                newParent = originalParentToCorrespondingDecision.get(parent);
-            }
-
-            newParent = getNearestNonClosedDescendant(newParent);
-
+            NodeBase newParent = getNewParent(parent);
             if (!newParents.contains(newParent)) {
                 newParents.add(newParent);
             }
@@ -168,7 +174,7 @@ public class Graph {
 
         final BranchingToClose toClose = chooseBranchingToClose(paths);
 
-        // Eliminating redundant parents. TODO: handle conditional paths - in those cases these parents are not necessarily redundant.
+        // Eliminating redundant parents.
         if (toClose.isRedundantParent()) {
             final List<NodeBase> parentsWithoutRedundant = new ArrayList<>(parents);
             parentsWithoutRedundant.remove(toClose.getRedundantParent());
@@ -308,25 +314,42 @@ public class Graph {
         final Set<Decision> decisions = new HashSet<>(highestDecisionNodes.values());
 
         final List<PathInformation> newPaths = new ArrayList<>();
+        boolean shouldCloseJoinAndAddOtherDecisionsUnderIt = false;
         for (Decision decision : decisions) {
             final NodeBase parentOfDecision = decision.getParent();
+
+            if (parentOfDecision == fork) {
+                shouldCloseJoinAndAddOtherDecisionsUnderIt = true;
+                break;
+            }
+
             newPaths.add(getPathInfo(parentOfDecision));
             removeParentWithForkIfNeeded(decision, decision.getParent());
         }
 
-        for (PathInformation path : pathsToJoin) {
-            if (!highestDecisionNodes.containsKey(path)) {
-                newPaths.add(path);
+        if (shouldCloseJoinAndAddOtherDecisionsUnderIt) {
+            closeJoinAndAddOtherDecisionsUnderIt(fork, decisions);
+        }
+        else {
+            for (PathInformation path : pathsToJoin) {
+                if (!highestDecisionNodes.containsKey(path)) {
+                    newPaths.add(path);
+                }
+            }
+
+            final Join newJoin = joinPaths(fork, newPaths);
+
+            for (Decision decision : decisions) {
+                addParentWithForkIfNeeded(decision, newJoin);
             }
         }
 
-        final Join newJoin = joinPaths(fork, newPaths);
-
-        for (Decision decision : decisions) {
-            addParentWithForkIfNeeded(decision, newJoin);
-        }
-
         return null;
+    }
+
+    private void closeJoinAndAddOtherDecisionsUnderIt(final Fork fork, final Set<Decision> decisions) {
+        // TODO: Either implement it correctly or give a more informative error message.
+        throw new IllegalStateException("Conditional paths originating ultimately from the same parallel branching (fork) do not converge to the same join.");
     }
 
     private void markAsClosed(final NodeBase node, final Join join) {
@@ -480,6 +503,9 @@ public class Graph {
             }
 
             return join.getParents().get(0);
+        }
+        else if (node == null) {
+            throw new IllegalArgumentException("Null node found.");
         }
 
         throw new IllegalArgumentException("Unknown node type.");
