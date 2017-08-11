@@ -181,10 +181,10 @@ public abstract class TestActionBuilderBaseImpl<A extends Action,
                 .withConfigProperty(keyToRemove, null)
                 .withConfigProperty(newKey, newValue);
 
-        final A modifiedMrAction = fromExistingBuilder.build();
+        final A modifiedAction = fromExistingBuilder.build();
 
-        assertEquals(newName, modifiedMrAction.getName());
-        assertEquals(expectedModifiedConfiguration, modifiedMrAction.getConfiguration());
-        assertEquals(errorHandler, modifiedMrAction.getErrorHandler());
+        assertEquals(newName, modifiedAction.getName());
+        assertEquals(expectedModifiedConfiguration, modifiedAction.getConfiguration());
+        assertEquals(errorHandler, modifiedAction.getErrorHandler());
     }
 }
