@@ -26,10 +26,12 @@ import java.util.Map;
 public abstract class Action extends Node {
 
     private final ImmutableMap<String, String> configuration;
+    private final ErrorHandler errorHandler;
 
     Action(final ConstructionData data) {
         super(data.name, data.parents, data.parentsWithConditions);
         this.configuration = data.configuration;
+        this.errorHandler = data.errorHandler;
     }
 
 
@@ -41,21 +43,28 @@ public abstract class Action extends Node {
         return configuration;
     }
 
+    public ErrorHandler getErrorHandler() {
+        return errorHandler;
+    }
+
     static class ConstructionData {
 
         ConstructionData(final String name,
                          final ImmutableList<Node> parents,
                          final ImmutableList<Node.NodeWithCondition> parentsWithConditions,
-                         final ImmutableMap<String, String> configuration) {
+                         final ImmutableMap<String, String> configuration,
+                         final ErrorHandler errorHandler) {
             this.name = name;
             this.parents = parents;
             this.parentsWithConditions = parentsWithConditions;
             this.configuration = configuration;
+            this.errorHandler = errorHandler;
         }
 
         private final String name;
         private final ImmutableList<Node> parents;
         private final ImmutableList<Node.NodeWithCondition> parentsWithConditions;
         private final ImmutableMap<String, String> configuration;
+        private final ErrorHandler errorHandler;
     }
 }

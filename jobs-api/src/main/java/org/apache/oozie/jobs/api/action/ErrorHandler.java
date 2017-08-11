@@ -18,6 +18,19 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public interface Builder<T extends Node> {
-    T build();
+public class ErrorHandler {
+    private final Node handlerNode;
+
+    ErrorHandler(final Node handlerNode) {
+        if (!handlerNode.getAllParents().isEmpty() || !handlerNode.getAllChildren().isEmpty()) {
+            throw new IllegalStateException("Error handler nodes cannot have parents or children.");
+        }
+
+        this.handlerNode = handlerNode;
+    }
+
+    public String getName() {
+        return handlerNode.getName();
+    }
+
 }

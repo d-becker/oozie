@@ -18,6 +18,9 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public interface Builder<T extends Node> {
-    T build();
+public class ErrorHandlerFactory {
+    public static ErrorHandler buildAsErrorHandler(final Builder<? extends Node> builder) {
+        Node handlerNode = builder.build();
+        return new ErrorHandler(handlerNode);
+    }
 }

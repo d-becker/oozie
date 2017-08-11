@@ -49,6 +49,64 @@ public abstract class TestActionBuilderBaseImpl<A extends Action,
         return configExampleBuilder.build();
     }
 
+   @Test
+   public void testErrorHandlerAdded() {
+        final ErrorHandler errorHandler = ErrorHandlerFactory.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler"));
+
+        final B builder = getBuilderInstance();
+        builder.withErrorHandler(errorHandler);
+
+        final A action = builder.build();
+
+        assertEquals(errorHandler, action.getErrorHandler());
+   }
+
+    @Test
+    public void testErrorHandlerAddedTwiceThrows() {
+        final ErrorHandler errorHandler1 = ErrorHandlerFactory.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler1"));
+        final ErrorHandler errorHandler2 = ErrorHandlerFactory.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler2"));
+
+        final B builder = getBuilderInstance();
+        builder.withErrorHandler(errorHandler1);
+
+        expectedException.expect(IllegalStateException.class);
+        builder.withErrorHandler(errorHandler2);
+    }
+
+    @Test
+    public void testWithoutErrorHandler() {
+        final ErrorHandler errorHandler = ErrorHandlerFactory.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler"));
+
+        final B builder = getBuilderInstance();
+        builder.withErrorHandler(errorHandler);
+
+        final A action = builder.build();
+
+        final B fromExistingBuilder = getBuilderInstance(action);
+
+        fromExistingBuilder.withoutErrorHandler();
+
+        final A modifiedAction = fromExistingBuilder.build();
+
+        assertEquals(null, modifiedAction.getErrorHandler());
+    }
+
+    @Test
+    public void testRemovingErrorHandlerAfterAddingItThrows() {
+        final ErrorHandler errorHandler = ErrorHandlerFactory.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler"));
+
+        final B builder = getBuilderInstance();
+        builder.withErrorHandler(errorHandler);
+
+        expectedException.expect(IllegalStateException.class);
+        builder.withoutErrorHandler();
+    }
+
     @Test
     public void testConfigPropertyAdded() {
         final B builder = getBuilderInstance();
@@ -94,6 +152,11 @@ public abstract class TestActionBuilderBaseImpl<A extends Action,
             builder.withConfigProperty(entry.getKey(), entry.getValue());
         }
 
+        final ErrorHandler errorHandler = ErrorHandlerFactory.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler"));
+
+        builder.withErrorHandler(errorHandler);
+
         final A action = builder.build();
 
         final List<String> keys = new ArrayList<>(CONFIG_EXAMPLE.keySet());
@@ -122,5 +185,6 @@ public abstract class TestActionBuilderBaseImpl<A extends Action,
 
         assertEquals(newName, modifiedMrAction.getName());
         assertEquals(expectedModifiedConfiguration, modifiedMrAction.getConfiguration());
+        assertEquals(errorHandler, modifiedMrAction.getErrorHandler());
     }
 }
