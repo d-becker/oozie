@@ -26,8 +26,8 @@ public class MapReduceAction extends Action {
     private final String jobTracker;
     private final String nameNode;
     private final Prepare prepare;
-    // private final STREAMING streaming;
-    // private final PIPES pipes;
+    private final Streaming streaming;
+    private final Pipes pipes;
     private final ImmutableList<String> jobXmls;
     private final String configClass;
     private final ImmutableList<String> files;
@@ -37,6 +37,8 @@ public class MapReduceAction extends Action {
                     final String jobTracker,
                     final String nameNode,
                     final Prepare prepare,
+                    final Streaming streaming,
+                    final Pipes pipes,
                     final ImmutableList<String> jobXmls,
                     final String configClass,
                     final ImmutableList<String> files,
@@ -46,8 +48,8 @@ public class MapReduceAction extends Action {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
         this.prepare = prepare;
-        // this.streaming = streaming;
-        // this.pipes = pipes;
+        this.streaming = streaming;
+        this.pipes = pipes;
         this.jobXmls = jobXmls;
         this.configClass = configClass;
         this.files = files;
@@ -64,6 +66,14 @@ public class MapReduceAction extends Action {
 
     public Prepare getPrepare() {
         return prepare;
+    }
+
+    public Streaming getStreaming() {
+        return streaming;
+    }
+
+    public Pipes getPipes() {
+        return pipes;
     }
 
     public List<String> getJobXmls() {

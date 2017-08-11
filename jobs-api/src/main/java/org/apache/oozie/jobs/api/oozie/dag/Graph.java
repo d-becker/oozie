@@ -233,13 +233,13 @@ public class Graph {
     // Returning null means we have relocated a part of the paths because of decision nodes, so the caller should try
     // adding the node again.
     private Join joinPaths(final Fork fork, final List<PathInformation> pathsToJoin) {
-        // TODO: Handle decision nodes where no branch goes out of this fork / join pair.
         final Map<PathInformation, Decision> highestDecisionNodes = new LinkedHashMap<>();
         for (final PathInformation path : pathsToJoin) {
             for (int ixNodeOnPath = 0; ixNodeOnPath < path.getNodes().size(); ++ixNodeOnPath) {
                 final NodeBase nodeOnPath = path.getNodes().get(ixNodeOnPath);
 
                 if (nodeOnPath instanceof Decision) {
+                    // Excluding decision nodes where no branch goes out of this fork / join pair.
                     if (!isDecisionClosed((Decision) nodeOnPath)) {
                         highestDecisionNodes.put(path, (Decision) nodeOnPath);
                     }

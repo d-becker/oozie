@@ -31,24 +31,21 @@ public class TestErrorHandler {
     @Test
     public void testNameIsCorrect() {
         final String name = "error-handler";
-        final Node handlerNode = new MapReduceActionBuilder().withName(name).build();
+        final Builder<MapReduceAction> handlerBuilder = new MapReduceActionBuilder().withName(name);
 
-        final ErrorHandler errorHandler = new ErrorHandler(handlerNode);
-
+        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(handlerBuilder);
         assertEquals(name, errorHandler.getName());
     }
 
     @Test
-    public void testIfThereAreChildrenThenThrows() {
+    public void testIfThereAreParentsThenThrows() {
         final String name = "error-handler";
-        final Node handlerNode = new MapReduceActionBuilder()
+        final Node parent = new MapReduceActionBuilder().withName("parent").build();
+        final Builder<MapReduceAction> handlerBuilder = new MapReduceActionBuilder()
                 .withName(name)
-                .build();
-
-
-        final Node child = new MapReduceActionBuilder().withName("parent").withParent(handlerNode).build();
+                .withParent(parent);
 
         expectedException.expect(IllegalStateException.class);
-        final ErrorHandler errorHandler = new ErrorHandler(handlerNode);
+        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(handlerBuilder);
     }
 }

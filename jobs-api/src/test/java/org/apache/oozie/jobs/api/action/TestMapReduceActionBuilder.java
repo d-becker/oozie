@@ -100,6 +100,52 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
     }
 
     @Test
+    public void testStreamingAdded() {
+        final Streaming streaming = new StreamingBuilder().withMapper("mapper.sh").withReducer("reducer.sh").build();
+
+        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        builder.withStreaming(streaming);
+
+        final MapReduceAction mrAction = builder.build();
+        assertEquals(streaming, mrAction.getStreaming());
+    }
+
+    @Test
+    public void testStreamingAddedTwiceThrows() {
+        final Streaming streaming1= new StreamingBuilder().withMapper("mapper1.sh").withReducer("reducer1.sh").build();
+        final Streaming streaming2 = new StreamingBuilder().withMapper("mapper2.sh").withReducer("reducer2.sh").build();
+
+        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        builder.withStreaming(streaming1);
+
+        expectedException.expect(IllegalStateException.class);
+        builder.withStreaming(streaming2);
+    }
+
+    @Test
+    public void testPipesAdded() {
+        final Pipes pipes = new PipesBuilder().withMap("map").withReduce("reduce").build();
+
+        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        builder.withPipes(pipes);
+
+        final MapReduceAction mrAction = builder.build();
+        assertEquals(pipes, mrAction.getPipes());
+    }
+
+    @Test
+    public void testPipesAddedTwiceThrows() {
+        final Pipes pipes1 = new PipesBuilder().withMap("map1").withReduce("reduce1").build();
+        final Pipes pipes2 = new PipesBuilder().withMap("map2").withReduce("reduce2").build();
+
+        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        builder.withPipes(pipes1);
+
+        expectedException.expect(IllegalStateException.class);
+        builder.withPipes(pipes2);
+    }
+
+    @Test
     public void testConfigClassAdded() {
         final MapReduceActionBuilder builder = new MapReduceActionBuilder();
         builder.withConfigClass(CONFIG_CLASS);
@@ -284,10 +330,15 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testFromExistingActionMapReduceSpecific() {
+        final Streaming streaming = new StreamingBuilder().withMapper("mapper.sh").withReducer("reducer.sh").build();
+        final Pipes pipes = new PipesBuilder().withMap("map").withReduce("reduce").build();
+
         final MapReduceActionBuilder builder = new MapReduceActionBuilder();
 
         builder.withName(NAME)
                 .withNameNode(NAME_NODE)
+                .withStreaming(streaming)
+                .withPipes(pipes)
                 .withFile(FILES[0])
                 .withFile(FILES[1]);
 
@@ -304,6 +355,8 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
         assertEquals(newName, modifiedMrAction.getName());
         assertEquals(mrAction.getNameNode(), modifiedMrAction.getNameNode());
+        assertEquals(streaming, modifiedMrAction.getStreaming());
+        assertEquals(pipes, modifiedMrAction.getPipes());
         assertEquals(Arrays.asList(FILES[0], FILES[2]), modifiedMrAction.getFiles());
     }
 

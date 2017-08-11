@@ -51,7 +51,7 @@ public abstract class TestActionBuilderBaseImpl<A extends Action,
 
    @Test
    public void testErrorHandlerAdded() {
-        final ErrorHandler errorHandler = ErrorHandlerFactory.buildAsErrorHandler(
+        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
                 new MapReduceActionBuilder().withName("error-handler"));
 
         final B builder = getBuilderInstance();
@@ -64,9 +64,9 @@ public abstract class TestActionBuilderBaseImpl<A extends Action,
 
     @Test
     public void testErrorHandlerAddedTwiceThrows() {
-        final ErrorHandler errorHandler1 = ErrorHandlerFactory.buildAsErrorHandler(
+        final ErrorHandler errorHandler1 = ErrorHandler.buildAsErrorHandler(
                 new MapReduceActionBuilder().withName("error-handler1"));
-        final ErrorHandler errorHandler2 = ErrorHandlerFactory.buildAsErrorHandler(
+        final ErrorHandler errorHandler2 = ErrorHandler.buildAsErrorHandler(
                 new MapReduceActionBuilder().withName("error-handler2"));
 
         final B builder = getBuilderInstance();
@@ -78,7 +78,7 @@ public abstract class TestActionBuilderBaseImpl<A extends Action,
 
     @Test
     public void testWithoutErrorHandler() {
-        final ErrorHandler errorHandler = ErrorHandlerFactory.buildAsErrorHandler(
+        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
                 new MapReduceActionBuilder().withName("error-handler"));
 
         final B builder = getBuilderInstance();
@@ -97,7 +97,7 @@ public abstract class TestActionBuilderBaseImpl<A extends Action,
 
     @Test
     public void testRemovingErrorHandlerAfterAddingItThrows() {
-        final ErrorHandler errorHandler = ErrorHandlerFactory.buildAsErrorHandler(
+        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
                 new MapReduceActionBuilder().withName("error-handler"));
 
         final B builder = getBuilderInstance();
@@ -152,7 +152,7 @@ public abstract class TestActionBuilderBaseImpl<A extends Action,
             builder.withConfigProperty(entry.getKey(), entry.getValue());
         }
 
-        final ErrorHandler errorHandler = ErrorHandlerFactory.buildAsErrorHandler(
+        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
                 new MapReduceActionBuilder().withName("error-handler"));
 
         builder.withErrorHandler(errorHandler);

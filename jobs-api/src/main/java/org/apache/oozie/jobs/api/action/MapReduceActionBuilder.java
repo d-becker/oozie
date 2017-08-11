@@ -28,8 +28,8 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
     private final ModifyOnce<String> jobTracker;
     private final ModifyOnce<String> nameNode;
     private final ModifyOnce<Prepare> prepare;
-    // private STREAMING streaming;
-    // private PIPES pipes;
+    private final ModifyOnce<Streaming> streaming;
+    private final ModifyOnce<Pipes> pipes;
     private final List<String> jobXmls;
     private final ModifyOnce<String> configClass;
     private final List<String> files;
@@ -41,6 +41,8 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
         jobTracker = new ModifyOnce<>();
         nameNode = new ModifyOnce<>();
         prepare = new ModifyOnce<>();
+        streaming = new ModifyOnce<>();
+        pipes = new ModifyOnce<>();
         jobXmls = new ArrayList<>();
         configClass = new ModifyOnce<>();
         files = new ArrayList<>();
@@ -53,6 +55,8 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
         jobTracker = new ModifyOnce<>(action.getJobTracker());
         nameNode = new ModifyOnce<>(action.getNameNode());
         prepare = new ModifyOnce<>(action.getPrepare());
+        streaming = new ModifyOnce<>(action.getStreaming());
+        pipes = new ModifyOnce<>(action.getPipes());
         jobXmls = new ArrayList<>(action.getJobXmls());
         configClass = new ModifyOnce<>(action.getConfigClass());
         files = new ArrayList<>(action.getFiles());
@@ -71,6 +75,16 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
 
     public MapReduceActionBuilder withPrepare(final Prepare prepare) {
         this.prepare.set(prepare);
+        return this;
+    }
+
+    public MapReduceActionBuilder withStreaming(final Streaming streaming) {
+        this.streaming.set(streaming);
+        return this;
+    }
+
+    public MapReduceActionBuilder withPipes(final Pipes pipes) {
+        this.pipes.set(pipes);
         return this;
     }
 
@@ -129,7 +143,9 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
         final Action.ConstructionData constructionData = getConstructionData();
         final String jobTrackerStr = this.jobTracker.get();
         final String nameNodeStr = this.nameNode.get();
-        final Prepare prepareStr = this.prepare.get();
+        final Prepare prepareActual = this.prepare.get();
+        final Streaming streamingActual = this.streaming.get();
+        final Pipes pipesActual = this.pipes.get();
         final ImmutableList<String> jobXmlsList = new ImmutableList.Builder<String>().addAll(this.jobXmls).build();
         final String configClassStr = this.configClass.get();
         final ImmutableList<String> filesList = new ImmutableList.Builder<String>().addAll(this.files).build();
@@ -139,7 +155,9 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
                 constructionData,
                 jobTrackerStr,
                 nameNodeStr,
-                prepareStr,
+                prepareActual,
+                streamingActual,
+                pipesActual,
                 jobXmlsList,
                 configClassStr,
                 filesList,

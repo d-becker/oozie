@@ -94,6 +94,12 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
 
         final ImmutableMap<String, String> configurationMap = ImmutableMap.copyOf(mutableConfiguration);
 
-        return new Action.ConstructionData(nameStr, parentsList, parentsWithConditionsList, configurationMap, errorHandler.get());
+        return new Action.ConstructionData(
+                nameStr,
+                parentsList,
+                parentsWithConditionsList,
+                configurationMap,
+                errorHandler.get()
+        );
     }
 }
