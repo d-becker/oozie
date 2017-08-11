@@ -103,4 +103,21 @@ public class TestSubWorkflowBuilder extends TestActionBuilderBaseImpl<SubWorkflo
         expectedException.expect(IllegalStateException.class);
         fromExistingBuilder.withoutPropagatingConfiguration();
     }
+
+    @Test
+    public void testFromExistiongSubWorkflowAction() {
+        final String appPath = "/path/to/app";
+
+        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder();
+        builder.withAppPath(appPath)
+                .withPropagatingConfiguration();
+
+        final SubWorkflowAction action = builder.build();
+
+        final SubWorkflowActionBuilder fromExistingBuilder = new SubWorkflowActionBuilder(action);
+
+        final SubWorkflowAction modifiedAction = fromExistingBuilder.build();
+        assertEquals(appPath, modifiedAction.getAppPath());
+        assertEquals(true, modifiedAction.isPropagatingConfiguration());
+    }
 }

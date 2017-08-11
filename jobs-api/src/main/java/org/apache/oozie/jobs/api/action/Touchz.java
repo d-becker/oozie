@@ -18,20 +18,14 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public class Delete {
+public class Touchz {
     private final String path;
-    private final Boolean skipTrash;
 
-    public Delete(final String path, final Boolean skipTrash) {
+    public Touchz(final String path) {
         this.path = path;
-        this.skipTrash = skipTrash;
     }
 
     public String getPath() {
         return path;
-    }
-
-    Boolean getSkipTrash() {
-        return skipTrash;
     }
 }

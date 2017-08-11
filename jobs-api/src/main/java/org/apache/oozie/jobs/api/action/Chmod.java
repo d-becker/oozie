@@ -18,20 +18,36 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public class Delete {
-    private final String path;
-    private final Boolean skipTrash;
 
-    public Delete(final String path, final Boolean skipTrash) {
+public class Chmod {
+    private final boolean recursive;
+    private final String path;
+    private final String permissions;
+    private final String dirFiles;
+
+    Chmod(final boolean recursive,
+          final String path,
+          final String permissions,
+          final String dirFiles) {
+        this.recursive = recursive;
         this.path = path;
-        this.skipTrash = skipTrash;
+        this.permissions = permissions;
+        this.dirFiles = dirFiles;
+    }
+
+    public boolean isRecursive() {
+        return recursive;
     }
 
     public String getPath() {
         return path;
     }
 
-    Boolean getSkipTrash() {
-        return skipTrash;
+    public String getPermissions() {
+        return permissions;
+    }
+
+    public String getDirFiles() {
+        return dirFiles;
     }
 }

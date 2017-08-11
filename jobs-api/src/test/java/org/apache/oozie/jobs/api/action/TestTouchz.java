@@ -18,20 +18,16 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public class Delete {
-    private final String path;
-    private final Boolean skipTrash;
+import org.junit.Test;
 
-    public Delete(final String path, final Boolean skipTrash) {
-        this.path = path;
-        this.skipTrash = skipTrash;
-    }
+import static org.junit.Assert.assertEquals;
 
-    public String getPath() {
-        return path;
-    }
+public class TestTouchz {
+    @Test
+    public void testGetPath() {
+        final String path = "path";
+        final Touchz touchz = new Touchz(path);
 
-    Boolean getSkipTrash() {
-        return skipTrash;
+        assertEquals(path, touchz.getPath());
     }
 }
