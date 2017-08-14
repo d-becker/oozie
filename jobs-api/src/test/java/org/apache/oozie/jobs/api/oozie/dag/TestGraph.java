@@ -597,7 +597,7 @@ public class TestGraph {
     }
 
     @Test
-    public void testTrivialDecision() {
+    public void testTrivialDecision() throws IOException {
         final String conditionGotoB = "condition_goto_B";
         final String conditionGotoC = "condition_goto_C";
 
@@ -632,6 +632,9 @@ public class TestGraph {
                 start, end, decision, decisionJoin, A, B, C, D);
 
         checkEqualStructureByNames(nodes, graph);
+
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
     }
 
     @Test
@@ -805,7 +808,7 @@ public class TestGraph {
     }
 
     @Test
-    public void testIncomingConditionalBranchesFromDifferentDecisionsThrows() {
+    public void testIncomingConditionalBranchesFromDifferentDecisionsThrows() throws IOException {
         final Node a = new MapReduceActionBuilder().withName("A").build();
 
         final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
@@ -825,6 +828,8 @@ public class TestGraph {
                 .withName("incoming-conditional-branches-from-different-decisions")
                 .withDagContainingNode(a)
                 .build();
+
+//        nodesToPng.withWorkflow(workflow);
 
         // TODO: We might choose to implement it later without an exception.
         expectedException.expect(IllegalStateException.class);

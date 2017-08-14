@@ -33,7 +33,7 @@ public class ExplicitNode extends NodeBase {
         this.realNode = realNode;
     }
 
-    Node getRealNode() {
+    public Node getRealNode() {
         return realNode;
     }
 
