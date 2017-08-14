@@ -18,6 +18,21 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public interface Builder<T /* TODO extends Node */> {
-    T build();
+public class Setrep {
+    private final String path;
+    private final short replicationFactor;
+
+    public Setrep(final String path,
+                  final short replicationFactor) {
+        this.path = path;
+        this.replicationFactor = replicationFactor;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public short getReplicationFactor() {
+        return replicationFactor;
+    }
 }

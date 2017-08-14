@@ -18,17 +18,36 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import org.junit.Test;
 
-public class Chmod extends ChFSBase {
-    private final String permissions;
+import static org.junit.Assert.assertEquals;
 
-    Chmod(final ChFSBase.ConstructionData constructionData,
-          final String permissions) {
-        super(constructionData);
-        this.permissions = permissions;
+public class TestChgrpBuilder extends TestChBaseBuilder<Chgrp, ChgrpBuilder> {
+    @Override
+    protected ChgrpBuilder getBuilderInstance() {
+        return new ChgrpBuilder();
     }
 
-    public String getPermissions() {
-        return permissions;
+    @Test
+    public void testWithGroup() {
+        final String group = "root";
+
+        final ChgrpBuilder builder = new ChgrpBuilder();
+        builder.withGroup(group);
+
+        final Chgrp chgrp = builder.build();
+        assertEquals(group, chgrp.getGroup());
+    }
+
+    @Test
+    public void testWithPermissionsCalledTwiceThrows() {
+        final String group1 = "group1";
+        final String group2 = "group1";
+
+        final ChgrpBuilder builder = new ChgrpBuilder();
+        builder.withGroup(group1);
+
+        expectedException.expect(IllegalStateException.class);
+        builder.withGroup(group2);
     }
 }

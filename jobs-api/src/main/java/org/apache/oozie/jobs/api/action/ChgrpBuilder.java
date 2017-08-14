@@ -18,6 +18,27 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public interface Builder<T /* TODO extends Node */> {
-    T build();
+import org.apache.oozie.jobs.api.ModifyOnce;
+
+public class ChgrpBuilder extends ChFSBaseBuilder<ChgrpBuilder> implements Builder<Chgrp> {
+    private final ModifyOnce<String> group;
+
+    public ChgrpBuilder() {
+        this.group = new ModifyOnce<>();
+    }
+
+    public ChgrpBuilder withGroup(final String group) {
+        this.group.set(group);
+        return this;
+    }
+
+    @Override
+    public Chgrp build() {
+        return new Chgrp(getConstructionData(), group.get());
+    }
+
+    @Override
+    protected ChgrpBuilder getRuntimeSelfReference() {
+        return this;
+    }
 }

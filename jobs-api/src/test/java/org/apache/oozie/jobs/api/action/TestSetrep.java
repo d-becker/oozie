@@ -18,6 +18,19 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public interface Builder<T /* TODO extends Node */> {
-    T build();
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class TestSetrep {
+    @Test
+    public void testPathAndReplicationFactorAreCorrect() {
+        final String path = "/path/to/location";
+        final short replicationFactor = 3;
+
+        final Setrep setrep = new Setrep(path, replicationFactor);
+
+        assertEquals(path, setrep.getPath());
+        assertEquals(replicationFactor, setrep.getReplicationFactor());
+    }
 }

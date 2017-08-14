@@ -18,6 +18,16 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public interface Builder<T /* TODO extends Node */> {
-    T build();
+public class Chgrp extends ChFSBase {
+    private String group;
+
+    Chgrp(final ChFSBase.ConstructionData constructionData,
+          final String group) {
+        super(constructionData);
+        this.group = group;
+    }
+
+    public String getGroup() {
+        return group;
+    }
 }

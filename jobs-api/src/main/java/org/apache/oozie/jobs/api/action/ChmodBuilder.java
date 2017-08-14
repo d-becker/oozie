@@ -20,32 +20,12 @@ package org.apache.oozie.jobs.api.action;
 
 import org.apache.oozie.jobs.api.ModifyOnce;
 
-public class ChmodBuilder {
-    private final ModifyOnce<Boolean >recursive;
-    private final ModifyOnce<String> path;
+public class ChmodBuilder extends ChFSBaseBuilder<ChmodBuilder> implements Builder<Chmod> {
     private final ModifyOnce<String> permissions;
-    private final ModifyOnce<String> dirFiles;
 
     public ChmodBuilder() {
-        recursive = new ModifyOnce<>(false);
-        path = new ModifyOnce<>();
+        super();
         permissions = new ModifyOnce<>();
-        dirFiles = new ModifyOnce<>("true");
-    }
-
-    public ChmodBuilder setRecursive() {
-        this.recursive.set(true);
-        return this;
-    }
-
-    public ChmodBuilder setNonRecursive() {
-        this.recursive.set(false);
-        return this;
-    }
-
-    public ChmodBuilder withPath(final String path) {
-        this.path.set(path);
-        return this;
     }
 
     public ChmodBuilder withPermissions(final String permissions) {
@@ -53,12 +33,12 @@ public class ChmodBuilder {
         return this;
     }
 
-    public ChmodBuilder setDirFiles(final boolean dirFiles) {
-        this.dirFiles.set(Boolean.toString(dirFiles));
-        return this;
+    public Chmod build() {
+        return new Chmod(getConstructionData(), permissions.get());
     }
 
-    public Chmod build() {
-        return new Chmod(recursive.get(), path.get(), permissions.get(), dirFiles.get());
+    @Override
+    protected ChmodBuilder getRuntimeSelfReference() {
+        return this;
     }
 }
