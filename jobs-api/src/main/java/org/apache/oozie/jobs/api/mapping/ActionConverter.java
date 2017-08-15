@@ -16,26 +16,25 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.action;
+package org.apache.oozie.jobs.api.mapping;
 
-import com.google.common.collect.ImmutableList;
+import org.apache.oozie.jobs.api.generated.workflow.ACTION;
+import org.apache.oozie.jobs.api.oozie.dag.ExplicitNode;
+import org.dozer.DozerConverter;
 
-import java.util.List;
-
-public class Prepare {
-    private final ImmutableList<Delete> deletes;
-    private final ImmutableList<Mkdir> mkdirs;
-
-    public Prepare(final ImmutableList<Delete> deletes, final ImmutableList<Mkdir> mkdirs) {
-        this.deletes = deletes;
-        this.mkdirs = mkdirs;
+// TODO: Handle kill nodes.
+public class ActionConverter extends DozerConverter<ExplicitNode, ACTION> {
+    public ActionConverter() {
+        super(ExplicitNode.class, ACTION.class);
     }
 
-    List<Delete> getDeletes() {
-        return deletes;
+    @Override
+    public ACTION convertTo(ExplicitNode source, ACTION destination) {
+        return null;
     }
 
-    List<Mkdir> getMkdirs() {
-        return mkdirs;
+    @Override
+    public ExplicitNode convertFrom(ACTION source, ExplicitNode destination) {
+        throw new UnsupportedOperationException("This mapping is not bidirectional.");
     }
 }

@@ -16,26 +16,22 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.action;
+package org.apache.oozie.jobs.api.mapping;
 
-import com.google.common.collect.ImmutableList;
+import org.apache.oozie.jobs.api.generated.workflow.END;
+import org.apache.oozie.jobs.api.oozie.dag.End;
+import org.junit.Test;
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
 
-public class Prepare {
-    private final ImmutableList<Delete> deletes;
-    private final ImmutableList<Mkdir> mkdirs;
+public class TestEndMapping extends TestControllNodesMapping {
+    @Test
+    public void testMappingEnd() {
+        final String name = "end";
+        final End end = new End(name);
 
-    public Prepare(final ImmutableList<Delete> deletes, final ImmutableList<Mkdir> mkdirs) {
-        this.deletes = deletes;
-        this.mkdirs = mkdirs;
-    }
+        final END mappedEnd = DozerMapperSingletonWrapper.getMapperInstance().map(end, END.class);
 
-    List<Delete> getDeletes() {
-        return deletes;
-    }
-
-    List<Mkdir> getMkdirs() {
-        return mkdirs;
+        assertEquals(name, mappedEnd.getName());
     }
 }

@@ -24,47 +24,12 @@
           http://dozer.sourceforge.net/schema/beanmapping.xsd">
 
     <mapping type="one-way">
-        <class-a>org.apache.oozie.jobs.api.oozie.dag.Start</class-a>
-        <class-b>org.apache.oozie.jobs.api.generated.workflow.START</class-b>
-
-        <field>
-            <a>child.name</a>
-            <b>to</b>
-        </field>
-    </mapping>
-
-    <mapping type="one-way">
         <class-a>org.apache.oozie.jobs.api.oozie.dag.End</class-a>
         <class-b>org.apache.oozie.jobs.api.generated.workflow.END</class-b>
 
         <field>
             <a>name</a>
             <b>name</b>
-        </field>
-    </mapping>
-
-    <mapping type="one-way">
-        <class-a>org.apache.oozie.jobs.api.oozie.dag.NodeBase</class-a>
-        <class-b>org.apache.oozie.jobs.api.generated.workflow.FORKTRANSITION</class-b>
-
-        <field>
-            <a>name</a>
-            <b>start</b>
-        </field>
-    </mapping>
-
-    <mapping type="one-way">
-        <class-a>org.apache.oozie.jobs.api.oozie.dag.Fork</class-a>
-        <class-b>org.apache.oozie.jobs.api.generated.workflow.FORK</class-b>
-
-        <field>
-            <a>name</a>
-            <b>name</b>
-        </field>
-
-        <field>
-            <a>children</a>
-            <b is-accessible="true">path</b>
         </field>
     </mapping>
 
@@ -79,21 +44,6 @@
 
         <field>
             <a>node.name</a>
-            <b>to</b>
-        </field>
-    </mapping>
-
-    <mapping type="one-way">
-        <class-a>org.apache.oozie.jobs.api.oozie.dag.Join</class-a>
-        <class-b>org.apache.oozie.jobs.api.generated.workflow.JOIN</class-b>
-
-        <field>
-            <a>name</a>
-            <b>name</b>
-        </field>
-
-        <field>
-            <a>child.name</a>
             <b>to</b>
         </field>
     </mapping>

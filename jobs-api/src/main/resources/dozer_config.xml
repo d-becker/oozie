@@ -37,6 +37,21 @@
                 <class-a>org.apache.oozie.jobs.api.oozie.dag.Decision</class-a>
                 <class-b>org.apache.oozie.jobs.api.generated.workflow.DECISION</class-b>
             </converter>
+
+            <converter type="org.apache.oozie.jobs.api.mapping.StartConverter" >
+                <class-a>org.apache.oozie.jobs.api.oozie.dag.Start</class-a>
+                <class-b>org.apache.oozie.jobs.api.generated.workflow.START</class-b>
+            </converter>
+
+            <converter type="org.apache.oozie.jobs.api.mapping.ForkConverter" >
+                <class-a>org.apache.oozie.jobs.api.oozie.dag.Fork</class-a>
+                <class-b>org.apache.oozie.jobs.api.generated.workflow.FORK</class-b>
+            </converter>
+
+            <converter type="org.apache.oozie.jobs.api.mapping.JoinConverter" >
+                <class-a>org.apache.oozie.jobs.api.oozie.dag.Join</class-a>
+                <class-b>org.apache.oozie.jobs.api.generated.workflow.JOIN</class-b>
+            </converter>
         </custom-converters>
 
     </configuration>

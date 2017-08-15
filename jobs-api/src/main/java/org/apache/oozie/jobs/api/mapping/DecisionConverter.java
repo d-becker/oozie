@@ -73,8 +73,10 @@ public class DecisionConverter extends DozerConverter<Decision, DECISION> implem
             throw new IllegalStateException("No default transition found.");
         }
 
+        final NodeBase realDefaultNode = MappingUtils.getRealChild(defaultNode);
+
         final DEFAULT defaultCase = objectFactory.createDEFAULT();
-        defaultCase.setTo(defaultNode.getName());
+        defaultCase.setTo(realDefaultNode.getName());
         destination.getSwitch().setDefault(defaultCase);
 
         final List<DagNodeWithCondition> childrenIncludingDefault = source.getChildrenWithConditions();

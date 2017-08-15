@@ -16,26 +16,31 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.action;
+package org.apache.oozie.jobs.api.mapping;
 
-import com.google.common.collect.ImmutableList;
+import org.apache.oozie.jobs.api.action.MapReduceAction;
+import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
+import org.apache.oozie.jobs.api.action.PrepareBuilder;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import java.util.List;
+import static org.junit.Assert.fail;
 
-public class Prepare {
-    private final ImmutableList<Delete> deletes;
-    private final ImmutableList<Mkdir> mkdirs;
 
-    public Prepare(final ImmutableList<Delete> deletes, final ImmutableList<Mkdir> mkdirs) {
-        this.deletes = deletes;
-        this.mkdirs = mkdirs;
-    }
+public class TestMapReduceActionMapping {
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
 
-    List<Delete> getDeletes() {
-        return deletes;
-    }
+    @Test
+    public void testMappingMapReduceAction() {
+        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
 
-    List<Mkdir> getMkdirs() {
-        return mkdirs;
+        builder.withJobTracker("${jobTracker}")
+                .withNameNode("${nameNode}");
+
+        final MapReduceAction action = builder.build();
+
+        fail();
     }
 }

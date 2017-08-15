@@ -16,26 +16,24 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.action;
+package org.apache.oozie.jobs.api.mapping;
 
-import com.google.common.collect.ImmutableList;
+import org.apache.oozie.jobs.api.action.Delete;
+import org.apache.oozie.jobs.api.generated.workflow.DELETE;
+import org.junit.Test;
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
 
-public class Prepare {
-    private final ImmutableList<Delete> deletes;
-    private final ImmutableList<Mkdir> mkdirs;
+public class TestDeleteMapping {
+    @Test
+    public void testMappingDelete() {
+        final String path = "path/to/location";
+        final Boolean skipTrash = true;
+        final Delete delete = new Delete(path, skipTrash);
 
-    public Prepare(final ImmutableList<Delete> deletes, final ImmutableList<Mkdir> mkdirs) {
-        this.deletes = deletes;
-        this.mkdirs = mkdirs;
-    }
+        final DELETE deleteJAXB = DozerMapperSingletonWrapper.getMapperInstance().map(delete, DELETE.class);
 
-    List<Delete> getDeletes() {
-        return deletes;
-    }
-
-    List<Mkdir> getMkdirs() {
-        return mkdirs;
+        assertEquals(path, deleteJAXB.getPath());
+        assertEquals(skipTrash, deleteJAXB.isSkipTrash());
     }
 }

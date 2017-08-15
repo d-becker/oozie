@@ -16,26 +16,32 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.action;
+package org.apache.oozie.jobs.api.mapping;
 
-import com.google.common.collect.ImmutableList;
+import org.dozer.DozerBeanMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Prepare {
-    private final ImmutableList<Delete> deletes;
-    private final ImmutableList<Mkdir> mkdirs;
+public class DozerMapperSingletonWrapper {
+    private static DozerBeanMapper mapper;
 
-    public Prepare(final ImmutableList<Delete> deletes, final ImmutableList<Mkdir> mkdirs) {
-        this.deletes = deletes;
-        this.mkdirs = mkdirs;
+    private static void init() {
+        mapper = new DozerBeanMapper();
+
+        List<String> mappingFiles = new ArrayList<>();
+        mappingFiles.add("dozer_config.xml");
+        mappingFiles.add("mappingGraphToWORKFLOWAPP.xml");
+        mappingFiles.add("action_mappings.xml");
+
+        mapper.setMappingFiles(mappingFiles);
     }
 
-    List<Delete> getDeletes() {
-        return deletes;
-    }
+    public static DozerBeanMapper getMapperInstance() {
+        if (mapper == null) {
+            init();
+        }
 
-    List<Mkdir> getMkdirs() {
-        return mkdirs;
+        return mapper;
     }
 }

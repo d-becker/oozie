@@ -21,106 +21,18 @@ package org.apache.oozie.jobs.api.mapping;
 import org.apache.oozie.jobs.api.generated.workflow.CASE;
 import org.apache.oozie.jobs.api.generated.workflow.DECISION;
 import org.apache.oozie.jobs.api.generated.workflow.DEFAULT;
-import org.apache.oozie.jobs.api.generated.workflow.END;
-import org.apache.oozie.jobs.api.generated.workflow.FORK;
-import org.apache.oozie.jobs.api.generated.workflow.FORKTRANSITION;
-import org.apache.oozie.jobs.api.generated.workflow.JOIN;
-import org.apache.oozie.jobs.api.generated.workflow.START;
 import org.apache.oozie.jobs.api.generated.workflow.SWITCH;
 import org.apache.oozie.jobs.api.oozie.dag.Decision;
-import org.apache.oozie.jobs.api.oozie.dag.End;
+import org.apache.oozie.jobs.api.oozie.dag.DecisionJoin;
 import org.apache.oozie.jobs.api.oozie.dag.ExplicitNode;
-import org.apache.oozie.jobs.api.oozie.dag.Fork;
-import org.apache.oozie.jobs.api.oozie.dag.Join;
 import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
-import org.apache.oozie.jobs.api.oozie.dag.Start;
-import org.dozer.DozerBeanMapper;
-import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
-public class TestControlNodesMapping {
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    private static final DozerBeanMapper mapper = new DozerBeanMapper();
-
-    @BeforeClass
-    public static void setUpMapper() {
-        List<String> mappingFiles = new ArrayList<>();
-        mappingFiles.add("dozer_config.xml");
-        mappingFiles.add("mappingGraphToWORKFLOWAPP.xml");
-        mappingFiles.add("action_mappings.xml");
-
-        mapper.setMappingFiles(mappingFiles);
-    }
-
-    @Test
-    public void testMappingStart() {
-        final String childName = "child";
-        final Start start = new Start("start");
-        final NodeBase child = new ExplicitNode(childName, null);
-
-        child.addParent(start);
-
-        final START mappedStart = mapper.map(start, START.class);
-
-        assertEquals(childName, mappedStart.getTo());
-    }
-
-    @Test
-    public void testMappingEnd() {
-        final String name = "end";
-        final End end = new End(name);
-
-        final END mappedEnd = mapper.map(end, END.class);
-
-        assertEquals(name, mappedEnd.getName());
-    }
-
-    @Test
-    public void testMappingFork() {
-        final String name = "fork";
-        final Fork fork = new Fork(name);
-
-        final NodeBase child1 = new ExplicitNode("child1", null);
-        final NodeBase child2 = new ExplicitNode("child2", null);
-
-        child1.addParent(fork);
-        child2.addParent(fork);
-
-        final FORK mappedFork = mapper.map(fork, FORK.class);
-
-        assertEquals(name, mappedFork.getName());
-
-        List<FORKTRANSITION> transitions = mappedFork.getPath();
-        assertEquals(child1.getName(), transitions.get(0).getStart());
-        assertEquals(child2.getName(), transitions.get(1).getStart());
-    }
-
-    @Test
-    public void testMappingJoin() {
-        final String joinName = "join";
-        final String childName = "child";
-        final Join join = new Join(joinName, new Fork("fork"));
-
-        final NodeBase child = new ExplicitNode(childName, null);
-
-        child.addParent(join);
-
-        final JOIN mappedJoin = mapper.map(join, JOIN.class);
-
-        assertEquals(joinName, mappedJoin.getName());
-        assertEquals(childName, mappedJoin.getTo());
-    }
-
+public class TestDecisionMapping extends TestControllNodesMapping {
     @Test
     public void testMappingDecision() {
         final String name = "decision";
@@ -137,7 +49,7 @@ public class TestControlNodesMapping {
         child2.addParentWithCondition(decision, condition2);
         defaultChild.addParentDefaultConditional(decision);
 
-        final DECISION mappedDecision = mapper.map(decision, DECISION.class);
+        final DECISION mappedDecision = DozerMapperSingletonWrapper.getMapperInstance().map(decision, DECISION.class);
 
         assertEquals(name, mappedDecision.getName());
 
@@ -171,6 +83,30 @@ public class TestControlNodesMapping {
         child2.addParentWithCondition(decision, condition2);
 
         expectedException.expect(IllegalStateException.class);
-        final DECISION mappedDecision = mapper.map(decision, DECISION.class);
+        final DECISION mappedDecision = DozerMapperSingletonWrapper.getMapperInstance().map(decision, DECISION.class);
+    }
+
+    @Test
+    public void testMappingDecisionWithDecisionJoin() {
+        final String child1Name = "child1";
+        final String child2Name = "child2";
+        final Decision decision = new Decision("decision");
+
+        final NodeBase decisionJoin1 = new DecisionJoin("decisionJoin1", new Decision("decision"));
+        decisionJoin1.addParentWithCondition(decision, "condition");
+
+        final NodeBase decisionJoin2 = new DecisionJoin("decisionJoin2", new Decision("decision2"));
+        decisionJoin2.addParentDefaultConditional(decision);
+
+        final NodeBase child1 = new ExplicitNode(child1Name, null);
+        child1.addParent(decisionJoin1);
+
+        final NodeBase child2 = new ExplicitNode(child2Name, null);
+        child2.addParent(decisionJoin2);
+
+        final DECISION mappedDecision = DozerMapperSingletonWrapper.getMapperInstance().map(decision, DECISION.class);
+
+        assertEquals(child1Name, mappedDecision.getSwitch().getCase().get(0).getTo());
+        assertEquals(child2Name, mappedDecision.getSwitch().getDefault().getTo());
     }
 }

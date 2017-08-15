@@ -21,7 +21,7 @@ package org.apache.oozie.jobs.api.action;
 public class Mkdir {
     private final String path;
 
-    Mkdir(final String path) {
+    public Mkdir(final String path) {
         this.path = path;
     }
 

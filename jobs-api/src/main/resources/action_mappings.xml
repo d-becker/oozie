@@ -24,12 +24,82 @@
           http://dozer.sourceforge.net/schema/beanmapping.xsd">
 
     <mapping type="one-way">
-        <class-a>org.apache.oozie.jobs.api.action.MapReduceAction</class-a>
-        <class-b>org.apache.oozie.jobs.api.generated.workflow.ACTION</class-b>
+        <class-a>org.apache.oozie.jobs.api.action.Delete</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.DELETE</class-b>
 
         <field>
-            <a>name</a>
-            <b>name</b>
+            <a>path</a>
+            <b>path</b>
+        </field>
+
+        <field>
+            <a is-accessible="true">skipTrash</a>
+            <b>skipTrash</b>
         </field>
     </mapping>
+
+    <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.Mkdir</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.MKDIR</class-b>
+
+        <field>
+            <a>path</a>
+            <b>path</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.Prepare</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.PREPARE</class-b>
+
+        <field>
+            <a>deletes</a>
+            <b>delete</b>
+        </field>
+
+        <field>
+            <a>mkdirs</a>
+            <b>mkdir</b>
+        </field>
+    </mapping>
+
+    <!--<mapping type="one-way">-->
+        <!--<class-a>org.apache.oozie.jobs.api.action.MapReduceAction</class-a>-->
+        <!--<class-b>org.apache.oozie.jobs.api.generated.workflow.MAPREDUCE</class-b>-->
+
+        <!--<field>-->
+            <!--<a>name</a>-->
+            <!--<b>name</b>-->
+        <!--</field>-->
+
+        <!--<field>-->
+            <!--<a>jobTracker</a>-->
+            <!--<b>jobTracker</b>-->
+        <!--</field>-->
+
+        <!--<field>-->
+            <!--<a>nameNode</a>-->
+            <!--<b>nameNode</b>-->
+        <!--</field>-->
+
+        <!--<field>-->
+            <!--<a>prepare</a>-->
+            <!--<b>prepare</b>-->
+        <!--</field>-->
+
+        <!--<field>-->
+            <!--<a>streaming</a>-->
+            <!--<b>streaming</b>-->
+        <!--</field>-->
+
+        <!--<field>-->
+            <!--<a>pipes</a>-->
+            <!--<b>pipes</b>-->
+        <!--</field>-->
+
+        <!--<field>-->
+            <!--<a>jobXmls</a>-->
+            <!--<b>jobXml</b>-->
+        <!--</field>-->
+    <!--</mapping>-->
 </mappings>
