@@ -24,7 +24,7 @@ import java.util.List;
 public class Start extends NodeBase {
     private NodeBase child;
 
-    Start(final String name) {
+    public Start(final String name) {
         super(name);
     }
 

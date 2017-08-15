@@ -24,6 +24,7 @@ import org.apache.oozie.jobs.api.generated.workflow.ObjectFactory;
 import org.apache.oozie.jobs.api.generated.workflow.SWITCH;
 import org.apache.oozie.jobs.api.oozie.dag.DagNodeWithCondition;
 import org.apache.oozie.jobs.api.oozie.dag.Decision;
+import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.dozer.DozerConverter;
 import org.dozer.Mapper;
 import org.dozer.MapperAware;
@@ -63,12 +64,20 @@ public class DecisionConverter extends DozerConverter<Decision, DECISION> implem
         final String name = source.getName();
         destination.setName(name);
     }
+
     private void mapTransitions(final Decision source, final DECISION destination) {
         final List<DagNodeWithCondition> children = source.getChildrenWithConditions();
         final List<CASE> cases = destination.getSwitch().getCase();
 
-        for (DagNodeWithCondition nodeWithCondition : children) {
-            CASE mappedCase = mapper.map(nodeWithCondition, CASE.class);
+        for (DagNodeWithCondition childWithCondition : children) {
+            final NodeBase child = childWithCondition.getNode();
+            final NodeBase realChild = MappingUtils.getRealChild(child);
+
+            final String condition = childWithCondition.getCondition();
+
+            final DagNodeWithCondition realChildWithCondition = new DagNodeWithCondition(realChild, condition);
+
+            final CASE mappedCase = mapper.map(realChildWithCondition, CASE.class);
             cases.add(mappedCase);
         }
     }

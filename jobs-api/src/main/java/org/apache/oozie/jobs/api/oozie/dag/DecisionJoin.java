@@ -26,7 +26,7 @@ package org.apache.oozie.jobs.api.oozie.dag;
  */
 public class DecisionJoin extends JoiningNodeBase<Decision> {
 
-    DecisionJoin(String name, Decision branching) {
+    public DecisionJoin(String name, Decision branching) {
         super(name, branching);
     }
 }

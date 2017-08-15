@@ -26,7 +26,7 @@ public class Decision extends NodeBase {
     private NodeBase parent;
     private final List<DagNodeWithCondition> childrenWithConditions;
 
-    Decision(final String name) {
+    public Decision(final String name) {
         super(name);
         this.parent = null;
         this.childrenWithConditions = new ArrayList<>();

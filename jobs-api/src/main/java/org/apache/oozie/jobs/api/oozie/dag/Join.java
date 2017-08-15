@@ -19,7 +19,7 @@
 package org.apache.oozie.jobs.api.oozie.dag;
 
 public class Join extends JoiningNodeBase<Fork> {
-    Join(final String name, final Fork fork) {
+    public Join(final String name, final Fork fork) {
         super(name, fork);
         fork.close(this);
     }

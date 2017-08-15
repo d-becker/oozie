@@ -23,7 +23,7 @@ import java.util.List;
 public abstract class NodeBase {
     private final String name;
 
-    public NodeBase(final String name) {
+    protected NodeBase(final String name) {
         this.name = name;
     }
 

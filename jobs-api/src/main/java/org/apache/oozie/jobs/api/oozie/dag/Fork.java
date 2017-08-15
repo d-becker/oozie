@@ -30,7 +30,7 @@ public class Fork extends NodeBase {
 
     private final ModifyOnce<Join> closingJoin;
 
-    Fork(final String name) {
+    public Fork(final String name) {
         super(name);
         parent = null;
         children = new ArrayList<>();

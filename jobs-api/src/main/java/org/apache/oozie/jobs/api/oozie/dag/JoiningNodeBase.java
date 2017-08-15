@@ -23,13 +23,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class JoiningNodeBase<T> extends NodeBase {
+public abstract class JoiningNodeBase<T> extends NodeBase {
     private final List<NodeBase> parents;
     private NodeBase child;
 
     private final T branching;
 
-    JoiningNodeBase(final String name, final T branching) {
+    protected JoiningNodeBase(final String name, final T branching) {
         super(name);
 
         this.parents = new ArrayList<>();

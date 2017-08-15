@@ -24,7 +24,7 @@ import java.util.List;
 public class End extends NodeBase {
     private NodeBase parent;
 
-    End(final String name) {
+    public End(final String name) {
         super(name);
     }
 

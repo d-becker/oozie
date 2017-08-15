@@ -28,7 +28,7 @@ public class ExplicitNode extends NodeBase {
     private NodeBase child;
     private final Node realNode;
 
-    ExplicitNode(final String name, final Node realNode) {
+    public ExplicitNode(final String name, final Node realNode) {
         super(name);
         this.realNode = realNode;
     }

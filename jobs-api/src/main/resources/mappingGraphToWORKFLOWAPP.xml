@@ -64,7 +64,7 @@
 
         <field>
             <a>children</a>
-            <b>path</b>
+            <b is-accessible="true">path</b>
         </field>
     </mapping>
 
