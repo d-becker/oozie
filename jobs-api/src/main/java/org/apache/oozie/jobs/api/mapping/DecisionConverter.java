@@ -20,6 +20,7 @@ package org.apache.oozie.jobs.api.mapping;
 
 import org.apache.oozie.jobs.api.generated.workflow.CASE;
 import org.apache.oozie.jobs.api.generated.workflow.DECISION;
+import org.apache.oozie.jobs.api.generated.workflow.DEFAULT;
 import org.apache.oozie.jobs.api.generated.workflow.ObjectFactory;
 import org.apache.oozie.jobs.api.generated.workflow.SWITCH;
 import org.apache.oozie.jobs.api.oozie.dag.DagNodeWithCondition;
@@ -66,7 +67,20 @@ public class DecisionConverter extends DozerConverter<Decision, DECISION> implem
     }
 
     private void mapTransitions(final Decision source, final DECISION destination) {
-        final List<DagNodeWithCondition> children = source.getChildrenWithConditions();
+        final NodeBase defaultNode = source.getDefaultChild();
+
+        if (defaultNode == null) {
+            throw new IllegalStateException("No default transition found.");
+        }
+
+        final DEFAULT defaultCase = objectFactory.createDEFAULT();
+        defaultCase.setTo(defaultNode.getName());
+        destination.getSwitch().setDefault(defaultCase);
+
+        final List<DagNodeWithCondition> childrenIncludingDefault = source.getChildrenWithConditions();
+
+        // The default child is the last on the list, we remove it as we have already handled that.
+        final List<DagNodeWithCondition> children = childrenIncludingDefault.subList(0, childrenIncludingDefault.size() - 1);
         final List<CASE> cases = destination.getSwitch().getCase();
 
         for (DagNodeWithCondition childWithCondition : children) {

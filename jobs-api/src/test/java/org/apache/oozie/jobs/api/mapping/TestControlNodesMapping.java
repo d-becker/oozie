@@ -20,6 +20,7 @@ package org.apache.oozie.jobs.api.mapping;
 
 import org.apache.oozie.jobs.api.generated.workflow.CASE;
 import org.apache.oozie.jobs.api.generated.workflow.DECISION;
+import org.apache.oozie.jobs.api.generated.workflow.DEFAULT;
 import org.apache.oozie.jobs.api.generated.workflow.END;
 import org.apache.oozie.jobs.api.generated.workflow.FORK;
 import org.apache.oozie.jobs.api.generated.workflow.FORKTRANSITION;
@@ -35,14 +36,20 @@ import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.apache.oozie.jobs.api.oozie.dag.Start;
 import org.dozer.DozerBeanMapper;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class TestControlNodesMapping {
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
+
     private static final DozerBeanMapper mapper = new DozerBeanMapper();
 
     @BeforeClass
@@ -116,8 +123,41 @@ public class TestControlNodesMapping {
 
     @Test
     public void testMappingDecision() {
-        // TODO: Handle default transitions.
+        final String name = "decision";
+        final Decision decision = new Decision(name);
 
+        final NodeBase child1 = new ExplicitNode("child1", null);
+        final NodeBase child2 = new ExplicitNode("child2", null);
+        final NodeBase defaultChild = new ExplicitNode("defaultChild", null);
+
+        final String condition1 = "condition1";
+        final String condition2 = "condition2";
+
+        child1.addParentWithCondition(decision, condition1);
+        child2.addParentWithCondition(decision, condition2);
+        defaultChild.addParentDefaultConditional(decision);
+
+        final DECISION mappedDecision = mapper.map(decision, DECISION.class);
+
+        assertEquals(name, mappedDecision.getName());
+
+        final SWITCH decisionSwitch = mappedDecision.getSwitch();
+        final List<CASE> cases = decisionSwitch.getCase();
+
+        assertEquals(2, cases.size());
+
+        assertEquals(child1.getName(), cases.get(0).getTo());
+        assertEquals(condition1, cases.get(0).getValue());
+
+        assertEquals(child2.getName(), cases.get(1).getTo());
+        assertEquals(condition2, cases.get(1).getValue());
+
+        final DEFAULT decisionDefault = decisionSwitch.getDefault();
+        assertEquals(defaultChild.getName(), decisionDefault.getTo());
+    }
+
+    @Test
+    public void testMappingDecisionWithoutDefaultThrows() {
         final String name = "decision";
         final Decision decision = new Decision(name);
 
@@ -130,17 +170,7 @@ public class TestControlNodesMapping {
         child1.addParentWithCondition(decision, condition1);
         child2.addParentWithCondition(decision, condition2);
 
+        expectedException.expect(IllegalStateException.class);
         final DECISION mappedDecision = mapper.map(decision, DECISION.class);
-
-        assertEquals(name, mappedDecision.getName());
-
-        final SWITCH decisionSwitch = mappedDecision.getSwitch();
-        final List<CASE> cases = decisionSwitch.getCase();
-
-        assertEquals(child1.getName(), cases.get(0).getTo());
-        assertEquals(condition1, cases.get(0).getValue());
-
-        assertEquals(child2.getName(), cases.get(1).getTo());
-        assertEquals(condition2, cases.get(1).getValue());
     }
 }
