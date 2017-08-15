@@ -69,6 +69,21 @@
     </mapping>
 
     <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.oozie.dag.DagNodeWithCondition</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.CASE</class-b>
+
+        <field>
+            <a>condition</a>
+            <b>value</b>
+        </field>
+
+        <field>
+            <a>node.name</a>
+            <b>to</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
         <class-a>org.apache.oozie.jobs.api.oozie.dag.Join</class-a>
         <class-b>org.apache.oozie.jobs.api.generated.workflow.JOIN</class-b>
 
@@ -80,16 +95,6 @@
         <field>
             <a>child.name</a>
             <b>to</b>
-        </field>
-    </mapping>
-
-    <mapping type="one-way">
-        <class-a>org.apache.oozie.jobs.api.action.MapReduceAction</class-a>
-        <class-b>org.apache.oozie.jobs.api.generated.workflow.ACTION</class-b>
-
-        <field>
-            <a>name</a>
-            <b>name</b>
         </field>
     </mapping>
 </mappings>

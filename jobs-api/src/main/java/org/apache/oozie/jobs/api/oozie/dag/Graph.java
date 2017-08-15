@@ -73,7 +73,7 @@ public class Graph {
         return end;
     }
 
-    NodeBase getNodeByName(final String name) {
+    public NodeBase getNodeByName(final String name) {
         return nodesByName.get(name);
     }
 

@@ -23,22 +23,13 @@
           xsi:schemaLocation="http://dozer.sourceforge.net
           http://dozer.sourceforge.net/schema/beanmapping.xsd">
 
-    <configuration>
-        <stop-on-errors>true</stop-on-errors>
-        <wildcard>false</wildcard>
+    <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.MapReduceAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.ACTION</class-b>
 
-        <custom-converters> <!-- these are always bi-directional -->
-            <converter type="org.apache.oozie.jobs.api.mapping.GraphToWORKFLOWAPPConverter" >
-                <class-a>org.apache.oozie.jobs.api.oozie.dag.Graph</class-a>
-                <class-b>org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP</class-b>
-            </converter>
-
-            <converter type="org.apache.oozie.jobs.api.mapping.DecisionConverter" >
-                <class-a>org.apache.oozie.jobs.api.oozie.dag.Decision</class-a>
-                <class-b>org.apache.oozie.jobs.api.generated.workflow.DECISION</class-b>
-            </converter>
-        </custom-converters>
-
-    </configuration>
-
+        <field>
+            <a>name</a>
+            <b>name</b>
+        </field>
+    </mapping>
 </mappings>

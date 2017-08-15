@@ -39,6 +39,12 @@ public class DagNodeWithCondition {
         return element != null;
     }
 
+    // TODO: remove this.
+    public DagNodeWithCondition() {
+        node = null;
+        condition = null;
+    }
+
     public DagNodeWithCondition(final NodeBase node,
                                 final String condition) {
         this.node = node;

@@ -21,10 +21,12 @@ package org.apache.oozie.jobs.api.mapping;
 import org.apache.oozie.jobs.api.action.MapReduceAction;
 import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.generated.workflow.ACTION;
+import org.apache.oozie.jobs.api.generated.workflow.DECISION;
 import org.apache.oozie.jobs.api.generated.workflow.END;
 import org.apache.oozie.jobs.api.generated.workflow.ObjectFactory;
 import org.apache.oozie.jobs.api.generated.workflow.START;
 import org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP;
+import org.apache.oozie.jobs.api.oozie.dag.Decision;
 import org.apache.oozie.jobs.api.oozie.dag.ExplicitNode;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
@@ -38,12 +40,13 @@ import java.util.Map;
 public class GraphToWORKFLOWAPPConverter extends DozerConverter<Graph, WORKFLOWAPP> implements MapperAware {
     private Mapper mapper;
 
-    private Map<Class<? extends Node>, Class<? extends Object>> classMapping = new HashMap<>();
+    private Map<Class<? extends Object>, Class<? extends Object>> classMapping = new HashMap<>();
 
     public GraphToWORKFLOWAPPConverter() {
         super(Graph.class, WORKFLOWAPP.class);
 
         classMapping.put(MapReduceAction.class, ACTION.class);
+        classMapping.put(Decision.class, DECISION.class);
     }
 
     @Override
@@ -66,6 +69,12 @@ public class GraphToWORKFLOWAPPConverter extends DozerConverter<Graph, WORKFLOWA
 
                 if (classMapping.containsKey(node.getRealNode().getClass())) {
                     Object mappedObject = mapper.map(node, classMapping.get(node.getRealNode().getClass()));
+                    workflowapp.getDecisionOrForkOrJoin().add(mappedObject);
+                }
+            }
+            else {
+                if (classMapping.containsKey(nodeBase.getClass())) {
+                    Object mappedObject = mapper.map(nodeBase, classMapping.get(nodeBase.getClass()));
                     workflowapp.getDecisionOrForkOrJoin().add(mappedObject);
                 }
             }
