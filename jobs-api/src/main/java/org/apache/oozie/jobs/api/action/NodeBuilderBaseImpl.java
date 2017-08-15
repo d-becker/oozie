@@ -59,6 +59,11 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
         return ensureRuntimeSelfReference();
     }
 
+    public B withParentDefaultConditional(final Node parent) {
+        parentsWithConditions.add(new Node.NodeWithCondition(parent, null));
+        return ensureRuntimeSelfReference();
+    }
+
     B withoutParent(final Node parent) {
         if (parents.contains(parent)) {
             parents.remove(parent);
@@ -115,7 +120,13 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
             for (final Node.NodeWithCondition parentWithCondition : parentsWithConditionsList) {
                 final Node parent = parentWithCondition.getNode();
                 final String condition = parentWithCondition.getCondition();
-                parent.addChildWithCondition(child, condition);
+
+                if (condition == null) { // A null condition means this is the default conditional child.
+                    parent.addChildAsDefaultConditional(child);
+                }
+                else {
+                    parent.addChildWithCondition(child, condition);
+                }
             }
         }
     }

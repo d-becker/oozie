@@ -52,10 +52,19 @@ public abstract class JoiningNodeBase<T> extends NodeBase {
     @Override
     public void addParentWithCondition(Decision parent, String condition) {
         if (parent != null) {
-            parent.addChild(this);
+            parent.addChildWithCondition(this,  condition);
         }
 
-        parent.addChildWithCondition(this,  condition);
+        parents.add(parent);
+    }
+
+    @Override
+    public void addParentDefaultConditional(Decision parent) {
+        if (parent != null) {
+            parent.addDefaultChild(this);
+        }
+
+        parents.add(parent);
     }
 
     @Override

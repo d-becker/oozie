@@ -83,6 +83,11 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
     }
 
     @Test
+    public void testWithConditionalParents() {
+
+    }
+
+    @Test
     public void testAddingDuplicateParentBothTimesWithoutConditionThrows() {
         final N parent = getBuilderInstance().build();
 
@@ -172,6 +177,18 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
     }
 
     @Test
+    public void testAddMultipleDefaultConditionalChildrenThrows() {
+        final N parent = getBuilderInstance().withName("parent").build();
+
+        final N defaultChild1 = getBuilderInstance().withName("defaultChild1").withParentDefaultConditional(parent).build();
+
+        final B defaultChild2Builder = getBuilderInstance().withName("defaultChild2").withParentDefaultConditional(parent);
+
+        expectedException.expect(IllegalStateException.class);
+        defaultChild2Builder.build();
+    }
+
+    @Test
     public void testWithoutParentWhenConditionExists() {
         final Node parent1 = getBuilderInstance().build();
         final Node parent2 = getBuilderInstance().build();
@@ -208,17 +225,25 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
 
         final N child1 = getBuilderInstance().withName("child1").withParentWithCondition(parent, condition1).build();
         final N child2 = getBuilderInstance().withName("child2").withParentWithCondition(parent, condition2).build();
+        final N defaultChild = getBuilderInstance().withName("defaultChild").withParentDefaultConditional(parent).build();
 
 
         final List<Node.NodeWithCondition> childrenWithConditions = parent.getChildrenWithConditions();
 
-        assertEquals(2, childrenWithConditions.size());
+        assertEquals(3, childrenWithConditions.size());
 
         assertEquals(child1, childrenWithConditions.get(0).getNode());
         assertEquals(condition1, childrenWithConditions.get(0).getCondition());
 
         assertEquals(child2, childrenWithConditions.get(1).getNode());
         assertEquals(condition2, childrenWithConditions.get(1).getCondition());
+
+        assertEquals(defaultChild, childrenWithConditions.get(2).getNode());
+        assertEquals(null, childrenWithConditions.get(2).getCondition());
+
+        assertEquals(defaultChild, parent.getDefaultConditionalChild());
+
+        assertEquals(Arrays.asList(child1, child2, defaultChild), parent.getAllChildren());
     }
 
     @Test

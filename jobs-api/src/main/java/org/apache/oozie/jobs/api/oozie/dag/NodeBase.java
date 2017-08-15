@@ -35,6 +35,8 @@ public abstract class NodeBase {
 
     public abstract void addParentWithCondition(final Decision parent, final String condition);
 
+    public abstract void addParentDefaultConditional(final Decision parent);
+
     public abstract void removeParent(final NodeBase parent);
 
     public abstract void clearParents();

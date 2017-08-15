@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class TestDecision extends TestNodeBase<Decision> {
     @Rule
@@ -125,6 +126,65 @@ public class TestDecision extends TestNodeBase<Decision> {
 
         assertEquals(child2, childrenWithConditions.get(1).getNode());
         assertEquals(condition2, childrenWithConditions.get(1).getCondition());
+    }
+
+    @Test
+    public void testDefaultChildIsCorrect() {
+        final NodeBase child1 = new ExplicitNode("child1", null);
+        final NodeBase defaultChild = new ExplicitNode("defaultChild", null);
+
+        final Decision decision = getInstance("decision");
+
+        final String condition1 = "condition1";
+
+        child1.addParentWithCondition(decision, condition1);
+        defaultChild.addParentDefaultConditional(decision);
+
+        List<DagNodeWithCondition> childrenWithConditions = decision.getChildrenWithConditions();
+
+        assertEquals(2, childrenWithConditions.size());
+
+        assertEquals(child1, childrenWithConditions.get(0).getNode());
+        assertEquals(condition1, childrenWithConditions.get(0).getCondition());
+
+        assertEquals(defaultChild, childrenWithConditions.get(1).getNode());
+        assertEquals(null, childrenWithConditions.get(1).getCondition());
+
+        assertEquals(defaultChild, decision.getDefaultChild());
+    }
+
+    @Test
+    public void testMultipleDefaultChildAddedThrows() {
+        final NodeBase child1 = new ExplicitNode("child1", null);
+        final NodeBase defaultChild1 = new ExplicitNode("defaultChild1", null);
+        final NodeBase defaultChild2 = new ExplicitNode("defaultChild2", null);
+
+        final Decision decision = getInstance("decision");
+
+        final String condition1 = "condition1";
+
+        child1.addParentWithCondition(decision, condition1);
+        defaultChild1.addParentDefaultConditional(decision);
+
+        expectedException.expect(IllegalStateException.class);
+        defaultChild2.addParentDefaultConditional(decision);
+    }
+
+    @Test
+    public void testDefaultChildRemovedAndAnotherOneAdded() {
+        final NodeBase child1 = new ExplicitNode("child1", null);
+        final NodeBase defaultChild1 = new ExplicitNode("defaultChild1", null);
+        final NodeBase defaultChild2 = new ExplicitNode("defaultChild2", null);
+
+        final Decision decision = getInstance("decision");
+
+        final String condition1 = "condition1";
+
+        child1.addParentWithCondition(decision, condition1);
+        defaultChild1.addParentDefaultConditional(decision);
+
+        defaultChild1.removeParent(decision);
+        defaultChild2.addParentDefaultConditional(decision);
     }
 
     @Test

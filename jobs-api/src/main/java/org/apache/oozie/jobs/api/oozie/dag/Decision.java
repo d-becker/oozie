@@ -25,6 +25,7 @@ import java.util.List;
 public class Decision extends NodeBase {
     private NodeBase parent;
     private final List<DagNodeWithCondition> childrenWithConditions;
+    private NodeBase defaultChild;
 
     public Decision(final String name) {
         super(name);
@@ -53,8 +54,17 @@ public class Decision extends NodeBase {
         }
 
         this.parent = parent;
-
         parent.addChildWithCondition(this, condition);
+    }
+
+    @Override
+    public void addParentDefaultConditional(Decision parent) {
+        if (this.parent != null) {
+            throw new IllegalStateException("Decision nodes cannot have multiple parents.");
+        }
+
+        this.parent = parent;
+        parent.addDefaultChild(this);
     }
 
     @Override
@@ -79,7 +89,7 @@ public class Decision extends NodeBase {
     public List<NodeBase> getChildren() {
         final List<NodeBase> results = new ArrayList<>();
 
-        for (DagNodeWithCondition nodeWithCondition : childrenWithConditions) {
+        for (DagNodeWithCondition nodeWithCondition : getChildrenWithConditions()) {
             results.add(nodeWithCondition.getNode());
         }
 
@@ -87,7 +97,17 @@ public class Decision extends NodeBase {
     }
 
     public List<DagNodeWithCondition> getChildrenWithConditions() {
-        return Collections.unmodifiableList(new ArrayList<>(childrenWithConditions));
+        List<DagNodeWithCondition> results = new ArrayList<>(childrenWithConditions);
+
+        if (defaultChild != null) {
+            results.add(new DagNodeWithCondition(defaultChild, null));
+        }
+
+        return Collections.unmodifiableList(results);
+    }
+
+    public NodeBase getDefaultChild() {
+        return defaultChild;
     }
 
     @Override
@@ -98,18 +118,36 @@ public class Decision extends NodeBase {
     }
 
     protected void addChildWithCondition(final NodeBase child, final String condition) {
-        this.childrenWithConditions.add(new DagNodeWithCondition(child, condition));
+        if (condition == null) { // A null condition means the child is the default child.
+            addDefaultChild(child);
+        }
+        else {
+            this.childrenWithConditions.add(new DagNodeWithCondition(child, condition));
+        }
+    }
+
+    protected void addDefaultChild(final NodeBase child) {
+        if (defaultChild != null) {
+            throw new IllegalStateException("Trying to add a default child to a Decision node that already has one.");
+        }
+
+        defaultChild = child;
     }
 
     @Override
     protected void removeChild(final NodeBase child) {
-        int index = indexOfNodeBaseInChildrenWithConditions(child);
-
-        if (index < 0) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent child.");
+        if (defaultChild == child) {
+            defaultChild = null;
         }
+        else {
+            int index = indexOfNodeBaseInChildrenWithConditions(child);
 
-        this.childrenWithConditions.remove(index);
+            if (index < 0) {
+                throw new IllegalArgumentException("Trying to remove a nonexistent child.");
+            }
+
+            this.childrenWithConditions.remove(index);
+        }
     }
 
     private int indexOfNodeBaseInChildrenWithConditions(final NodeBase child) {

@@ -19,6 +19,7 @@
 package org.apache.oozie.jobs.api.action;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.oozie.jobs.api.ModifyOnce;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,7 @@ public abstract class Node {
     private final ImmutableList<Node.NodeWithCondition> parentsWithConditions;
     private final List<Node> childrenWithoutConditions; // MUTABLE!
     private final List<NodeWithCondition> childrenWithConditions; // MUTABLE!
+    private Node defaultConditionalChild; // MUTABLE!
 
     Node(final String name,
          final ImmutableList<Node> parentsWithoutConditions,
@@ -40,6 +42,7 @@ public abstract class Node {
         this.parentsWithConditions = parentsWithConditions;
         this.childrenWithoutConditions = new ArrayList<>();
         this.childrenWithConditions = new ArrayList<>();
+        this.defaultConditionalChild = null;
     }
 
     public String getName() {
@@ -82,6 +85,20 @@ public abstract class Node {
         this.childrenWithConditions.add(new NodeWithCondition(child, condition));
     }
 
+    void addChildAsDefaultConditional(final Node child) {
+        if (!childrenWithoutConditions.isEmpty()) {
+            throw new IllegalStateException(
+                    "Trying to add a default conditional child to a node that already has at least one child without a condition.");
+        }
+
+        if (defaultConditionalChild != null) {
+            throw new IllegalStateException(
+                    "Trying to add a default conditional child to a node that already has one.");
+        }
+
+        this.defaultConditionalChild = child;
+    }
+
     /**
      * Returns an unmodifiable view of list of the children of this <code>Action</code>.
      * @return An unmodifiable view of list of the children of this <code>Action</code>.
@@ -89,7 +106,7 @@ public abstract class Node {
     public List<Node> getAllChildren() {
         final List<Node> allChildren = new ArrayList<>(childrenWithoutConditions);
 
-        for (NodeWithCondition nodeWithCondition : childrenWithConditions) {
+        for (NodeWithCondition nodeWithCondition : getChildrenWithConditions()) {
             allChildren.add(nodeWithCondition.getNode());
         }
 
@@ -105,11 +122,23 @@ public abstract class Node {
     }
 
     /**
-     * Returns an unmodifiable view of list of the childrenWithoutConditions with condition of this <code>Action</code>.
-     * @return An unmodifiable view of list of the childrenWithoutConditions with condition of this <code>Action</code>.
+     * Returns an unmodifiable view of list of the children with condition (including the default) of this <code>Action</code>.
+     * @return An unmodifiable view of list of the children with condition (including the default) of this <code>Action</code>.
      */
     public List<NodeWithCondition> getChildrenWithConditions() {
-        return Collections.unmodifiableList(childrenWithConditions);
+        if (defaultConditionalChild == null) {
+            return Collections.unmodifiableList(childrenWithConditions);
+        }
+        else {
+            final List<NodeWithCondition> results = new ArrayList<>(childrenWithConditions);
+            results.add(new NodeWithCondition(defaultConditionalChild, null));
+
+            return Collections.unmodifiableList(results);
+        }
+    }
+
+    public Node getDefaultConditionalChild() {
+        return defaultConditionalChild;
     }
 
     public static class NodeWithCondition {

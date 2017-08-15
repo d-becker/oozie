@@ -53,6 +53,16 @@ public class End extends NodeBase {
     }
 
     @Override
+    public void addParentDefaultConditional(Decision parent) {
+        if (this.parent != null) {
+            throw new IllegalStateException("End nodes cannot have multiple parents.");
+        }
+
+        this.parent = parent;
+        parent.addDefaultChild(this);
+    }
+
+    @Override
     public void removeParent(final NodeBase parent) {
         if (this.parent != parent) {
             throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
