@@ -92,9 +92,9 @@ public class Decision extends NodeBase {
 
     @Override
     protected void addChild(NodeBase child) {
-        // throw new IllegalStateException("Decision nodes cannot have normal children.");
+        throw new IllegalStateException("Decision nodes cannot have normal children.");
         // TODO: choose which approach to use.
-        addChildWithCondition(child, null);
+        // addChildWithCondition(child, null);
     }
 
     protected void addChildWithCondition(final NodeBase child, final String condition) {
@@ -120,24 +120,5 @@ public class Decision extends NodeBase {
         }
 
         return -1;
-    }
-
-    public static class DagNodeWithCondition {
-        private final NodeBase node;
-        private final String condition;
-
-        public DagNodeWithCondition(final NodeBase node,
-                                    final String condition) {
-            this.node = node;
-            this.condition = condition;
-        }
-
-        public NodeBase getNode() {
-            return node;
-        }
-
-        public String getCondition() {
-            return condition;
-        }
     }
 }

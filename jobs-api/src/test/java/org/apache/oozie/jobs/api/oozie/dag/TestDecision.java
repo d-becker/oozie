@@ -116,7 +116,7 @@ public class TestDecision extends TestNodeBase<Decision> {
         child1.addParentWithCondition(decision, condition1);
         child2.addParentWithCondition(decision, condition2);
 
-        List<Decision.DagNodeWithCondition> childrenWithConditions = decision.getChildrenWithConditions();
+        List<DagNodeWithCondition> childrenWithConditions = decision.getChildrenWithConditions();
 
         assertEquals(2, childrenWithConditions.size());
 

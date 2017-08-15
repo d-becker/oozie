@@ -672,9 +672,9 @@ public class TestGraph {
         decisionJoin.addParent(F);
         decisionJoin.addParent(G);
         F.addParent(D);
-        D.addParent(decision);
+        D.addParentWithCondition(decision, conditionGotoD);
         G.addParent(E);
-        E.addParent(decision);
+        E.addParentWithCondition(decision, conditionGotoE);
         decision.addParent(join);
         join.addParent(B);
         join.addParent(C);
@@ -731,8 +731,8 @@ public class TestGraph {
         G.addParent(E);
         H.addParent(F);
         E.addParent(D);
-        D.addParent(decision);
-        F.addParent(decision);
+        D.addParentWithCondition(decision, conditionGotoD);
+        F.addParentWithCondition(decision, conditionGotoF);
         decision.addParent(join);
         join.addParent(B);
         join.addParent(C);
@@ -789,8 +789,8 @@ public class TestGraph {
         F.addParent(decisionJoin);
         decisionJoin.addParent(D);
         decisionJoin.addParent(E);
-        D.addParent(decision);
-        E.addParent(decision);
+        D.addParentWithCondition(decision, conditionGotoD);
+        E.addParentWithCondition(decision, conditionGotoE);
         decision.addParent(B);
         B.addParent(fork);
         C.addParent(fork);

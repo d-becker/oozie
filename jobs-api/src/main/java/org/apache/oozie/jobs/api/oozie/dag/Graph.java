@@ -19,7 +19,6 @@
 package org.apache.oozie.jobs.api.oozie.dag;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 
@@ -97,19 +96,27 @@ public class Graph {
                 originalParentToCorrespondingDecision.put(convertedNode, decision);
             }
 
-            final List<NodeBase> mappedParents = new ArrayList<>();
-            for (final Node parent : originalNode.getAllParents()) {
-                mappedParents.add(nodeToNodeBase.get(parent));
+            final List<DagNodeWithCondition> mappedParentsWithConditions = new ArrayList<>();
+            for (final Node.NodeWithCondition parentNodeWithCondition : originalNode.getParentsWithConditions()) {
+                final NodeBase mappedParentNode = nodeToNodeBase.get(parentNodeWithCondition.getNode());
+                final String condition = parentNodeWithCondition.getCondition();
+                DagNodeWithCondition parentNodeBaseWithCondition
+                        = new DagNodeWithCondition(mappedParentNode, condition);
+                mappedParentsWithConditions.add(parentNodeBaseWithCondition);
             }
 
-            handleNodeWithParents(mappedParents, convertedNode);
+            for (final Node parent : originalNode.getParentsWithoutConditions()) {
+                mappedParentsWithConditions.add(new DagNodeWithCondition(nodeToNodeBase.get(parent), null));
+            }
+
+            handleNodeWithParents(mappedParentsWithConditions, convertedNode);
         }
 
-        final List<NodeBase> finalNodes = new ArrayList<>();
+        final List<DagNodeWithCondition> finalNodes = new ArrayList<>();
         for (final NodeBase maybeFinalNode : nodesByName.values()) {
             final boolean hasNoChildrenAndIsNotEnd = maybeFinalNode.getChildren().isEmpty() && maybeFinalNode != end;
             if (hasNoChildrenAndIsNotEnd) {
-                finalNodes.add(maybeFinalNode);
+                finalNodes.add(new DagNodeWithCondition(maybeFinalNode, null));
             }
         }
 
@@ -140,34 +147,40 @@ public class Graph {
         return newParent;
     }
 
-    private void handleNodeWithParents(final List<NodeBase> parents, final NodeBase node) {
+    private void handleNodeWithParents(final List<DagNodeWithCondition> parentsWithConditions, final NodeBase node) {
         // Avoiding adding children to nodes that are inside a closed fork / join pair and to original parents of decision nodes.
-        final List<NodeBase> newParents = new ArrayList<>();
-        for (final NodeBase parent : parents) {
-            NodeBase newParent = getNewParent(parent);
-            if (!newParents.contains(newParent)) {
-                newParents.add(newParent);
+        final List<DagNodeWithCondition> newParentsWithConditions = new ArrayList<>();
+        for (final DagNodeWithCondition parentWithCondition : parentsWithConditions) {
+            final NodeBase parent = parentWithCondition.getNode();
+            final String condition = parentWithCondition.getCondition();
+
+            final NodeBase newParent = getNewParent(parent);
+            final DagNodeWithCondition newParentWithCondition = new DagNodeWithCondition(newParent, condition);
+
+            if (!newParentsWithConditions.contains(newParentWithCondition)) {
+                newParentsWithConditions.add(newParentWithCondition);
             }
         }
 
-        if (newParents.isEmpty()) {
-            handleSingleParentNode(start, node);
+        if (newParentsWithConditions.isEmpty()) {
+            handleSingleParentNode(new DagNodeWithCondition(start, null), node);
         }
-        else if (newParents.size() == 1) {
-            handleSingleParentNode(newParents.get(0), node);
+        else if (newParentsWithConditions.size() == 1) {
+            handleSingleParentNode(newParentsWithConditions.get(0), node);
         }
         else {
-            handleMultiParentNodeWithParents(node, newParents);
+            handleMultiParentNodeWithParents(node, newParentsWithConditions);
         }
     }
 
-    private void handleSingleParentNode(final NodeBase parent, final NodeBase node) {
-        addParentWithForkIfNeeded(node, parent);
+    private void handleSingleParentNode(final DagNodeWithCondition parentWithCondition, final NodeBase node) {
+        addParentWithForkIfNeeded(node, parentWithCondition);
     }
 
-    private void handleMultiParentNodeWithParents(final NodeBase node, final List<NodeBase> parents) {
+    private void handleMultiParentNodeWithParents(final NodeBase node, final List<DagNodeWithCondition> parentsWithConditions) {
         final List<PathInformation> paths = new ArrayList<>();
-        for (final NodeBase parent : parents) {
+        for (final DagNodeWithCondition parentWithCondition : parentsWithConditions) {
+            final NodeBase parent = parentWithCondition.getNode();
             paths.add(getPathInfo(parent));
         }
 
@@ -175,57 +188,61 @@ public class Graph {
 
         // Eliminating redundant parents.
         if (toClose.isRedundantParent()) {
-            final List<NodeBase> parentsWithoutRedundant = new ArrayList<>(parents);
-            parentsWithoutRedundant.remove(toClose.getRedundantParent());
+            final List<DagNodeWithCondition> parentsWithoutRedundant = new ArrayList<>(parentsWithConditions);
+            DagNodeWithCondition.removeFromCollection(parentsWithoutRedundant, toClose.getRedundantParent());
 
             handleNodeWithParents(parentsWithoutRedundant, node);
         }
         else if (toClose.isDecision()) {
-            insertDecisionJoin(node, parents, toClose);
+            insertDecisionJoin(node, parentsWithConditions, toClose);
         }
         else {
-            insertJoin(parents, node, toClose);
+            insertJoin(parentsWithConditions, node, toClose);
         }
     }
 
-    private void insertDecisionJoin(final NodeBase node, final List<NodeBase> parents, final BranchingToClose branchingToClose) {
+    private void insertDecisionJoin(final NodeBase node,
+                                    final List<DagNodeWithCondition> parentsWithConditions,
+                                    final BranchingToClose branchingToClose) {
         final Decision decision = branchingToClose.getDecision();
         final DecisionJoin decisionJoin = newDecisionJoin(decision, branchingToClose.getPaths().size());
 
-        for (NodeBase parent : parents) {
-            addParentWithForkIfNeeded(decisionJoin, parent);
+        for (DagNodeWithCondition parentWithCondition : parentsWithConditions) {
+            addParentWithForkIfNeeded(decisionJoin, parentWithCondition);
         }
 
-        addParentWithForkIfNeeded(node, decisionJoin);
+        addParentWithForkIfNeeded(node, new DagNodeWithCondition(decisionJoin, null));
     }
 
-    private void insertJoin(final List<NodeBase> parents, final NodeBase node, final BranchingToClose branchingToClose) {
+    private void insertJoin(final List<DagNodeWithCondition> parentsWithConditions,
+                            final NodeBase node,
+                            final BranchingToClose branchingToClose) {
         if (branchingToClose.isSplittingJoinNeeded()) {
             // We have to close a subset of the paths.
-            final List<NodeBase> newParents = new ArrayList<>(parents);
+            final List<DagNodeWithCondition> newParentsWithConditions = new ArrayList<>(parentsWithConditions);
             final List<NodeBase> parentsInToClose = new ArrayList<>();
 
             for (final PathInformation path : branchingToClose.getPaths()) {
                 parentsInToClose.add(path.getBottom());
-                newParents.remove(path.getBottom());
+                DagNodeWithCondition.removeFromCollection(newParentsWithConditions, path.getBottom());
             }
 
             final Join newJoin = joinPaths(branchingToClose.getFork(), branchingToClose.getPaths());
 
-            newParents.add(newJoin);
+            newParentsWithConditions.add(new DagNodeWithCondition(newJoin, null));
 
-            handleMultiParentNodeWithParents(node, newParents);
+            handleMultiParentNodeWithParents(node, newParentsWithConditions);
         }
         else {
             // There are no intermediary fork / join pairs to insert, we have to join all paths in a single join.
             final Join newJoin = joinPaths(branchingToClose.getFork(), branchingToClose.getPaths());
 
             if (newJoin != null) {
-                addParentWithForkIfNeeded(node, newJoin);
+                addParentWithForkIfNeeded(node, new DagNodeWithCondition(newJoin, null));
             }
             else {
                 // Null means a part of the paths was relocated because of a decision node.
-                handleNodeWithParents(parents, node);
+                handleNodeWithParents(parentsWithConditions, node);
             }
         }
     }
@@ -296,13 +313,13 @@ public class Graph {
             newJoin = newJoin(fork);
 
             for (final PathInformation path : pathsToJoin) {
-                addParentWithForkIfNeeded(newJoin, path.getBottom());
+                addParentWithForkIfNeeded(newJoin, new DagNodeWithCondition(path.getBottom(), null));
             }
         }
 
         // Inserting the side branches under the new join node.
         for (final NodeBase sideBranch : sideBranches) {
-            addParentWithForkIfNeeded(sideBranch, newJoin);
+            addParentWithForkIfNeeded(sideBranch, new DagNodeWithCondition(newJoin, null));
         }
 
         // Marking the nodes as closed.
@@ -345,7 +362,7 @@ public class Graph {
             final Join newJoin = joinPaths(fork, newPaths);
 
             for (Decision decision : decisions) {
-                addParentWithForkIfNeeded(decision, newJoin);
+                addParentWithForkIfNeeded(decision, new DagNodeWithCondition(newJoin, null));
             }
         }
 
@@ -532,9 +549,20 @@ public class Graph {
         return current;
     }
 
-    private void addParentWithForkIfNeeded(final NodeBase node, final NodeBase parent) {
+    private void addParentWithForkIfNeeded(final NodeBase node, final DagNodeWithCondition parentWithCondition) {
+        final NodeBase parent = parentWithCondition.getNode();
+        final String condition = parentWithCondition.getCondition();
         if (parent.getChildren().isEmpty() || parent instanceof Fork || parent instanceof Decision) {
-            node.addParent(parent);
+            if (condition != null) {
+                if (!(parent instanceof Decision)) {
+                    throw new IllegalStateException("Trying to add a conditional parent that is not a decision.");
+                }
+
+                node.addParentWithCondition((Decision) parent, condition);
+            }
+            else {
+                node.addParent(parent);
+            }
         }
         else {
             // If there is no child, we never get to this point.
@@ -545,7 +573,7 @@ public class Graph {
                 node.addParent(child);
             }
             else if (child instanceof Join) {
-                addParentWithForkIfNeeded(node, child);
+                addParentWithForkIfNeeded(node, new DagNodeWithCondition(child, null));
             }
             else {
                 final Fork newFork = newFork();
