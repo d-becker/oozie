@@ -101,7 +101,9 @@ public class Graph {
                 final NodeBase mappedParentNode = nodeToNodeBase.get(parentNodeWithCondition.getNode());
                 final String condition = parentNodeWithCondition.getCondition();
                 DagNodeWithCondition parentNodeBaseWithCondition
-                        = new DagNodeWithCondition(mappedParentNode, condition);
+                        = new DagNodeWithCondition(mappedParentNode,
+                                                   // Null means a default condition in Node objects.
+                                                   condition == null ? DagNodeWithCondition.DEFAULT_CONDITION : condition);
                 mappedParentsWithConditions.add(parentNodeBaseWithCondition);
             }
 

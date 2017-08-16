@@ -597,17 +597,39 @@ public class TestGraph {
 
     @Test
     public void testTrivialDecision() {
-        // TODO: Handle this case, where there is a default decision path.
+        final String conditionGotoB = "condition_goto_B";
 
-        final Node mr1 = new MapReduceActionBuilder().withName("mr1").build();
-        final Node mr2 = new MapReduceActionBuilder().withName("mr2").withParentWithCondition(mr1, "true").build();
-        final Node mr3 = new MapReduceActionBuilder().withName("mr3").withParentDefaultConditional(mr1).build();
+        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node b = new MapReduceActionBuilder().withName("B").withParentWithCondition(a, conditionGotoB).build();
+        final Node c = new MapReduceActionBuilder().withName("C").withParentDefaultConditional(a).build();
 
         Workflow workflow = new WorkflowBuilder()
                 .withName("Workflow_to_map")
-                .withDagContainingNode(mr1)
+                .withDagContainingNode(a)
                 .build();
         Graph graph = new Graph(workflow);
+
+        final Start start = new Start("start");
+        final End end = new End("end");
+        final Decision decision = new Decision("decision1");
+        final DecisionJoin decisionJoin = new DecisionJoin("decisionJoin1", decision);
+
+        final NodeBase A = new ExplicitNode("A", null);
+        final NodeBase B = new ExplicitNode("B", null);
+        final NodeBase C = new ExplicitNode("C", null);
+
+        end.addParent(decisionJoin);
+        decisionJoin.addParent(B);
+        decisionJoin.addParent(C);
+        B.addParentWithCondition(decision, conditionGotoB);
+        C.addParentDefaultConditional(decision);
+        decision.addParent(A);
+        A.addParent(start);
+
+        final List<NodeBase> nodes = Arrays.asList(
+                start, end, decision, decisionJoin, A, B, C);
+
+        checkEqualStructureByNames(nodes, graph);
     }
 
     @Test

@@ -18,6 +18,6 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public interface Builder<T /* TODO extends Node */> {
+public interface Builder<T> {
     T build();
 }

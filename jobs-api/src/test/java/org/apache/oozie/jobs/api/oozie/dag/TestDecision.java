@@ -148,7 +148,7 @@ public class TestDecision extends TestNodeBase<Decision> {
         assertEquals(condition1, childrenWithConditions.get(0).getCondition());
 
         assertEquals(defaultChild, childrenWithConditions.get(1).getNode());
-        assertEquals(null, childrenWithConditions.get(1).getCondition());
+        assertEquals(DagNodeWithCondition.DEFAULT_CONDITION, childrenWithConditions.get(1).getCondition());
 
         assertEquals(defaultChild, decision.getDefaultChild());
     }

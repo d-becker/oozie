@@ -100,7 +100,7 @@ public class Decision extends NodeBase {
         List<DagNodeWithCondition> results = new ArrayList<>(childrenWithConditions);
 
         if (defaultChild != null) {
-            results.add(new DagNodeWithCondition(defaultChild, null));
+            results.add(new DagNodeWithCondition(defaultChild, DagNodeWithCondition.DEFAULT_CONDITION));
         }
 
         return Collections.unmodifiableList(results);

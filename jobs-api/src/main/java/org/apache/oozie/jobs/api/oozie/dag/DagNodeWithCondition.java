@@ -21,6 +21,8 @@ package org.apache.oozie.jobs.api.oozie.dag;
 import java.util.Collection;
 
 public class DagNodeWithCondition {
+    public static final String DEFAULT_CONDITION = "DEFAULT_CONDITION";
+
     private final NodeBase node;
     private final String condition;
 
@@ -37,12 +39,6 @@ public class DagNodeWithCondition {
         }
 
         return element != null;
-    }
-
-    // TODO: remove this.
-    public DagNodeWithCondition() {
-        node = null;
-        condition = null;
     }
 
     public DagNodeWithCondition(final NodeBase node,

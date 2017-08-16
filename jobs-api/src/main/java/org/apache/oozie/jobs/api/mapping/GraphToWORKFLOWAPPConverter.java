@@ -18,17 +18,19 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
-import org.apache.oozie.jobs.api.action.MapReduceAction;
-import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.generated.workflow.ACTION;
 import org.apache.oozie.jobs.api.generated.workflow.DECISION;
 import org.apache.oozie.jobs.api.generated.workflow.END;
+import org.apache.oozie.jobs.api.generated.workflow.FORK;
+import org.apache.oozie.jobs.api.generated.workflow.JOIN;
 import org.apache.oozie.jobs.api.generated.workflow.ObjectFactory;
 import org.apache.oozie.jobs.api.generated.workflow.START;
 import org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP;
 import org.apache.oozie.jobs.api.oozie.dag.Decision;
 import org.apache.oozie.jobs.api.oozie.dag.ExplicitNode;
+import org.apache.oozie.jobs.api.oozie.dag.Fork;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
+import org.apache.oozie.jobs.api.oozie.dag.Join;
 import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.dozer.DozerConverter;
 import org.dozer.Mapper;
@@ -45,8 +47,10 @@ public class GraphToWORKFLOWAPPConverter extends DozerConverter<Graph, WORKFLOWA
     public GraphToWORKFLOWAPPConverter() {
         super(Graph.class, WORKFLOWAPP.class);
 
-        classMapping.put(MapReduceAction.class, ACTION.class);
         classMapping.put(Decision.class, DECISION.class);
+        classMapping.put(Fork.class, FORK.class);
+        classMapping.put(Join.class, JOIN.class);
+        classMapping.put(ExplicitNode.class, ACTION.class);
     }
 
     @Override
@@ -64,19 +68,10 @@ public class GraphToWORKFLOWAPPConverter extends DozerConverter<Graph, WORKFLOWA
         workflowapp.setEnd(end);
 
         for (NodeBase nodeBase : graph.getNodes()) {
-            if (nodeBase instanceof ExplicitNode) {
-                ExplicitNode node = (ExplicitNode) nodeBase;
-
-                if (classMapping.containsKey(node.getRealNode().getClass())) {
-                    Object mappedObject = mapper.map(node, classMapping.get(node.getRealNode().getClass()));
-                    workflowapp.getDecisionOrForkOrJoin().add(mappedObject);
-                }
-            }
-            else {
-                if (classMapping.containsKey(nodeBase.getClass())) {
-                    Object mappedObject = mapper.map(nodeBase, classMapping.get(nodeBase.getClass()));
-                    workflowapp.getDecisionOrForkOrJoin().add(mappedObject);
-                }
+            Class<? extends Object> sourceClass = nodeBase.getClass();
+            if (classMapping.containsKey(sourceClass)) {
+                Object mappedObject = mapper.map(nodeBase, classMapping.get(sourceClass));
+                workflowapp.getDecisionOrForkOrJoin().add(mappedObject);
             }
         }
 
