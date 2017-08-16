@@ -25,13 +25,12 @@ import java.util.Map;
 
 public abstract class Action extends Node {
 
+    // TODO: Remove this field as not all actions should have it.
     private final ImmutableMap<String, String> configuration;
-    private final ErrorHandler errorHandler;
 
     Action(final ConstructionData data) {
-        super(data.name, data.parents, data.parentsWithConditions);
+        super(data.name, data.parents, data.parentsWithConditions, data.errorHandler);
         this.configuration = data.configuration;
-        this.errorHandler = data.errorHandler;
     }
 
 
@@ -41,10 +40,6 @@ public abstract class Action extends Node {
 
     public Map<String, String> getConfiguration() {
         return configuration;
-    }
-
-    public ErrorHandler getErrorHandler() {
-        return errorHandler;
     }
 
     static class ConstructionData {

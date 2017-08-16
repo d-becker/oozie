@@ -30,17 +30,22 @@ public abstract class Node {
     private final String name;
     private final ImmutableList<Node> parentsWithoutConditions;
     private final ImmutableList<Node.NodeWithCondition> parentsWithConditions;
+    private final ErrorHandler errorHandler;
+
     private final List<Node> childrenWithoutConditions; // MUTABLE!
     private final List<NodeWithCondition> childrenWithConditions; // MUTABLE!
     private Node defaultConditionalChild; // MUTABLE!
 
     Node(final String name,
          final ImmutableList<Node> parentsWithoutConditions,
-         final ImmutableList<Node.NodeWithCondition> parentsWithConditions)
+         final ImmutableList<Node.NodeWithCondition> parentsWithConditions,
+         final ErrorHandler errorHandler)
     {
         this.name = name;
         this.parentsWithoutConditions = parentsWithoutConditions;
         this.parentsWithConditions = parentsWithConditions;
+        this.errorHandler = errorHandler;
+
         this.childrenWithoutConditions = new ArrayList<>();
         this.childrenWithConditions = new ArrayList<>();
         this.defaultConditionalChild = null;
@@ -66,6 +71,10 @@ public abstract class Node {
 
     public List<Node.NodeWithCondition> getParentsWithConditions() {
         return parentsWithConditions;
+    }
+
+    public ErrorHandler getErrorHandler() {
+        return errorHandler;
     }
 
     void addChild(final Node child) {
