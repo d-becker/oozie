@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
+import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.generated.workflow.CASE;
 import org.apache.oozie.jobs.api.generated.workflow.DECISION;
 import org.apache.oozie.jobs.api.generated.workflow.DEFAULT;
@@ -89,7 +90,7 @@ public class DecisionConverter extends DozerConverter<Decision, DECISION> implem
             final NodeBase child = childWithCondition.getNode();
             final NodeBase realChild = MappingUtils.getRealChild(child);
 
-            final String condition = childWithCondition.getCondition();
+            final Condition condition = childWithCondition.getCondition();
 
             final DagNodeWithCondition realChildWithCondition = new DagNodeWithCondition(realChild, condition);
 

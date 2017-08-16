@@ -18,13 +18,13 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import org.apache.oozie.jobs.api.Condition;
+
 import java.util.Collection;
 
 public class DagNodeWithCondition {
-    public static final String DEFAULT_CONDITION = "DEFAULT_CONDITION";
-
     private final NodeBase node;
-    private final String condition;
+    private final Condition condition;
 
     public static boolean removeFromCollection(final Collection<DagNodeWithCondition> collection, final NodeBase node) {
         DagNodeWithCondition element = null;
@@ -42,7 +42,7 @@ public class DagNodeWithCondition {
     }
 
     public DagNodeWithCondition(final NodeBase node,
-                                final String condition) {
+                                final Condition condition) {
         this.node = node;
         this.condition = condition;
     }
@@ -51,7 +51,7 @@ public class DagNodeWithCondition {
         return node;
     }
 
-    public String getCondition() {
+    public Condition getCondition() {
         return condition;
     }
 

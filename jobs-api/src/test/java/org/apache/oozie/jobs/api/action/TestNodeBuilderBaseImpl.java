@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public abstract class TestNodeBuilderBaseImpl <N extends Node,
@@ -173,7 +174,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
 
         final List<Node.NodeWithCondition> parentsWithConditions = child.getParentsWithConditions();
         assertEquals(parent2, parentsWithConditions.get(0).getNode());
-        assertEquals(condition, parentsWithConditions.get(0).getCondition());
+        assertEquals(condition, parentsWithConditions.get(0).getCondition().getCondition());
     }
 
     @Test
@@ -213,7 +214,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
 
         final List<Node.NodeWithCondition> parentsWithConditions = child.getParentsWithConditions();
         assertEquals(parent1, parentsWithConditions.get(0).getNode());
-        assertEquals(condition1, parentsWithConditions.get(0).getCondition());
+        assertEquals(condition1, parentsWithConditions.get(0).getCondition().getCondition());
     }
 
     @Test
@@ -233,13 +234,13 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
         assertEquals(3, childrenWithConditions.size());
 
         assertEquals(child1, childrenWithConditions.get(0).getNode());
-        assertEquals(condition1, childrenWithConditions.get(0).getCondition());
+        assertEquals(condition1, childrenWithConditions.get(0).getCondition().getCondition());
 
         assertEquals(child2, childrenWithConditions.get(1).getNode());
-        assertEquals(condition2, childrenWithConditions.get(1).getCondition());
+        assertEquals(condition2, childrenWithConditions.get(1).getCondition().getCondition());
 
         assertEquals(defaultChild, childrenWithConditions.get(2).getNode());
-        assertEquals(null, childrenWithConditions.get(2).getCondition());
+        assertTrue(childrenWithConditions.get(2).getCondition().isDefault());
 
         assertEquals(defaultChild, parent.getDefaultConditionalChild());
 
@@ -361,6 +362,6 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
         final List<Node.NodeWithCondition> parentsWithConditions = modifiedNode.getParentsWithConditions();
         assertEquals(1, parentsWithConditions.size());
         assertEquals(parent4, parentsWithConditions.get(0).getNode());
-        assertEquals(condition, parentsWithConditions.get(0).getCondition());
+        assertEquals(condition, parentsWithConditions.get(0).getCondition().getCondition());
     }
 }

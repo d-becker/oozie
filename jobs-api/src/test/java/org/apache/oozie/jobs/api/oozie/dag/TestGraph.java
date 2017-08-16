@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.NodesToPng;
 import org.apache.oozie.jobs.api.action.MapReduceAction;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
@@ -621,7 +622,7 @@ public class TestGraph {
         end.addParent(decisionJoin);
         decisionJoin.addParent(B);
         decisionJoin.addParent(C);
-        B.addParentWithCondition(decision, conditionGotoB);
+        B.addParentWithCondition(decision, Condition.actualCondition(conditionGotoB));
         C.addParentDefaultConditional(decision);
         decision.addParent(A);
         A.addParent(start);
@@ -659,8 +660,8 @@ public class TestGraph {
         D.addParent(decisionJoin);
         decisionJoin.addParent(B);
         decisionJoin.addParent(C);
-        B.addParentWithCondition(decision, conditionGotoB);
-        C.addParentWithCondition(decision, conditionGotoC);
+        B.addParentWithCondition(decision, Condition.actualCondition(conditionGotoB));
+        C.addParentWithCondition(decision, Condition.actualCondition(conditionGotoC));
         decision.addParent(A);
         A.addParent(start);
 
@@ -708,9 +709,9 @@ public class TestGraph {
         decisionJoin.addParent(F);
         decisionJoin.addParent(G);
         F.addParent(D);
-        D.addParentWithCondition(decision, conditionGotoD);
+        D.addParentWithCondition(decision, Condition.actualCondition(conditionGotoD));
         G.addParent(E);
-        E.addParentWithCondition(decision, conditionGotoE);
+        E.addParentWithCondition(decision, Condition.actualCondition(conditionGotoE));
         decision.addParent(join);
         join.addParent(B);
         join.addParent(C);
@@ -767,8 +768,8 @@ public class TestGraph {
         G.addParent(E);
         H.addParent(F);
         E.addParent(D);
-        D.addParentWithCondition(decision, conditionGotoD);
-        F.addParentWithCondition(decision, conditionGotoF);
+        D.addParentWithCondition(decision, Condition.actualCondition(conditionGotoD));
+        F.addParentWithCondition(decision, Condition.actualCondition(conditionGotoF));
         decision.addParent(join);
         join.addParent(B);
         join.addParent(C);
@@ -825,8 +826,8 @@ public class TestGraph {
         F.addParent(decisionJoin);
         decisionJoin.addParent(D);
         decisionJoin.addParent(E);
-        D.addParentWithCondition(decision, conditionGotoD);
-        E.addParentWithCondition(decision, conditionGotoE);
+        D.addParentWithCondition(decision, Condition.actualCondition(conditionGotoD));
+        E.addParentWithCondition(decision, Condition.actualCondition(conditionGotoE));
         decision.addParent(B);
         B.addParent(fork);
         C.addParent(fork);

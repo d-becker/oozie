@@ -16,36 +16,28 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.oozie.dag;
+package org.apache.oozie.jobs.api;
 
-import org.apache.oozie.jobs.api.Condition;
+import org.junit.Test;
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-public abstract class NodeBase {
-    private final String name;
+public class TestCondition {
+    @Test
+    public void testActualCondition() {
+        final String conditionString = "some_condition";
+        final Condition actualCondition = Condition.actualCondition(conditionString);
 
-    protected NodeBase(final String name) {
-        this.name = name;
+        assertEquals(conditionString, actualCondition.getCondition());
+        assertFalse(actualCondition.isDefault());
     }
 
-    public String getName() {
-        return name;
+    @Test
+    public void testDefaultCondition() {
+        final Condition defaultCondition = Condition.defaultCondition();
+
+        assertTrue(defaultCondition.isDefault());
     }
-
-    public abstract void addParent(final NodeBase parent);
-
-    public abstract void addParentWithCondition(final Decision parent, final Condition condition);
-
-    public abstract void addParentDefaultConditional(final Decision parent);
-
-    public abstract void removeParent(final NodeBase parent);
-
-    public abstract void clearParents();
-
-    public abstract List<NodeBase> getChildren();
-
-    protected abstract void addChild(final NodeBase child);
-
-    protected abstract void removeChild(final NodeBase child);
 }

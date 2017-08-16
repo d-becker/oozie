@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.ModifyOnce;
 
 import java.util.ArrayList;
@@ -55,12 +56,12 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
     public B withParentWithCondition(final Node parent, final String condition) {
         checkNoDuplicateParent(parent);
 
-        parentsWithConditions.add(new Node.NodeWithCondition(parent, condition));
+        parentsWithConditions.add(new Node.NodeWithCondition(parent, Condition.actualCondition(condition)));
         return ensureRuntimeSelfReference();
     }
 
     public B withParentDefaultConditional(final Node parent) {
-        parentsWithConditions.add(new Node.NodeWithCondition(parent, null));
+        parentsWithConditions.add(new Node.NodeWithCondition(parent, Condition.defaultCondition()));
         return ensureRuntimeSelfReference();
     }
 
@@ -119,13 +120,13 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
         if (parentsWithConditionsList != null) {
             for (final Node.NodeWithCondition parentWithCondition : parentsWithConditionsList) {
                 final Node parent = parentWithCondition.getNode();
-                final String condition = parentWithCondition.getCondition();
+                final Condition condition = parentWithCondition.getCondition();
 
-                if (condition == null) { // A null condition means this is the default conditional child.
+                if (condition.isDefault()) {
                     parent.addChildAsDefaultConditional(child);
                 }
                 else {
-                    parent.addChildWithCondition(child, condition);
+                    parent.addChildWithCondition(child, condition.getCondition());
                 }
             }
         }

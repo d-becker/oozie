@@ -19,6 +19,7 @@
 package org.apache.oozie.jobs.api.oozie.dag;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 
@@ -99,11 +100,8 @@ public class Graph {
             final List<DagNodeWithCondition> mappedParentsWithConditions = new ArrayList<>();
             for (final Node.NodeWithCondition parentNodeWithCondition : originalNode.getParentsWithConditions()) {
                 final NodeBase mappedParentNode = nodeToNodeBase.get(parentNodeWithCondition.getNode());
-                final String condition = parentNodeWithCondition.getCondition();
-                DagNodeWithCondition parentNodeBaseWithCondition
-                        = new DagNodeWithCondition(mappedParentNode,
-                                                   // Null means a default condition in Node objects.
-                                                   condition == null ? DagNodeWithCondition.DEFAULT_CONDITION : condition);
+                final Condition condition = parentNodeWithCondition.getCondition();
+                DagNodeWithCondition parentNodeBaseWithCondition = new DagNodeWithCondition(mappedParentNode, condition);
                 mappedParentsWithConditions.add(parentNodeBaseWithCondition);
             }
 
@@ -154,7 +152,7 @@ public class Graph {
         final List<DagNodeWithCondition> newParentsWithConditions = new ArrayList<>();
         for (final DagNodeWithCondition parentWithCondition : parentsWithConditions) {
             final NodeBase parent = parentWithCondition.getNode();
-            final String condition = parentWithCondition.getCondition();
+            final Condition condition = parentWithCondition.getCondition();
 
             final NodeBase newParent = getNewParent(parent);
             final DagNodeWithCondition newParentWithCondition = new DagNodeWithCondition(newParent, condition);
@@ -553,7 +551,7 @@ public class Graph {
 
     private void addParentWithForkIfNeeded(final NodeBase node, final DagNodeWithCondition parentWithCondition) {
         final NodeBase parent = parentWithCondition.getNode();
-        final String condition = parentWithCondition.getCondition();
+        final Condition condition = parentWithCondition.getCondition();
         if (parent.getChildren().isEmpty() || parent instanceof Fork || parent instanceof Decision) {
             if (condition != null) {
                 if (!(parent instanceof Decision)) {

@@ -19,6 +19,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import org.apache.oozie.jobs.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class TestDecision extends TestNodeBase<Decision> {
@@ -111,8 +113,8 @@ public class TestDecision extends TestNodeBase<Decision> {
 
         final Decision decision = getInstance("decision");
 
-        final String condition1 = "condition1";
-        final String condition2 = "condition2";
+        final Condition condition1 = Condition.actualCondition("condition1");
+        final Condition condition2 = Condition.actualCondition("condition2");
 
         child1.addParentWithCondition(decision, condition1);
         child2.addParentWithCondition(decision, condition2);
@@ -135,7 +137,7 @@ public class TestDecision extends TestNodeBase<Decision> {
 
         final Decision decision = getInstance("decision");
 
-        final String condition1 = "condition1";
+        final Condition condition1 = Condition.actualCondition("condition1");
 
         child1.addParentWithCondition(decision, condition1);
         defaultChild.addParentDefaultConditional(decision);
@@ -148,7 +150,7 @@ public class TestDecision extends TestNodeBase<Decision> {
         assertEquals(condition1, childrenWithConditions.get(0).getCondition());
 
         assertEquals(defaultChild, childrenWithConditions.get(1).getNode());
-        assertEquals(DagNodeWithCondition.DEFAULT_CONDITION, childrenWithConditions.get(1).getCondition());
+        assertTrue(childrenWithConditions.get(1).getCondition().isDefault());
 
         assertEquals(defaultChild, decision.getDefaultChild());
     }
@@ -161,7 +163,7 @@ public class TestDecision extends TestNodeBase<Decision> {
 
         final Decision decision = getInstance("decision");
 
-        final String condition1 = "condition1";
+        final Condition condition1 = Condition.actualCondition("condition1");
 
         child1.addParentWithCondition(decision, condition1);
         defaultChild1.addParentDefaultConditional(decision);
@@ -178,7 +180,7 @@ public class TestDecision extends TestNodeBase<Decision> {
 
         final Decision decision = getInstance("decision");
 
-        final String condition1 = "condition1";
+        final Condition condition1 = Condition.actualCondition("condition1");
 
         child1.addParentWithCondition(decision, condition1);
         defaultChild1.addParentDefaultConditional(decision);
@@ -196,11 +198,11 @@ public class TestDecision extends TestNodeBase<Decision> {
         final NodeBase child4 = new ExplicitNode("child4", null);
         final NodeBase child5 = new ExplicitNode("child5", null);
 
-        child1.addParentWithCondition(instance, "condition");
-        child2.addParentWithCondition(instance, "condition");
-        child3.addParentWithCondition(instance, "condition");
-        child4.addParentWithCondition(instance, "condition");
-        child5.addParentWithCondition(instance, "condition");
+        child1.addParentWithCondition(instance, Condition.actualCondition("condition"));
+        child2.addParentWithCondition(instance, Condition.actualCondition("condition"));
+        child3.addParentWithCondition(instance, Condition.actualCondition("condition"));
+        child4.addParentWithCondition(instance, Condition.actualCondition("condition"));
+        child5.addParentWithCondition(instance, Condition.actualCondition("condition"));
 
         child5.removeParent(instance);
 

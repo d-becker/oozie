@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
+import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.action.MapReduceAction;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP;
@@ -30,6 +31,7 @@ import org.dozer.DozerBeanMapper;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: this class is just for playing around and testing things, this should be removed.
 public class Mappings {
     public static void main(String[] args) {
         final MapReduceAction mr1 = new MapReduceActionBuilder().withName("mr1").build();
@@ -50,7 +52,7 @@ public class Mappings {
         DozerBeanMapper mapper = new DozerBeanMapper();
         mapper.setMappingFiles(mappingFiles);
 
-        DagNodeWithCondition dagNodeWithCondition = new DagNodeWithCondition(graph.getNodeByName("end"), "condition");
+        DagNodeWithCondition dagNodeWithCondition = new DagNodeWithCondition(graph.getNodeByName("end"), Condition.actualCondition("condition"));
 
         WORKFLOWAPP workflowapp = mapper.map(graph, WORKFLOWAPP.class);
 

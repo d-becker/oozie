@@ -18,6 +18,8 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import org.apache.oozie.jobs.api.Condition;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class Start extends NodeBase {
     }
 
     @Override
-    public void addParentWithCondition(Decision parent, String condition) {
+    public void addParentWithCondition(final Decision parent, final Condition condition) {
         throw new IllegalStateException("Start nodes cannot have parents.");
     }
 

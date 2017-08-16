@@ -38,7 +38,7 @@
         <class-b>org.apache.oozie.jobs.api.generated.workflow.CASE</class-b>
 
         <field>
-            <a>condition</a>
+            <a>condition.condition</a>
             <b>value</b>
         </field>
 

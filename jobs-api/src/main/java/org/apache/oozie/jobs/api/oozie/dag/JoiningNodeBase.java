@@ -18,6 +18,8 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import org.apache.oozie.jobs.api.Condition;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,7 +52,7 @@ public abstract class JoiningNodeBase<T> extends NodeBase {
     }
 
     @Override
-    public void addParentWithCondition(Decision parent, String condition) {
+    public void addParentWithCondition(final Decision parent, final Condition condition) {
         if (parent != null) {
             parent.addChildWithCondition(this,  condition);
         }
@@ -59,7 +61,7 @@ public abstract class JoiningNodeBase<T> extends NodeBase {
     }
 
     @Override
-    public void addParentDefaultConditional(Decision parent) {
+    public void addParentDefaultConditional(final Decision parent) {
         if (parent != null) {
             parent.addDefaultChild(this);
         }

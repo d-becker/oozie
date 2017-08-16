@@ -18,6 +18,8 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import org.apache.oozie.jobs.api.Condition;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +40,7 @@ public class Decision extends NodeBase {
     }
 
     @Override
-    public void addParent(NodeBase parent) {
+    public void addParent(final NodeBase parent) {
         if (this.parent != null) {
             throw new IllegalStateException("Decision nodes cannot have multiple parents.");
         }
@@ -48,7 +50,7 @@ public class Decision extends NodeBase {
     }
 
     @Override
-    public void addParentWithCondition(Decision parent, String condition) {
+    public void addParentWithCondition(final Decision parent, final Condition condition) {
         if (this.parent != null) {
             throw new IllegalStateException("Decision nodes cannot have multiple parents.");
         }
@@ -58,7 +60,7 @@ public class Decision extends NodeBase {
     }
 
     @Override
-    public void addParentDefaultConditional(Decision parent) {
+    public void addParentDefaultConditional(final Decision parent) {
         if (this.parent != null) {
             throw new IllegalStateException("Decision nodes cannot have multiple parents.");
         }
@@ -68,7 +70,7 @@ public class Decision extends NodeBase {
     }
 
     @Override
-    public void removeParent(NodeBase parent) {
+    public void removeParent(final NodeBase parent) {
         if (this.parent != parent) {
             throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
         }
@@ -100,7 +102,7 @@ public class Decision extends NodeBase {
         List<DagNodeWithCondition> results = new ArrayList<>(childrenWithConditions);
 
         if (defaultChild != null) {
-            results.add(new DagNodeWithCondition(defaultChild, DagNodeWithCondition.DEFAULT_CONDITION));
+            results.add(new DagNodeWithCondition(defaultChild, Condition.defaultCondition()));
         }
 
         return Collections.unmodifiableList(results);
@@ -111,14 +113,14 @@ public class Decision extends NodeBase {
     }
 
     @Override
-    protected void addChild(NodeBase child) {
+    protected void addChild(final NodeBase child) {
         throw new IllegalStateException("Decision nodes cannot have normal children.");
         // TODO: choose which approach to use.
         // addChildWithCondition(child, null);
     }
 
-    protected void addChildWithCondition(final NodeBase child, final String condition) {
-        if (condition == null) { // A null condition means the child is the default child.
+    protected void addChildWithCondition(final NodeBase child, final Condition condition) {
+        if (condition.isDefault()) {
             addDefaultChild(child);
         }
         else {

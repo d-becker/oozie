@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
+import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.generated.workflow.CASE;
 import org.apache.oozie.jobs.api.generated.workflow.DECISION;
 import org.apache.oozie.jobs.api.generated.workflow.DEFAULT;
@@ -42,11 +43,11 @@ public class TestDecisionMapping extends TestControllNodesMapping {
         final NodeBase child2 = new ExplicitNode("child2", null);
         final NodeBase defaultChild = new ExplicitNode("defaultChild", null);
 
-        final String condition1 = "condition1";
-        final String condition2 = "condition2";
+        final String condition1String = "condition1";
+        final String condition2String = "condition2";
 
-        child1.addParentWithCondition(decision, condition1);
-        child2.addParentWithCondition(decision, condition2);
+        child1.addParentWithCondition(decision, Condition.actualCondition(condition1String));
+        child2.addParentWithCondition(decision, Condition.actualCondition(condition2String));
         defaultChild.addParentDefaultConditional(decision);
 
         final DECISION mappedDecision = DozerMapperSingletonWrapper.getMapperInstance().map(decision, DECISION.class);
@@ -59,10 +60,10 @@ public class TestDecisionMapping extends TestControllNodesMapping {
         assertEquals(2, cases.size());
 
         assertEquals(child1.getName(), cases.get(0).getTo());
-        assertEquals(condition1, cases.get(0).getValue());
+        assertEquals(condition1String, cases.get(0).getValue());
 
         assertEquals(child2.getName(), cases.get(1).getTo());
-        assertEquals(condition2, cases.get(1).getValue());
+        assertEquals(condition2String, cases.get(1).getValue());
 
         final DEFAULT decisionDefault = decisionSwitch.getDefault();
         assertEquals(defaultChild.getName(), decisionDefault.getTo());
@@ -76,8 +77,8 @@ public class TestDecisionMapping extends TestControllNodesMapping {
         final NodeBase child1 = new ExplicitNode("child1", null);
         final NodeBase child2 = new ExplicitNode("child2", null);
 
-        final String condition1 = "condition1";
-        final String condition2 = "condition2";
+        final Condition condition1 = Condition.actualCondition("condition1");
+        final Condition condition2 = Condition.actualCondition("condition2");
 
         child1.addParentWithCondition(decision, condition1);
         child2.addParentWithCondition(decision, condition2);
@@ -93,7 +94,7 @@ public class TestDecisionMapping extends TestControllNodesMapping {
         final Decision decision = new Decision("decision");
 
         final NodeBase decisionJoin1 = new DecisionJoin("decisionJoin1", new Decision("decision"));
-        decisionJoin1.addParentWithCondition(decision, "condition");
+        decisionJoin1.addParentWithCondition(decision, Condition.actualCondition("condition"));
 
         final NodeBase decisionJoin2 = new DecisionJoin("decisionJoin2", new Decision("decision2"));
         decisionJoin2.addParentDefaultConditional(decision);

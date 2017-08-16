@@ -19,6 +19,7 @@
 package org.apache.oozie.jobs.api.action;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.ModifyOnce;
 
 import java.util.ArrayList;
@@ -82,7 +83,7 @@ public abstract class Node {
                     "Trying to add a child with condition to a node that already has at least one child without a condition.");
         }
 
-        this.childrenWithConditions.add(new NodeWithCondition(child, condition));
+        this.childrenWithConditions.add(new NodeWithCondition(child, Condition.actualCondition(condition)));
     }
 
     void addChildAsDefaultConditional(final Node child) {
@@ -131,7 +132,7 @@ public abstract class Node {
         }
         else {
             final List<NodeWithCondition> results = new ArrayList<>(childrenWithConditions);
-            results.add(new NodeWithCondition(defaultConditionalChild, null));
+            results.add(new NodeWithCondition(defaultConditionalChild, Condition.defaultCondition()));
 
             return Collections.unmodifiableList(results);
         }
@@ -143,10 +144,10 @@ public abstract class Node {
 
     public static class NodeWithCondition {
         private final Node node;
-        private final String condition;
+        private final Condition condition;
 
         public NodeWithCondition(final Node node,
-                                 final String condition) {
+                                 final Condition condition) {
             this.node = node;
             this.condition = condition;
         }
@@ -155,7 +156,7 @@ public abstract class Node {
             return node;
         }
 
-        public String getCondition() {
+        public Condition getCondition() {
             return condition;
         }
     }

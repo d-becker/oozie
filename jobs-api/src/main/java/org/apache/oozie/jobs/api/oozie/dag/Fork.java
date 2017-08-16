@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.ModifyOnce;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class Fork extends NodeBase {
     }
 
     @Override
-    public void addParentWithCondition(Decision parent, String condition) {
+    public void addParentWithCondition(final Decision parent, final Condition condition) {
         if (this.parent != null) {
             throw new IllegalStateException("Fork nodes cannot have multiple parents.");
         }
