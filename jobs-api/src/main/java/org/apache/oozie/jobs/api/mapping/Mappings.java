@@ -20,11 +20,8 @@ package org.apache.oozie.jobs.api.mapping;
 
 import org.apache.oozie.jobs.api.action.MapReduceAction;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
-import org.apache.oozie.jobs.api.generated.workflow.CASE;
-import org.apache.oozie.jobs.api.generated.workflow.DECISION;
 import org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP;
 import org.apache.oozie.jobs.api.oozie.dag.DagNodeWithCondition;
-import org.apache.oozie.jobs.api.oozie.dag.End;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
@@ -36,8 +33,8 @@ import java.util.List;
 public class Mappings {
     public static void main(String[] args) {
         final MapReduceAction mr1 = new MapReduceActionBuilder().withName("mr1").build();
-        final MapReduceAction mr2 = new MapReduceActionBuilder().withName("mr2").withParentWithCondition(mr1, "true").build();
-        final MapReduceAction mr3 = new MapReduceActionBuilder().withName("mr3").withParentWithCondition(mr1, "false").build();
+        final MapReduceAction mr2 = new MapReduceActionBuilder().withName("mr2").withParent(mr1).build();
+        final MapReduceAction mr3 = new MapReduceActionBuilder().withName("mr3").withParent(mr1).build();
 
         Workflow workflow = new WorkflowBuilder()
                 .withName("Workflow_to_map")

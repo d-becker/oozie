@@ -19,6 +19,7 @@
 package org.apache.oozie.jobs.api.oozie.dag;
 
 import org.apache.oozie.jobs.api.NodesToPng;
+import org.apache.oozie.jobs.api.action.MapReduceAction;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.workflow.Workflow;
@@ -532,8 +533,6 @@ public class TestGraph {
 //        nodesToPng.withGraph(graph);
     }
 
-
-
     @Test
     public void testMultipleRoots() throws IOException {
         final Node a = new MapReduceActionBuilder().withName("A").build();
@@ -597,7 +596,22 @@ public class TestGraph {
     }
 
     @Test
-    public void testTrivialDecision() throws IOException {
+    public void testTrivialDecision() {
+        // TODO: Handle this case, where there is a default decision path.
+
+        final Node mr1 = new MapReduceActionBuilder().withName("mr1").build();
+        final Node mr2 = new MapReduceActionBuilder().withName("mr2").withParentWithCondition(mr1, "true").build();
+        final Node mr3 = new MapReduceActionBuilder().withName("mr3").withParentDefaultConditional(mr1).build();
+
+        Workflow workflow = new WorkflowBuilder()
+                .withName("Workflow_to_map")
+                .withDagContainingNode(mr1)
+                .build();
+        Graph graph = new Graph(workflow);
+    }
+
+    @Test
+    public void testTrivialDiamondDecision() throws IOException {
         final String conditionGotoB = "condition_goto_B";
         final String conditionGotoC = "condition_goto_C";
 
