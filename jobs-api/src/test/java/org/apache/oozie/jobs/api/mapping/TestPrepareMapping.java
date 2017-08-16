@@ -30,7 +30,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 
 public class TestPrepareMapping {
     @Test
@@ -64,6 +64,13 @@ public class TestPrepareMapping {
         final MKDIR mkdir1JAXB = mkdirsJAXB.get(0);
         final MKDIR mkdir2JAXB = mkdirsJAXB.get(1);
 
-        fail();
+        assertEquals(deletePath1, delete1JAXB.getPath());
+        assertEquals(skipTrash1, delete1JAXB.isSkipTrash());
+
+        assertEquals(deletePath2, delete2JAXB.getPath());
+        assertEquals(skipTrash2, delete2JAXB.isSkipTrash());
+
+        assertEquals(mkdirPath1, mkdir1JAXB.getPath());
+        assertEquals(mkdirPath2, mkdir2JAXB.getPath());
     }
 }

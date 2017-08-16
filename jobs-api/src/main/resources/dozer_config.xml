@@ -52,6 +52,11 @@
                 <class-a>org.apache.oozie.jobs.api.oozie.dag.Join</class-a>
                 <class-b>org.apache.oozie.jobs.api.generated.workflow.JOIN</class-b>
             </converter>
+
+            <converter type="org.apache.oozie.jobs.api.mapping.MapToConfigurationPropertyConverter" >
+                <class-a>java.util.Map</class-a>
+                <class-b>org.apache.oozie.jobs.api.generated.workflow.CONFIGURATION</class-b>
+            </converter>
         </custom-converters>
 
     </configuration>

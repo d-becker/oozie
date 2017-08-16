@@ -18,20 +18,27 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
-import org.apache.oozie.jobs.api.action.Mkdir;
-import org.apache.oozie.jobs.api.generated.workflow.MKDIR;
+import com.google.common.collect.ImmutableMap;
+import org.apache.oozie.jobs.api.generated.workflow.CONFIGURATION;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestMkdirMapping {
+public class TestConfigurationMapping {
     @Test
-    public void testMappingMkdir() {
-        final String path = "path/to/location";
-        final Mkdir mkdir = new Mkdir(path);
+    public void testMappingMapToConfiguration() {
+        final String key = "key";
+        final String value = "value";
+        final ImmutableMap<String, String> map = new ImmutableMap.Builder<String, String>().put(key, value).build();
 
-        final MKDIR mkdirJAXB = DozerMapperSingletonWrapper.getMapperInstance().map(mkdir, MKDIR.class);
+        final CONFIGURATION configuration
+                = DozerMapperSingletonWrapper.getMapperInstance().map(map, CONFIGURATION.class);
 
-        assertEquals(path, mkdirJAXB.getPath());
+        final List<CONFIGURATION.Property> properties = configuration.getProperty();
+        final CONFIGURATION.Property property = properties.get(0);
+        assertEquals(key, property.getName());
+        assertEquals(value, property.getValue());
     }
 }

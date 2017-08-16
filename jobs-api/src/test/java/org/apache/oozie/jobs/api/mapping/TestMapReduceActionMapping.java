@@ -20,12 +20,19 @@ package org.apache.oozie.jobs.api.mapping;
 
 import org.apache.oozie.jobs.api.action.MapReduceAction;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
+import org.apache.oozie.jobs.api.action.PipesBuilder;
 import org.apache.oozie.jobs.api.action.PrepareBuilder;
+import org.apache.oozie.jobs.api.action.StreamingBuilder;
+import org.apache.oozie.jobs.api.generated.workflow.MAPREDUCE;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.fail;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 public class TestMapReduceActionMapping {
@@ -34,13 +41,55 @@ public class TestMapReduceActionMapping {
 
     @Test
     public void testMappingMapReduceAction() {
+        final String jobTracker = "${jobTracker}";
+        final String nameNode = "${nameNode}";
+
+        final List<String> jobXmls = Arrays.asList("job1.xml", "job2.xml");
+
+        final String configClass = "${configClass}";
+
+        final List<String> files = Arrays.asList("file1", "file2");
+
+        final List<String> archives = Arrays.asList("archive1", "archive2");
+
         final MapReduceActionBuilder builder = new MapReduceActionBuilder();
 
-        builder.withJobTracker("${jobTracker}")
-                .withNameNode("${nameNode}");
+        builder.withJobTracker(jobTracker)
+                .withNameNode(nameNode)
+                .withPrepare(new PrepareBuilder().build())
+                .withStreaming(new StreamingBuilder().build())
+                .withPipes(new PipesBuilder().build());
+
+        for (String jobXml : jobXmls) {
+            builder.withJobXml(jobXml);
+        }
+
+        builder.withConfigProperty("propertyName1", "propertyValue1")
+                .withConfigProperty("propertyName2", "propertyValue2");
+
+        builder.withConfigClass(configClass);
+
+        for (String file : files) {
+            builder.withFile(file);
+        }
+
+        for (String archive : archives) {
+            builder.withArchive(archive);
+        }
 
         final MapReduceAction action = builder.build();
 
-        fail();
+        final MAPREDUCE mapreduce = DozerMapperSingletonWrapper.getMapperInstance().map(action, MAPREDUCE.class);
+
+        assertEquals(jobTracker, mapreduce.getJobTracker());
+        assertEquals(nameNode, mapreduce.getNameNode());
+        assertNotNull(mapreduce.getPrepare());
+        assertNotNull(mapreduce.getStreaming());
+        assertNotNull(mapreduce.getPipes());
+        assertEquals(jobXmls, mapreduce.getJobXml());
+        assertNotNull(mapreduce.getConfiguration());
+        assertEquals(configClass, mapreduce.getConfigClass());
+        assertEquals(files, mapreduce.getFile());
+        assertEquals(archives, mapreduce.getArchive());
     }
 }

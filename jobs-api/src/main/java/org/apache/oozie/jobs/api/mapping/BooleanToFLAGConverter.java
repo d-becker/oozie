@@ -16,22 +16,29 @@
  * limitations under the License.
  */
 
+
 package org.apache.oozie.jobs.api.mapping;
 
-import org.apache.oozie.jobs.api.action.Mkdir;
-import org.apache.oozie.jobs.api.generated.workflow.MKDIR;
-import org.junit.Test;
+import org.apache.oozie.jobs.api.generated.workflow.FLAG;
+import org.apache.oozie.jobs.api.generated.workflow.ObjectFactory;
+import org.dozer.DozerConverter;
 
-import static org.junit.Assert.assertEquals;
+public class BooleanToFLAGConverter extends DozerConverter<Boolean, FLAG> {
+    public BooleanToFLAGConverter() {
+        super(Boolean.class, FLAG.class);
+    }
 
-public class TestMkdirMapping {
-    @Test
-    public void testMappingMkdir() {
-        final String path = "path/to/location";
-        final Mkdir mkdir = new Mkdir(path);
+    @Override
+    public FLAG convertTo(Boolean source, FLAG destination) {
+        if (source == true) {
+            return new ObjectFactory().createFLAG();
+        }
 
-        final MKDIR mkdirJAXB = DozerMapperSingletonWrapper.getMapperInstance().map(mkdir, MKDIR.class);
+        return null;
+    }
 
-        assertEquals(path, mkdirJAXB.getPath());
+    @Override
+    public Boolean convertFrom(FLAG source, Boolean destination) {
+        throw new UnsupportedOperationException("This mapping is not bidirectional.");
     }
 }

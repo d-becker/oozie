@@ -53,53 +53,250 @@
         <class-b>org.apache.oozie.jobs.api.generated.workflow.PREPARE</class-b>
 
         <field>
-            <a>deletes</a>
-            <b>delete</b>
+            <a is-accessible="true">deletes</a>
+            <b is-accessible="true">delete</b>
         </field>
 
         <field>
-            <a>mkdirs</a>
-            <b>mkdir</b>
+            <a is-accessible="true">mkdirs</a>
+            <b is-accessible="true">mkdir</b>
         </field>
     </mapping>
 
-    <!--<mapping type="one-way">-->
-        <!--<class-a>org.apache.oozie.jobs.api.action.MapReduceAction</class-a>-->
-        <!--<class-b>org.apache.oozie.jobs.api.generated.workflow.MAPREDUCE</class-b>-->
+    <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.Streaming</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.STREAMING</class-b>
 
-        <!--<field>-->
-            <!--<a>name</a>-->
-            <!--<b>name</b>-->
-        <!--</field>-->
+        <field>
+            <a>mapper</a>
+            <b>mapper</b>
+        </field>
 
-        <!--<field>-->
-            <!--<a>jobTracker</a>-->
-            <!--<b>jobTracker</b>-->
-        <!--</field>-->
+        <field>
+            <a>reducer</a>
+            <b>reducer</b>
+        </field>
 
-        <!--<field>-->
-            <!--<a>nameNode</a>-->
-            <!--<b>nameNode</b>-->
-        <!--</field>-->
+        <field>
+            <a>recordReader</a>
+            <b>recordReader</b>
+        </field>
 
-        <!--<field>-->
-            <!--<a>prepare</a>-->
-            <!--<b>prepare</b>-->
-        <!--</field>-->
+        <field>
+            <a>recordReaderMappings</a>
+            <b>recordReaderMapping</b>
+        </field>
 
-        <!--<field>-->
-            <!--<a>streaming</a>-->
-            <!--<b>streaming</b>-->
-        <!--</field>-->
+        <field>
+            <a>envs</a>
+            <b>env</b>
+        </field>
+    </mapping>
 
-        <!--<field>-->
-            <!--<a>pipes</a>-->
-            <!--<b>pipes</b>-->
-        <!--</field>-->
+    <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.Pipes</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.PIPES</class-b>
 
-        <!--<field>-->
-            <!--<a>jobXmls</a>-->
-            <!--<b>jobXml</b>-->
-        <!--</field>-->
-    <!--</mapping>-->
+        <field>
+            <a>map</a>
+            <b>map</b>
+        </field>
+
+        <field>
+            <a>reduce</a>
+            <b>reduce</b>
+        </field>
+
+        <field>
+            <a>inputformat</a>
+            <b>inputformat</b>
+        </field>
+
+        <field>
+            <a>partitioner</a>
+            <b>partitioner</b>
+        </field>
+
+        <field>
+            <a>writer</a>
+            <b>writer</b>
+        </field>
+
+        <field>
+            <a>program</a>
+            <b>program</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.MapReduceAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.MAPREDUCE</class-b>
+
+        <field>
+            <a>jobTracker</a>
+            <b>jobTracker</b>
+        </field>
+
+        <field>
+            <a>nameNode</a>
+            <b>nameNode</b>
+        </field>
+
+        <field>
+            <a>prepare</a>
+            <b>prepare</b>
+        </field>
+
+        <field>
+            <a>streaming</a>
+            <b>streaming</b>
+        </field>
+
+        <field>
+            <a>pipes</a>
+            <b>pipes</b>
+        </field>
+
+        <field>
+            <a>jobXmls</a>
+            <b>jobXml</b>
+        </field>
+
+        <field>
+            <a>configuration</a>
+            <b>configuration</b>
+        </field>
+
+        <field>
+            <a>configClass</a>
+            <b>configClass</b>
+        </field>
+
+        <field>
+            <a>files</a>
+            <b>file</b>
+        </field>
+
+        <field>
+            <a>archives</a>
+            <b>archive</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.EmailAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.action.email.ACTION</class-b>
+
+        <field>
+            <a is-accessible="true">to</a>
+            <b>to</b>
+        </field>
+
+        <field>
+            <a>cc</a>
+            <b>cc</b>
+        </field>
+
+        <field>
+            <a>bcc</a>
+            <b>bcc</b>
+        </field>
+
+        <field>
+            <a>subject</a>
+            <b>subject</b>
+        </field>
+
+        <field>
+            <a>body</a>
+            <b>body</b>
+        </field>
+
+        <field>
+            <a>contentType</a>
+            <b>contentType</b>
+        </field>
+
+        <field>
+            <a>attachment</a>
+            <b>attachment</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.FSAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.FS</class-b>
+
+        <field>
+            <a>nameNode</a>
+            <b>nameNode</b>
+        </field>
+
+        <field>
+            <a>jobXmls</a>
+            <b>jobXml</b>
+        </field>
+
+        <field relationship-type="cumulative">
+            <a is-accessible="true">deletes</a>
+            <b>deleteOrMkdirOrMove</b>
+            <b-hint>org.apache.oozie.jobs.api.generated.workflow.DELETE</b-hint>
+        </field>
+
+        <field relationship-type="cumulative">
+            <a>mkdirs</a>
+            <b>deleteOrMkdirOrMove</b>
+            <b-hint>org.apache.oozie.jobs.api.generated.workflow.MKDIR</b-hint>
+        </field>
+
+        <field relationship-type="cumulative">
+            <a>moves</a>
+            <b>deleteOrMkdirOrMove</b>
+            <b-hint>org.apache.oozie.jobs.api.generated.workflow.MOVE</b-hint>
+        </field>
+
+        <field relationship-type="cumulative">
+            <a>chmods</a>
+            <b>deleteOrMkdirOrMove</b>
+            <b-hint>org.apache.oozie.jobs.api.generated.workflow.CHMOD</b-hint>
+        </field>
+
+        <field relationship-type="cumulative">
+            <a>touchzs</a>
+            <b>deleteOrMkdirOrMove</b>
+            <b-hint>org.apache.oozie.jobs.api.generated.workflow.TOUCHZ</b-hint>
+        </field>
+
+        <field relationship-type="cumulative">
+            <a>chgrps</a>
+            <b>deleteOrMkdirOrMove</b>
+            <b-hint>org.apache.oozie.jobs.api.generated.workflow.CHGRP</b-hint>
+        </field>
+
+        <field relationship-type="cumulative">
+            <a>setreps</a>
+            <b>deleteOrMkdirOrMove</b>
+            <b-hint>org.apache.oozie.jobs.api.generated.workflow.SETREP</b-hint>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.SubWorkflowAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.SUBWORKFLOW</class-b>
+
+        <field>
+            <a>appPath</a>
+            <b>appPath</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.BooleanToFLAGConverter">
+            <a get-method="isPropagatingConfiguration">propagateConfiguration</a>
+            <b>propagateConfiguration</b>
+        </field>
+
+        <field>
+            <a>configuration</a>
+            <b>configuration</b>
+        </field>
+    </mapping>
 </mappings>
