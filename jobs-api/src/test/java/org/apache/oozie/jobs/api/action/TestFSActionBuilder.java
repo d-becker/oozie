@@ -18,10 +18,16 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import com.google.common.collect.ImmutableMap;
+import org.apache.oozie.jobs.api.ModifyOnce;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -71,19 +77,37 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
                                              new Setrep("path3", (short) 4)
                                             };
 
+    private static final String MAPRED_JOB_QUEUE_NAME = "mapred.job.queue.name";
+    private static final String DEFAULT = "default";
+
+    private static final ImmutableMap<String, String> CONFIG_EXAMPLE = getConfigExample();
+
+    private static ImmutableMap<String, String> getConfigExample() {
+        final ImmutableMap.Builder<String, String> configExampleBuilder = new ImmutableMap.Builder<>();
+
+        final String[] keys = {"mapred.map.tasks", "mapred.input.dir", "mapred.output.dir"};
+        final String[] values = {"1", "${inputDir}", "${outputDir}"};
+
+        for (int i = 0; i < keys.length; ++i) {
+            configExampleBuilder.put(keys[i], values[i]);
+        }
+
+        return configExampleBuilder.build();
+    }
+
     @Override
     protected FSActionBuilder getBuilderInstance() {
-        return new FSActionBuilder();
+        return FSActionBuilder.create();
     }
 
     @Override
     protected FSActionBuilder getBuilderInstance(FSAction action) {
-        return new FSActionBuilder(action);
+        return FSActionBuilder.createFromExistingAction(action);
     }
 
     @Test
     public void testNameNodeAdded() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
         builder.withNameNode(NAME_NODE);
 
         final FSAction mrAction = builder.build();
@@ -92,7 +116,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testNameNodeAddedTwiceThrows() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
         builder.withNameNode(NAME_NODE);
 
         expectedException.expect(IllegalStateException.class);
@@ -101,7 +125,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testSeveralJobXmlsAdded() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final String jobXml : JOB_XMLS) {
             builder.withJobXml(jobXml);
@@ -119,7 +143,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testWithoutJobXmls() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final String jobXml : JOB_XMLS) {
             builder.withJobXml(jobXml);
@@ -140,7 +164,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testClearJobXmls() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final String jobXml : JOB_XMLS) {
             builder.withJobXml(jobXml);
@@ -155,8 +179,87 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
     }
 
     @Test
+    public void testConfigPropertyAdded() {
+        final ModifyOnce<String> nameNode = new ModifyOnce<>();
+        final List<String> jobXmls = new ArrayList<>();
+
+        final List<Delete> deletes = new ArrayList<>();
+        final List<Mkdir> mkdirs = new ArrayList<>();
+        final List<Move> moves = new ArrayList<>();
+        final List<Chmod> chmods = new ArrayList<>();
+        final List<Touchz> touchzs = new ArrayList<>();
+        final List<Chgrp> chgrps = new ArrayList<>();
+        final List<Setrep> setreps = new ArrayList<>();
+
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = Mockito.mock(ConfigurationHandlerBuilder.class);
+
+        final FSActionBuilder builder = new FSActionBuilder(
+                null,
+                nameNode,
+                jobXmls,
+                configurationHandlerBuilder,
+                deletes,
+                mkdirs,
+                moves,
+                chmods,
+                touchzs,
+                chgrps,
+                setreps);
+
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+
+        Mockito.verify(configurationHandlerBuilder).withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+        Mockito.verifyNoMoreInteractions(configurationHandlerBuilder);
+    }
+
+    @Test
+    public void testSeveralConfigPropertiesAdded() {
+        final ModifyOnce<String> nameNode = new ModifyOnce<>();
+        final List<String> jobXmls = new ArrayList<>();
+
+        final List<Delete> deletes = new ArrayList<>();
+        final List<Mkdir> mkdirs = new ArrayList<>();
+        final List<Move> moves = new ArrayList<>();
+        final List<Chmod> chmods = new ArrayList<>();
+        final List<Touchz> touchzs = new ArrayList<>();
+        final List<Chgrp> chgrps = new ArrayList<>();
+        final List<Setrep> setreps = new ArrayList<>();
+
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = Mockito.mock(ConfigurationHandlerBuilder.class);
+
+        final FSActionBuilder builder = new FSActionBuilder(
+                null,
+                nameNode,
+                jobXmls,
+                configurationHandlerBuilder,
+                deletes,
+                mkdirs,
+                moves,
+                chmods,
+                touchzs,
+                chgrps,
+                setreps);
+
+        for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
+            builder.withConfigProperty(entry.getKey(), entry.getValue());
+            Mockito.verify(configurationHandlerBuilder).withConfigProperty(entry.getKey(), entry.getValue());
+        }
+
+        Mockito.verifyNoMoreInteractions(configurationHandlerBuilder);
+    }
+
+    @Test
+    public void testSameConfigPropertyAddedTwiceThrows() {
+        final FSActionBuilder builder = getBuilderInstance();
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+
+        expectedException.expect(IllegalStateException.class);
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+    }
+
+    @Test
     public void testSeveralDeletesAdded() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Delete delete : DELETES) {
             builder.withDelete(delete);
@@ -169,7 +272,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testWithoutDelete() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Delete delete : DELETES) {
             builder.withDelete(delete);
@@ -185,7 +288,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testClearDeletes() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Delete delete : DELETES) {
             builder.withDelete(delete);
@@ -200,7 +303,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testSeveralMkdirsAdded() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Mkdir mkdir : MKDIRS) {
             builder.withMkdir(mkdir);
@@ -213,7 +316,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testWithoutMkdir() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Mkdir mkdir : MKDIRS) {
             builder.withMkdir(mkdir);
@@ -229,7 +332,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testClearMkdirs() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Mkdir mkdir : MKDIRS) {
             builder.withMkdir(mkdir);
@@ -244,7 +347,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testSeveralMovesAdded() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Move move : MOVES) {
             builder.withMove(move);
@@ -257,7 +360,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testWithoutMove() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Move move : MOVES) {
             builder.withMove(move);
@@ -273,7 +376,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testClearMoves() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Move move : MOVES) {
             builder.withMove(move);
@@ -288,7 +391,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testSeveralChmodsAdded() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Chmod chmod : CHMODS) {
             builder.withChmod(chmod);
@@ -301,7 +404,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testWithoutChmod() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Chmod chmod : CHMODS) {
             builder.withChmod(chmod);
@@ -317,7 +420,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testClearChmods() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Chmod chmod : CHMODS) {
             builder.withChmod(chmod);
@@ -332,7 +435,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testSeveralTouchzsAdded() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Touchz touchz : TOUCHZS) {
             builder.withTouchz(touchz);
@@ -345,7 +448,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testWithoutTouchz() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Touchz touchz : TOUCHZS) {
             builder.withTouchz(touchz);
@@ -361,7 +464,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testClearTouchzs() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Touchz touchz : TOUCHZS) {
             builder.withTouchz(touchz);
@@ -376,7 +479,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testSeveralChgrpsAdded() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Chgrp chgrp : CHGRPS) {
             builder.withChgrp(chgrp);
@@ -389,7 +492,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testWithoutChgrp() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Chgrp chgrp : CHGRPS) {
             builder.withChgrp(chgrp);
@@ -405,7 +508,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testClearChgrps() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Chgrp chgrp : CHGRPS) {
             builder.withChgrp(chgrp);
@@ -420,7 +523,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testSeveralSetrepsAdded() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Setrep setrep : SETREPS) {
             builder.withSetrep(setrep);
@@ -433,7 +536,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testWithoutSetrep() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Setrep setrep : SETREPS) {
             builder.withSetrep(setrep);
@@ -449,7 +552,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
 
     @Test
     public void testClearSetreps() {
-        final FSActionBuilder builder = new FSActionBuilder();
+        final FSActionBuilder builder = getBuilderInstance();
 
         for (final Setrep setrep : SETREPS) {
             builder.withSetrep(setrep);
@@ -460,5 +563,25 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
         final FSAction fsAction = builder.build();
 
         assertTrue(fsAction.getSetreps().isEmpty());
+    }
+
+    @Test
+    public void testFromExistiongSubWorkflowAction() {
+        final String nameNode = "${nameNode}";
+
+        final FSActionBuilder builder = getBuilderInstance();
+        builder.withNameNode(nameNode)
+                .withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+
+        final FSAction action = builder.build();
+
+        final FSActionBuilder fromExistingBuilder = getBuilderInstance(action);
+
+        final FSAction modifiedAction = fromExistingBuilder.build();
+        assertEquals(nameNode, modifiedAction.getNameNode());
+
+        final Map<String, String> expectedConfiguration = new LinkedHashMap<>();
+        expectedConfiguration.put(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+        assertEquals(expectedConfiguration, modifiedAction.getConfiguration());
     }
 }

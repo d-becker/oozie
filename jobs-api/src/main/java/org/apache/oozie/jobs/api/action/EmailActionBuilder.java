@@ -29,26 +29,62 @@ public class EmailActionBuilder extends ActionBuilderBaseImpl<EmailActionBuilder
     private final ModifyOnce<String> contentType;
     private final ModifyOnce<String> attachment;
 
-    public EmailActionBuilder() {
-        super();
-        to = new ModifyOnce<>();
-        cc = new ModifyOnce<>();
-        bcc = new ModifyOnce<>();
-        subject = new ModifyOnce<>();
-        body = new ModifyOnce<>();
-        contentType = new ModifyOnce<>();
-        attachment = new ModifyOnce<>();
+    public static EmailActionBuilder create() {
+        final ModifyOnce<String> to = new ModifyOnce<>();
+        final ModifyOnce<String> cc = new ModifyOnce<>();
+        final ModifyOnce<String> bcc = new ModifyOnce<>();
+        final ModifyOnce<String> subject = new ModifyOnce<>();
+        final ModifyOnce<String> body = new ModifyOnce<>();
+        final ModifyOnce<String> contentType = new ModifyOnce<>();
+        final ModifyOnce<String> attachment = new ModifyOnce<>();
+
+        return new EmailActionBuilder(
+                null,
+                to,
+                cc,
+                bcc,
+                subject,
+                body,
+                contentType,
+                attachment);
     }
 
-    public EmailActionBuilder(final EmailAction action) {
+    public static EmailActionBuilder createFromExistingAction(final EmailAction action) {
+        final ModifyOnce<String> to = new ModifyOnce<>(action.getRecipient());
+        final ModifyOnce<String> cc = new ModifyOnce<>(action.getCc());
+        final ModifyOnce<String> bcc = new ModifyOnce<>(action.getBcc());
+        final ModifyOnce<String> subject = new ModifyOnce<>(action.getSubject());
+        final ModifyOnce<String> body = new ModifyOnce<>(action.getBody());
+        final ModifyOnce<String> contentType = new ModifyOnce<>(action.getContentType());
+        final ModifyOnce<String> attachment = new ModifyOnce<>(action.getAttachment());
+
+        return new EmailActionBuilder(
+                action,
+                to,
+                cc,
+                bcc,
+                subject,
+                body,
+                contentType,
+                attachment);
+    }
+
+    EmailActionBuilder(final EmailAction action,
+                       final ModifyOnce<String> to,
+                       final ModifyOnce<String> cc,
+                       final ModifyOnce<String> bcc,
+                       final ModifyOnce<String> subject,
+                       final ModifyOnce<String> body,
+                       final ModifyOnce<String> contentType,
+                       final ModifyOnce<String> attachment) {
         super(action);
-        to = new ModifyOnce<>(action.getRecipient());
-        cc = new ModifyOnce<>(action.getCc());
-        bcc = new ModifyOnce<>(action.getBcc());
-        subject = new ModifyOnce<>(action.getSubject());
-        body = new ModifyOnce<>(action.getBody());
-        contentType = new ModifyOnce<>(action.getContentType());
-        attachment = new ModifyOnce<>(action.getAttachment());
+        this.to = to;
+        this.cc = cc;
+        this.bcc = bcc;
+        this.subject = subject;
+        this.body = body;
+        this.contentType = contentType;
+        this.attachment = attachment;
     }
 
     public EmailActionBuilder withRecipient(final String to) {

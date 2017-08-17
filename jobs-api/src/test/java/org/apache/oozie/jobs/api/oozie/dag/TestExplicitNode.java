@@ -39,7 +39,7 @@ public class TestExplicitNode extends TestNodeBase<ExplicitNode> {
 
     @Test
     public void testRealNode() {
-        final Node node = new MapReduceActionBuilder().build();
+        final Node node = MapReduceActionBuilder.create().build();
         final ExplicitNode instance = new ExplicitNode(NAME, node);
 
         assertEquals(node, instance.getRealNode());

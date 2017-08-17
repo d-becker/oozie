@@ -18,26 +18,50 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import com.google.common.collect.ImmutableMap;
+import org.apache.oozie.jobs.api.ModifyOnce;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 public class TestSubWorkflowBuilder extends TestActionBuilderBaseImpl<SubWorkflowAction, SubWorkflowActionBuilder> {
+    private static final String MAPRED_JOB_QUEUE_NAME = "mapred.job.queue.name";
+    private static final String DEFAULT = "default";
+
+    private static final ImmutableMap<String, String> CONFIG_EXAMPLE = getConfigExample();
+
+    private static ImmutableMap<String, String> getConfigExample() {
+        final ImmutableMap.Builder<String, String> configExampleBuilder = new ImmutableMap.Builder<>();
+
+        final String[] keys = {"mapred.map.tasks", "mapred.input.dir", "mapred.output.dir"};
+        final String[] values = {"1", "${inputDir}", "${outputDir}"};
+
+        for (int i = 0; i < keys.length; ++i) {
+            configExampleBuilder.put(keys[i], values[i]);
+        }
+
+        return configExampleBuilder.build();
+    }
+
     @Override
     protected SubWorkflowActionBuilder getBuilderInstance() {
-        return new SubWorkflowActionBuilder();
+        return SubWorkflowActionBuilder.create();
     }
 
     @Override
     protected SubWorkflowActionBuilder getBuilderInstance(SubWorkflowAction action) {
-        return new SubWorkflowActionBuilder(action);
+        return SubWorkflowActionBuilder.createFromExistingAction(action);
     }
 
     @Test
     public void testWithAppPath() {
         final String appPath = "/path/to/app";
 
-        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder();
+        final SubWorkflowActionBuilder builder = getBuilderInstance();
         builder.withAppPath(appPath);
 
         final SubWorkflowAction action = builder.build();
@@ -49,7 +73,7 @@ public class TestSubWorkflowBuilder extends TestActionBuilderBaseImpl<SubWorkflo
         final String appPath1 = "/path/to/app1";
         final String appPath2 = "/path/to/app2";
 
-        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder();
+        final SubWorkflowActionBuilder builder = getBuilderInstance();
         builder.withAppPath(appPath1);
 
         expectedException.expect(IllegalStateException.class);
@@ -58,7 +82,7 @@ public class TestSubWorkflowBuilder extends TestActionBuilderBaseImpl<SubWorkflo
 
     @Test
     public void testWithPropagatingConfiguration() {
-        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder();
+        final SubWorkflowActionBuilder builder = getBuilderInstance();
         builder.withPropagatingConfiguration();
 
         final SubWorkflowAction action = builder.build();
@@ -67,7 +91,7 @@ public class TestSubWorkflowBuilder extends TestActionBuilderBaseImpl<SubWorkflo
 
     @Test
     public void testWithPropagatingConfigurationCalledTwiceThrows() {
-        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder();
+        final SubWorkflowActionBuilder builder = getBuilderInstance();
         builder.withPropagatingConfiguration();
 
         expectedException.expect(IllegalStateException.class);
@@ -76,12 +100,12 @@ public class TestSubWorkflowBuilder extends TestActionBuilderBaseImpl<SubWorkflo
 
     @Test
     public void testWithoutPropagatingConfiguration() {
-        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder();
+        final SubWorkflowActionBuilder builder = getBuilderInstance();
         builder.withPropagatingConfiguration();
 
         final SubWorkflowAction action = builder.build();
 
-        final SubWorkflowActionBuilder fromExistingBuilder = new SubWorkflowActionBuilder(action);
+        final SubWorkflowActionBuilder fromExistingBuilder = getBuilderInstance(action);
 
         fromExistingBuilder.withoutPropagatingConfiguration();
 
@@ -91,12 +115,12 @@ public class TestSubWorkflowBuilder extends TestActionBuilderBaseImpl<SubWorkflo
 
     @Test
     public void testWithoutPropagatingConfigurationCalledTwiceThrows() {
-        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder();
+        final SubWorkflowActionBuilder builder = getBuilderInstance();
         builder.withPropagatingConfiguration();
 
         final SubWorkflowAction action = builder.build();
 
-        final SubWorkflowActionBuilder fromExistingBuilder = new SubWorkflowActionBuilder(action);
+        final SubWorkflowActionBuilder fromExistingBuilder = getBuilderInstance(action);
 
         fromExistingBuilder.withoutPropagatingConfiguration();
 
@@ -105,19 +129,63 @@ public class TestSubWorkflowBuilder extends TestActionBuilderBaseImpl<SubWorkflo
     }
 
     @Test
+    public void testConfigPropertyAdded() {
+        final ModifyOnce<String> appPath = new ModifyOnce<>();
+        final ModifyOnce<Boolean> propagateConfiguration = new ModifyOnce<>(false);
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = Mockito.mock(ConfigurationHandlerBuilder.class);
+
+        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder(null, appPath, propagateConfiguration, configurationHandlerBuilder);
+
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+
+        Mockito.verify(configurationHandlerBuilder).withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+        Mockito.verifyNoMoreInteractions(configurationHandlerBuilder);
+    }
+
+    @Test
+    public void testSeveralConfigPropertiesAdded() {
+        final ModifyOnce<String> appPath = new ModifyOnce<>();
+        final ModifyOnce<Boolean> propagateConfiguration = new ModifyOnce<>(false);
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = Mockito.mock(ConfigurationHandlerBuilder.class);
+
+        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder(null, appPath, propagateConfiguration, configurationHandlerBuilder);
+
+        for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
+            builder.withConfigProperty(entry.getKey(), entry.getValue());
+            Mockito.verify(configurationHandlerBuilder).withConfigProperty(entry.getKey(), entry.getValue());
+        }
+
+        Mockito.verifyNoMoreInteractions(configurationHandlerBuilder);
+    }
+
+    @Test
+    public void testSameConfigPropertyAddedTwiceThrows() {
+        final SubWorkflowActionBuilder builder = getBuilderInstance();
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+
+        expectedException.expect(IllegalStateException.class);
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+    }
+
+    @Test
     public void testFromExistiongSubWorkflowAction() {
         final String appPath = "/path/to/app";
 
-        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder();
+        final SubWorkflowActionBuilder builder = getBuilderInstance();
         builder.withAppPath(appPath)
-                .withPropagatingConfiguration();
+                .withPropagatingConfiguration()
+                .withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
 
         final SubWorkflowAction action = builder.build();
 
-        final SubWorkflowActionBuilder fromExistingBuilder = new SubWorkflowActionBuilder(action);
+        final SubWorkflowActionBuilder fromExistingBuilder = getBuilderInstance(action);
 
         final SubWorkflowAction modifiedAction = fromExistingBuilder.build();
         assertEquals(appPath, modifiedAction.getAppPath());
         assertEquals(true, modifiedAction.isPropagatingConfiguration());
+
+        final Map<String, String> expectedConfiguration = new LinkedHashMap<>();
+        expectedConfiguration.put(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+        assertEquals(expectedConfiguration, modifiedAction.getConfiguration());
     }
 }

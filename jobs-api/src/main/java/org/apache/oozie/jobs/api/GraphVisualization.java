@@ -92,10 +92,10 @@ public class GraphVisualization {
     }
 
     public static void main(final String[] args) throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        new MapReduceActionBuilder().withName("B").withParent(a).build();
-        new MapReduceActionBuilder().withName("C").withParent(a).build();
+        MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        MapReduceActionBuilder.create().withName("C").withParent(a).build();
 
         final Workflow w = new WorkflowBuilder().withDagContainingNode(a).build();
         final Graph graph = new Graph(w);

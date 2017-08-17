@@ -21,10 +21,12 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Map;
 
 public class FSAction extends Action {
     private final String nameNode;
     private final ImmutableList<String> jobXmls;
+    private final ConfigurationHandler configurationHandler;
 
     private final ImmutableList<Delete> deletes;
     private final ImmutableList<Mkdir> mkdirs;
@@ -37,6 +39,7 @@ public class FSAction extends Action {
     FSAction(final Action.ConstructionData constructionData,
              final String nameNode,
              final ImmutableList<String> jobXmls,
+             final ConfigurationHandler configurationHandler,
              final ImmutableList<Delete> deletes,
              final ImmutableList<Mkdir> mkdirs,
              final ImmutableList<Move> moves,
@@ -48,6 +51,7 @@ public class FSAction extends Action {
 
         this.nameNode = nameNode;
         this.jobXmls = jobXmls;
+        this.configurationHandler = configurationHandler;
         this.deletes = deletes;
         this.mkdirs = mkdirs;
         this.moves = moves;
@@ -63,6 +67,14 @@ public class FSAction extends Action {
 
     public List<String> getJobXmls() {
         return jobXmls;
+    }
+
+    public String getConfigProperty(final String property) {
+        return configurationHandler.getConfigProperty(property);
+    }
+
+    public Map<String, String> getConfiguration() {
+        return configurationHandler.getConfiguration();
     }
 
     public List<Delete> getDeletes() {

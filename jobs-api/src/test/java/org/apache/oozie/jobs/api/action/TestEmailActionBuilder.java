@@ -25,19 +25,19 @@ import static org.junit.Assert.assertEquals;
 public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailAction, EmailActionBuilder> {
     @Override
     protected EmailActionBuilder getBuilderInstance() {
-        return new EmailActionBuilder();
+        return EmailActionBuilder.create();
     }
 
     @Override
     protected EmailActionBuilder getBuilderInstance(EmailAction action) {
-        return new EmailActionBuilder(action);
+        return EmailActionBuilder.createFromExistingAction(action);
     }
 
     @Test
     public void testRecipientAdded() {
         final String recipient = "recipient@something.com";
 
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withRecipient(recipient);
 
         final EmailAction emailAction = builder.build();
@@ -46,7 +46,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
 
     @Test
     public void testRecipientAddedTwiceThrows() {
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withRecipient("some.recipient@something.com");
 
         expectedException.expect(IllegalStateException.class);
@@ -57,7 +57,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
     public void testCcAdded() {
         final String cc = "recipient@something.com";
 
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withCc(cc);
 
         final EmailAction emailAction = builder.build();
@@ -66,7 +66,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
 
     @Test
     public void testCcAddedTwiceThrows() {
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withCc("some.recipient@something.com");
 
         expectedException.expect(IllegalStateException.class);
@@ -77,7 +77,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
     public void testBccAdded() {
         final String bcc = "recipient@something.com";
 
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withBcc(bcc);
 
         final EmailAction emailAction = builder.build();
@@ -86,7 +86,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
 
     @Test
     public void testBccAddedTwiceThrows() {
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withBcc("some.recipient@something.com");
 
         expectedException.expect(IllegalStateException.class);
@@ -97,7 +97,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
     public void testSubjectAdded() {
         final String subject = "Subject";
 
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withSubject(subject);
 
         final EmailAction emailAction = builder.build();
@@ -106,7 +106,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
 
     @Test
     public void testSubjectAddedTwiceThrows() {
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withSubject("Subject");
 
         expectedException.expect(IllegalStateException.class);
@@ -117,7 +117,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
     public void testBodyAdded() {
         final String body = "Email body.";
 
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withBody(body);
 
         final EmailAction emailAction = builder.build();
@@ -126,7 +126,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
 
     @Test
     public void testBodyAddedTwiceThrows() {
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withBody("Email body.");
 
         expectedException.expect(IllegalStateException.class);
@@ -137,7 +137,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
     public void testContentTypeAdded() {
         final String contentType = "content_type";
 
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withContentType(contentType);
 
         final EmailAction emailAction = builder.build();
@@ -146,7 +146,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
 
     @Test
     public void testContentTypeAddedTwiceThrows() {
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withContentType("content_type");
 
         expectedException.expect(IllegalStateException.class);
@@ -157,7 +157,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
     public void testAttachmentAdded() {
         final String attachment = "attachment";
 
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withAttachment(attachment);
 
         final EmailAction emailAction = builder.build();
@@ -166,7 +166,7 @@ public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailActio
 
     @Test
     public void testAttachmentAddedTwiceThrows() {
-        final EmailActionBuilder builder = new EmailActionBuilder();
+        final EmailActionBuilder builder = getBuilderInstance();
         builder.withAttachment("attachment");
 
         expectedException.expect(IllegalStateException.class);

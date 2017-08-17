@@ -34,9 +34,9 @@ import java.util.List;
 // TODO: this class is just for playing around and testing things, this should be removed.
 public class Mappings {
     public static void main(String[] args) {
-        final MapReduceAction mr1 = new MapReduceActionBuilder().withName("mr1").build();
-        final MapReduceAction mr2 = new MapReduceActionBuilder().withName("mr2").withParent(mr1).build();
-        final MapReduceAction mr3 = new MapReduceActionBuilder().withName("mr3").withParent(mr1).build();
+        final MapReduceAction mr1 = MapReduceActionBuilder.create().withName("mr1").build();
+        final MapReduceAction mr2 = MapReduceActionBuilder.create().withName("mr2").withParent(mr1).build();
+        final MapReduceAction mr3 = MapReduceActionBuilder.create().withName("mr3").withParent(mr1).build();
 
         Workflow workflow = new WorkflowBuilder()
                 .withName("Workflow_to_map")

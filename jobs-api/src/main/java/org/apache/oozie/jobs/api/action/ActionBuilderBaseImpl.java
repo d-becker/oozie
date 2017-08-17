@@ -27,29 +27,13 @@ import java.util.Map;
 
 public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
         extends NodeBuilderBaseImpl<B> {
-    private final ConfigurationHandlerBuilder configurationHandlerBuilder;
 
     ActionBuilderBaseImpl() {
         super();
-
-        configurationHandlerBuilder = new ConfigurationHandlerBuilder();
     }
 
     ActionBuilderBaseImpl(final Action action) {
         super(action);
-
-        configurationHandlerBuilder = new ConfigurationHandlerBuilder(action.getConfiguration());
-    }
-
-    /**
-     * Setting a key to null means deleting it.
-     * @param key
-     * @param value
-     * @return
-     */
-    public B withConfigProperty(final String key, final String value) {
-        configurationHandlerBuilder.withConfigProperty(key, value);
-        return ensureRuntimeSelfReference();
     }
 
     Action.ConstructionData getConstructionData() {
@@ -59,13 +43,10 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
         final ImmutableList<Node.NodeWithCondition> parentsWithConditionsList
                 = new ImmutableList.Builder<Node.NodeWithCondition>().addAll(parentsWithConditions).build();
 
-        final ConfigurationHandler configurationHandler = configurationHandlerBuilder.build();
-
         return new Action.ConstructionData(
                 nameStr,
                 parentsList,
                 parentsWithConditionsList,
-                configurationHandler,
                 errorHandler.get()
         );
     }

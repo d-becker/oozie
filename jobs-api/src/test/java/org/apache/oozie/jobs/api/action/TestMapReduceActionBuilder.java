@@ -18,10 +18,16 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import com.google.common.collect.ImmutableMap;
+import org.apache.oozie.jobs.api.ModifyOnce;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,19 +41,37 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
     private static final String[] FILES = {"file1.xml", "file2.xml", "file3.xml", "file4.xml"};
     private static final String[] ARCHIVES = {"archive1.jar", "archive2.jar", "archive3.jar", "archive4.jar"};
 
+    private static final String MAPRED_JOB_QUEUE_NAME = "mapred.job.queue.name";
+    private static final String DEFAULT = "default";
+
+    private static final ImmutableMap<String, String> CONFIG_EXAMPLE = getConfigExample();
+
+    private static ImmutableMap<String, String> getConfigExample() {
+        final ImmutableMap.Builder<String, String> configExampleBuilder = new ImmutableMap.Builder<>();
+
+        final String[] keys = {"mapred.map.tasks", "mapred.input.dir", "mapred.output.dir"};
+        final String[] values = {"1", "${inputDir}", "${outputDir}"};
+
+        for (int i = 0; i < keys.length; ++i) {
+            configExampleBuilder.put(keys[i], values[i]);
+        }
+
+        return configExampleBuilder.build();
+    }
+
     @Override
     protected MapReduceActionBuilder getBuilderInstance() {
-        return new MapReduceActionBuilder();
+        return MapReduceActionBuilder.create();
     }
 
     @Override
     protected MapReduceActionBuilder getBuilderInstance(final MapReduceAction action) {
-        return new MapReduceActionBuilder(action);
+        return MapReduceActionBuilder.createFromExistingAction(action);
     }
 
     @Test
     public void testJobTrackerAdded() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withJobTracker(JOB_TRACKER);
 
         final MapReduceAction mrAction = builder.build();
@@ -56,7 +80,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testJobTrackerAddedTwiceThrows() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withJobTracker(JOB_TRACKER);
 
         expectedException.expect(IllegalStateException.class);
@@ -65,7 +89,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testNameNodeAdded() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withNameNode(NAME_NODE);
 
         final MapReduceAction mrAction = builder.build();
@@ -74,7 +98,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testNameNodeAddedTwiceThrows() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withNameNode(NAME_NODE);
 
         expectedException.expect(IllegalStateException.class);
@@ -83,7 +107,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testPrepareAdded() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withPrepare(new PrepareBuilder().withDelete(EXAMPLE_DIR).build());
 
         final MapReduceAction mrAction = builder.build();
@@ -92,7 +116,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testPrepareAddedTwiceThrows() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withPrepare(new PrepareBuilder().withDelete(EXAMPLE_DIR).build());
 
         expectedException.expect(IllegalStateException.class);
@@ -103,7 +127,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
     public void testStreamingAdded() {
         final Streaming streaming = new StreamingBuilder().withMapper("mapper.sh").withReducer("reducer.sh").build();
 
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withStreaming(streaming);
 
         final MapReduceAction mrAction = builder.build();
@@ -115,7 +139,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
         final Streaming streaming1= new StreamingBuilder().withMapper("mapper1.sh").withReducer("reducer1.sh").build();
         final Streaming streaming2 = new StreamingBuilder().withMapper("mapper2.sh").withReducer("reducer2.sh").build();
 
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withStreaming(streaming1);
 
         expectedException.expect(IllegalStateException.class);
@@ -126,7 +150,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
     public void testPipesAdded() {
         final Pipes pipes = new PipesBuilder().withMap("map").withReduce("reduce").build();
 
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withPipes(pipes);
 
         final MapReduceAction mrAction = builder.build();
@@ -138,7 +162,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
         final Pipes pipes1 = new PipesBuilder().withMap("map1").withReduce("reduce1").build();
         final Pipes pipes2 = new PipesBuilder().withMap("map2").withReduce("reduce2").build();
 
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withPipes(pipes1);
 
         expectedException.expect(IllegalStateException.class);
@@ -147,7 +171,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testConfigClassAdded() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withConfigClass(CONFIG_CLASS);
 
         final MapReduceAction mrAction = builder.build();
@@ -156,7 +180,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testConfigClassAddedTwiceThrows() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
         builder.withConfigClass(CONFIG_CLASS);
 
         expectedException.expect(IllegalStateException.class);
@@ -165,7 +189,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testSeveralJobXmlsAdded() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
 
         for (final String jobXml : JOB_XMLS) {
             builder.withJobXml(jobXml);
@@ -183,7 +207,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testWithoutJobXmls() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
 
         for (final String jobXml : JOB_XMLS) {
             builder.withJobXml(jobXml);
@@ -204,7 +228,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testClearJobXmls() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
 
         for (final String jobXml : JOB_XMLS) {
             builder.withJobXml(jobXml);
@@ -219,8 +243,85 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
     }
 
     @Test
+    public void testConfigPropertyAdded() {
+        final ModifyOnce<String> jobTracker = new ModifyOnce<>();
+        final ModifyOnce<String> nameNode = new ModifyOnce<>();
+        final ModifyOnce<Prepare> prepare = new ModifyOnce<>();
+        final ModifyOnce<Streaming> streaming = new ModifyOnce<>();
+        final ModifyOnce<Pipes> pipes = new ModifyOnce<>();
+        final List<String> jobXmls = new ArrayList<>();
+        final ModifyOnce<String> configClass = new ModifyOnce<>();
+        final List<String> files = new ArrayList<>();
+        final List<String> archives = new ArrayList<>();
+
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = Mockito.mock(ConfigurationHandlerBuilder.class);
+
+        final MapReduceActionBuilder builder = new MapReduceActionBuilder(
+                null,
+                jobTracker,
+                nameNode,
+                prepare,
+                streaming,
+                pipes,
+                jobXmls,
+                configurationHandlerBuilder,
+                configClass,
+                files,
+                archives);
+
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+
+        Mockito.verify(configurationHandlerBuilder).withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+        Mockito.verifyNoMoreInteractions(configurationHandlerBuilder);
+    }
+
+    @Test
+    public void testSeveralConfigPropertiesAdded() {
+        final ModifyOnce<String> jobTracker = new ModifyOnce<>();
+        final ModifyOnce<String> nameNode = new ModifyOnce<>();
+        final ModifyOnce<Prepare> prepare = new ModifyOnce<>();
+        final ModifyOnce<Streaming> streaming = new ModifyOnce<>();
+        final ModifyOnce<Pipes> pipes = new ModifyOnce<>();
+        final List<String> jobXmls = new ArrayList<>();
+        final ModifyOnce<String> configClass = new ModifyOnce<>();
+        final List<String> files = new ArrayList<>();
+        final List<String> archives = new ArrayList<>();
+
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = Mockito.mock(ConfigurationHandlerBuilder.class);
+
+        final MapReduceActionBuilder builder = new MapReduceActionBuilder(
+                null,
+                jobTracker,
+                nameNode,
+                prepare,
+                streaming,
+                pipes,
+                jobXmls,
+                configurationHandlerBuilder,
+                configClass,
+                files,
+                archives);
+
+        for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
+            builder.withConfigProperty(entry.getKey(), entry.getValue());
+            Mockito.verify(configurationHandlerBuilder).withConfigProperty(entry.getKey(), entry.getValue());
+        }
+
+        Mockito.verifyNoMoreInteractions(configurationHandlerBuilder);
+    }
+
+    @Test
+    public void testSameConfigPropertyAddedTwiceThrows() {
+        final MapReduceActionBuilder builder = getBuilderInstance();
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+
+        expectedException.expect(IllegalStateException.class);
+        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+    }
+
+    @Test
     public void testSeveralFilesAdded() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
 
         for (final String file : FILES) {
             builder.withFile(file);
@@ -238,7 +339,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testRemoveFiles() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
 
         for (final String file : FILES) {
             builder.withFile(file);
@@ -259,7 +360,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testClearFiles() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
 
         for (final String file : FILES) {
             builder.withFile(file);
@@ -275,7 +376,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testSeveralArchivesAdded() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
 
         for (final String archive : ARCHIVES) {
             builder.withArchive(archive);
@@ -293,7 +394,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testRemoveArchives() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
 
         for (final String archive : ARCHIVES) {
             builder.withArchive(archive);
@@ -314,7 +415,7 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
 
     @Test
     public void testClearArchives() {
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
 
         for (final String archive : ARCHIVES) {
             builder.withArchive(archive);
@@ -333,18 +434,19 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
         final Streaming streaming = new StreamingBuilder().withMapper("mapper.sh").withReducer("reducer.sh").build();
         final Pipes pipes = new PipesBuilder().withMap("map").withReduce("reduce").build();
 
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = getBuilderInstance();
 
         builder.withName(NAME)
                 .withNameNode(NAME_NODE)
                 .withStreaming(streaming)
                 .withPipes(pipes)
+                .withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT)
                 .withFile(FILES[0])
                 .withFile(FILES[1]);
 
         final MapReduceAction mrAction = builder.build();
 
-        final MapReduceActionBuilder fromExistingBuilder = new MapReduceActionBuilder(mrAction);
+        final MapReduceActionBuilder fromExistingBuilder = getBuilderInstance(mrAction);
 
         final String newName = "fromExisting_" + NAME;
         fromExistingBuilder.withName(newName)
@@ -357,7 +459,11 @@ public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapRed
         assertEquals(mrAction.getNameNode(), modifiedMrAction.getNameNode());
         assertEquals(streaming, modifiedMrAction.getStreaming());
         assertEquals(pipes, modifiedMrAction.getPipes());
+
+        final Map<String, String> expectedConfiguration = new LinkedHashMap<>();
+        expectedConfiguration.put(MAPRED_JOB_QUEUE_NAME, DEFAULT);
+        assertEquals(expectedConfiguration, modifiedMrAction.getConfiguration());
+
         assertEquals(Arrays.asList(FILES[0], FILES[2]), modifiedMrAction.getFiles());
     }
-
 }

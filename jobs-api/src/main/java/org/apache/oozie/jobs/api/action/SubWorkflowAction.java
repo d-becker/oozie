@@ -18,17 +18,22 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import java.util.Map;
+
 public class SubWorkflowAction extends Action {
     private final String appPath;
     private final boolean propagateConfiguration;
+    private final ConfigurationHandler configurationHandler;
 
     SubWorkflowAction(final Action.ConstructionData constructionData,
                       final String appPath,
-                      final boolean propagateConfiguration) {
+                      final boolean propagateConfiguration,
+                      final ConfigurationHandler configurationHandler) {
         super(constructionData);
 
         this.appPath = appPath;
         this.propagateConfiguration = propagateConfiguration;
+        this.configurationHandler = configurationHandler;
     }
 
     public String getAppPath() {
@@ -37,5 +42,13 @@ public class SubWorkflowAction extends Action {
 
     public boolean isPropagatingConfiguration() {
         return propagateConfiguration;
+    }
+
+    public String getConfigProperty(final String property) {
+        return configurationHandler.getConfigProperty(property);
+    }
+
+    public Map<String, String> getConfiguration() {
+        return configurationHandler.getConfiguration();
     }
 }

@@ -18,71 +18,13 @@
 
 package org.apache.oozie.jobs.api.action;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 public abstract class TestActionBuilderBaseImpl<A extends Action,
             B extends ActionBuilderBaseImpl<B> & Builder<A>>
         extends TestNodeBuilderBaseImpl<A, B>{
-    private static final String MAPRED_JOB_QUEUE_NAME = "mapred.job.queue.name";
-    private static final String DEFAULT = "default";
-
-    private static final ImmutableMap<String, String> CONFIG_EXAMPLE = getConfigExample();
-
-    private static ImmutableMap<String, String> getConfigExample() {
-        final ImmutableMap.Builder<String, String> configExampleBuilder = new ImmutableMap.Builder<>();
-
-        final String[] keys = {"mapred.map.tasks", "mapred.input.dir", "mapred.output.dir"};
-        final String[] values = {"1", "${inputDir}", "${outputDir}"};
-
-        for (int i = 0; i < keys.length; ++i) {
-            configExampleBuilder.put(keys[i], values[i]);
-        }
-
-        return configExampleBuilder.build();
-    }
-
-    @Test
-    public void testConfigPropertyAdded() {
-        final B builder = getBuilderInstance();
-        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
-
-        final A action = builder.build();
-        assertEquals(DEFAULT, action.getConfigProperty(MAPRED_JOB_QUEUE_NAME));
-    }
-
-    @Test
-    public void testSeveralConfigPropertiesAdded() {
-        final B builder = getBuilderInstance();
-
-        for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
-            builder.withConfigProperty(entry.getKey(), entry.getValue());
-        }
-
-        final A action = builder.build();
-
-        for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
-            assertEquals(entry.getValue(), action.getConfigProperty(entry.getKey()));
-        }
-
-        assertEquals(CONFIG_EXAMPLE, action.getConfiguration());
-    }
-
-    @Test
-    public void testSameConfigPropertyAddedTwiceThrows() {
-        final B builder = getBuilderInstance();
-        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
-
-        expectedException.expect(IllegalStateException.class);
-        builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
-    }
 
     @Test
     public void testFromExistingAction() {
@@ -90,43 +32,21 @@ public abstract class TestActionBuilderBaseImpl<A extends Action,
 
         builder.withName(NAME);
 
-        for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
-            builder.withConfigProperty(entry.getKey(), entry.getValue());
-        }
-
         final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
-                new MapReduceActionBuilder().withName("error-handler"));
+                MapReduceActionBuilder.create().withName("error-handler"));
 
         builder.withErrorHandler(errorHandler);
 
         final A action = builder.build();
 
-        final List<String> keys = new ArrayList<>(CONFIG_EXAMPLE.keySet());
-        final Map<String, String> expectedModifiedConfiguration = new LinkedHashMap<>(CONFIG_EXAMPLE);
-
-        final String keyToModify = keys.get(0);
-        final String modifiedValue = "modified-property-value";
-        expectedModifiedConfiguration.put(keyToModify, modifiedValue);
-
-        final String keyToRemove = keys.get(1);
-        expectedModifiedConfiguration.remove(keyToRemove);
-
-        final String newKey = "new-property-name";
-        final String newValue = "new-property-value";
-        expectedModifiedConfiguration.put(newKey, newValue);
-
         final B fromExistingBuilder = getBuilderInstance(action);
 
         final String newName = "fromExisting_" + NAME;
-        fromExistingBuilder.withName(newName)
-                .withConfigProperty(keyToModify, modifiedValue)
-                .withConfigProperty(keyToRemove, null)
-                .withConfigProperty(newKey, newValue);
+        fromExistingBuilder.withName(newName);
 
         final A modifiedAction = fromExistingBuilder.build();
 
         assertEquals(newName, modifiedAction.getName());
-        assertEquals(expectedModifiedConfiguration, modifiedAction.getConfiguration());
         assertEquals(errorHandler, modifiedAction.getErrorHandler());
     }
 }

@@ -32,17 +32,22 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
     protected final ModifyOnce<ErrorHandler> errorHandler;
 
     NodeBuilderBaseImpl() {
-        name = new ModifyOnce<>();
-        parents = new ArrayList<>();
-        parentsWithConditions = new ArrayList<>();
-        errorHandler = new ModifyOnce<>();
+        this(null);
     }
 
     NodeBuilderBaseImpl(final Node node) {
-        name = new ModifyOnce<>(node.getName());
-        parents = new ArrayList<>(node.getParentsWithoutConditions());
-        parentsWithConditions = new ArrayList<>(node.getParentsWithConditions());
-        errorHandler = new ModifyOnce<>(node.getErrorHandler());
+        if (node == null) {
+            name = new ModifyOnce<>();
+            parents = new ArrayList<>();
+            parentsWithConditions = new ArrayList<>();
+            errorHandler = new ModifyOnce<>();
+        }
+        else {
+            name = new ModifyOnce<>(node.getName());
+            parents = new ArrayList<>(node.getParentsWithoutConditions());
+            parentsWithConditions = new ArrayList<>(node.getParentsWithConditions());
+            errorHandler = new ModifyOnce<>(node.getErrorHandler());
+        }
     }
 
     public B withErrorHandler(final ErrorHandler errorHandler) {

@@ -49,7 +49,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
             }
 
             public MapReduceActionBuilder getRuntimeSelfReference() {
-                return new MapReduceActionBuilder();
+                return MapReduceActionBuilder.create();
             }
 
             @Override
@@ -66,7 +66,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
     @Test
     public void testErrorHandlerAdded() {
         final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
-                new MapReduceActionBuilder().withName("error-handler"));
+                MapReduceActionBuilder.create().withName("error-handler"));
 
         final B builder = getBuilderInstance();
         builder.withErrorHandler(errorHandler);
@@ -79,9 +79,9 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
     @Test
     public void testErrorHandlerAddedTwiceThrows() {
         final ErrorHandler errorHandler1 = ErrorHandler.buildAsErrorHandler(
-                new MapReduceActionBuilder().withName("error-handler1"));
+                MapReduceActionBuilder.create().withName("error-handler1"));
         final ErrorHandler errorHandler2 = ErrorHandler.buildAsErrorHandler(
-                new MapReduceActionBuilder().withName("error-handler2"));
+                MapReduceActionBuilder.create().withName("error-handler2"));
 
         final B builder = getBuilderInstance();
         builder.withErrorHandler(errorHandler1);
@@ -93,7 +93,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
     @Test
     public void testWithoutErrorHandler() {
         final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
-                new MapReduceActionBuilder().withName("error-handler"));
+                MapReduceActionBuilder.create().withName("error-handler"));
 
         final B builder = getBuilderInstance();
         builder.withErrorHandler(errorHandler);
@@ -112,7 +112,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
     @Test
     public void testRemovingErrorHandlerAfterAddingItThrows() {
         final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
-                new MapReduceActionBuilder().withName("error-handler"));
+                MapReduceActionBuilder.create().withName("error-handler"));
 
         final B builder = getBuilderInstance();
         builder.withErrorHandler(errorHandler);
@@ -388,10 +388,10 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
 
     @Test
     public void testFromExistingNode() {
-        final Node parent1 = new MapReduceActionBuilder().withName("parent1").build();
-        final Node parent2 = new MapReduceActionBuilder().withName("parent2").build();
-        final Node parent3 = new MapReduceActionBuilder().withName("parent3").build();
-        final Node parent4 = new MapReduceActionBuilder().withName("parent4").build();
+        final Node parent1 = MapReduceActionBuilder.create().withName("parent1").build();
+        final Node parent2 = MapReduceActionBuilder.create().withName("parent2").build();
+        final Node parent3 = MapReduceActionBuilder.create().withName("parent3").build();
+        final Node parent4 = MapReduceActionBuilder.create().withName("parent4").build();
 
         final String condition = "condition";
 

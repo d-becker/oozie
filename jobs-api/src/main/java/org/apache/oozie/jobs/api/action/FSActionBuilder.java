@@ -27,6 +27,7 @@ import java.util.List;
 public class FSActionBuilder extends ActionBuilderBaseImpl<FSActionBuilder> implements Builder<FSAction> {
     private final ModifyOnce<String> nameNode;
     private final List<String> jobXmls;
+    private final ConfigurationHandlerBuilder configurationHandlerBuilder;
 
     private final List<Delete> deletes;
     private final List<Mkdir> mkdirs;
@@ -36,34 +37,84 @@ public class FSActionBuilder extends ActionBuilderBaseImpl<FSActionBuilder> impl
     private final List<Chgrp> chgrps;
     private final List<Setrep> setreps;
 
-    public FSActionBuilder() {
-        super();
+    public static FSActionBuilder create() {
+        final ModifyOnce<String> nameNode = new ModifyOnce<>();
+        final List<String> jobXmls = new ArrayList<>();
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder();
 
-        nameNode = new ModifyOnce<>();
-        jobXmls = new ArrayList<>();
+        final List<Delete> deletes = new ArrayList<>();
+        final List<Mkdir> mkdirs = new ArrayList<>();
+        final List<Move> moves = new ArrayList<>();
+        final List<Chmod> chmods = new ArrayList<>();
+        final List<Touchz> touchzs = new ArrayList<>();
+        final List<Chgrp> chgrps = new ArrayList<>();
+        final List<Setrep> setreps = new ArrayList<>();
 
-        deletes = new ArrayList<>();
-        mkdirs = new ArrayList<>();
-        moves = new ArrayList<>();
-        chmods = new ArrayList<>();
-        touchzs = new ArrayList<>();
-        chgrps = new ArrayList<>();
-        setreps = new ArrayList<>();
+        return new FSActionBuilder(
+                null,
+                nameNode,
+                jobXmls,
+                configurationHandlerBuilder,
+                deletes,
+                mkdirs,
+                moves,
+                chmods,
+                touchzs,
+                chgrps,
+                setreps);
     }
 
-    public FSActionBuilder(final FSAction action) {
+    public static FSActionBuilder createFromExistingAction(final FSAction action) {
+        final ModifyOnce<String> nameNode = new ModifyOnce<>(action.getNameNode());
+        final List<String> jobXmls = new ArrayList<>(action.getJobXmls());
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder(action.getConfiguration());
+
+        final List<Delete> deletes = new ArrayList<>(action.getDeletes());
+        final List<Mkdir> mkdirs = new ArrayList<>(action.getMkdirs());
+        final List<Move> moves = new ArrayList<>(action.getMoves());
+        final List<Chmod> chmods = new ArrayList<>(action.getChmods());
+        final List<Touchz> touchzs = new ArrayList<>(action.getTouchzs());
+        final List<Chgrp> chgrps = new ArrayList<>(action.getChgrps());
+        final List<Setrep> setreps = new ArrayList<>(action.getSetreps());
+
+        return new FSActionBuilder(
+                action,
+                nameNode,
+                jobXmls,
+                configurationHandlerBuilder,
+                deletes,
+                mkdirs,
+                moves,
+                chmods,
+                touchzs,
+                chgrps,
+                setreps);
+    }
+
+    FSActionBuilder(final FSAction action,
+                    final ModifyOnce<String> nameNode,
+                    final List<String> jobXmls,
+                    final ConfigurationHandlerBuilder configurationHandlerBuilder,
+                    final List<Delete> deletes,
+                    final List<Mkdir> mkdirs,
+                    final List<Move> moves,
+                    final List<Chmod> chmods,
+                    final List<Touchz> touchzs,
+                    final List<Chgrp> chgrps,
+                    final List<Setrep> setreps) {
         super(action);
 
-        nameNode = new ModifyOnce<>(action.getNameNode());
-        jobXmls = new ArrayList<>(action.getJobXmls());
+        this.nameNode = nameNode;
+        this.jobXmls = jobXmls;
+        this.configurationHandlerBuilder = configurationHandlerBuilder;
 
-        deletes = new ArrayList<>(action.getDeletes());
-        mkdirs = new ArrayList<>(action.getMkdirs());
-        moves = new ArrayList<>(action.getMoves());
-        chmods = new ArrayList<>(action.getChmods());
-        touchzs = new ArrayList<>(action.getTouchzs());
-        chgrps = new ArrayList<>(action.getChgrps());
-        setreps = new ArrayList<>(action.getSetreps());
+        this.deletes = deletes;
+        this.mkdirs = mkdirs;
+        this.moves = moves;
+        this.chmods = chmods;
+        this.touchzs = touchzs;
+        this.chgrps = chgrps;
+        this.setreps = setreps;
     }
 
     public FSActionBuilder withNameNode(final String nameNode) {
@@ -83,6 +134,17 @@ public class FSActionBuilder extends ActionBuilderBaseImpl<FSActionBuilder> impl
 
     public FSActionBuilder clearJobXmls() {
         jobXmls.clear();
+        return this;
+    }
+
+    /**
+     * Setting a key to null means deleting it.
+     * @param key
+     * @param value
+     * @return
+     */
+    public FSActionBuilder withConfigProperty(final String key, final String value) {
+        configurationHandlerBuilder.withConfigProperty(key, value);
         return this;
     }
 
@@ -196,6 +258,7 @@ public class FSActionBuilder extends ActionBuilderBaseImpl<FSActionBuilder> impl
         final Action.ConstructionData constructionData = getConstructionData();
         final String nameNodeActual = nameNode.get();
         final ImmutableList<String> jobXmlsList = ImmutableList.copyOf(jobXmls);
+        final ConfigurationHandler configurationHandler = configurationHandlerBuilder.build();
 
         final ImmutableList<Delete> deletesList = ImmutableList.copyOf(deletes);
         final ImmutableList<Mkdir> mkdirsList = ImmutableList.copyOf(mkdirs);
@@ -209,6 +272,7 @@ public class FSActionBuilder extends ActionBuilderBaseImpl<FSActionBuilder> impl
                 constructionData,
                 nameNodeActual,
                 jobXmlsList,
+                configurationHandler,
                 deletesList,
                 mkdirsList,
                 movesList,

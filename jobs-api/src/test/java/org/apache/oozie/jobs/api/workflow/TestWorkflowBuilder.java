@@ -51,14 +51,14 @@ public class TestWorkflowBuilder {
 
     @Test
     public void testAddDagTrivial() {
-        final Node mrAction1 = new MapReduceActionBuilder()
+        final Node mrAction1 = MapReduceActionBuilder.create()
                 .withName("mr1")
                 .withNameNode("${nameNode}")
                 .withJobTracker("${jobTracker}")
                 .withConfigProperty("mapred.output.dir", "${outputDir}")
                 .build();
 
-        final Node mrAction2 = new MapReduceActionBuilder()
+        final Node mrAction2 = MapReduceActionBuilder.create()
                 .withName("mr2")
                 .withNameNode("${nameNode}")
                 .withJobTracker("${jobTracker}")
@@ -81,15 +81,15 @@ public class TestWorkflowBuilder {
 
     @Test
     public void testAddDagFindRoots() {
-        final Node mrAction1 = new MapReduceActionBuilder()
+        final Node mrAction1 = MapReduceActionBuilder.create()
                 .withName("mr1")
                 .build();
 
-        final Node mrAction2 = new MapReduceActionBuilder()
+        final Node mrAction2 = MapReduceActionBuilder.create()
                 .withName("mr2")
                 .build();
 
-        final Node mrAction3 = new MapReduceActionBuilder()
+        final Node mrAction3 = MapReduceActionBuilder.create()
                 .withName("mr3")
                 .withParent(mrAction1)
                 .withParent(mrAction2)
@@ -110,11 +110,11 @@ public class TestWorkflowBuilder {
 
     @Test
     public void testAddDagThrowOnDuplicateNodeNames() {
-        final Node mrAction = new MapReduceActionBuilder()
+        final Node mrAction = MapReduceActionBuilder.create()
                 .withName("mr-action")
                 .build();
 
-        final Node mrActionWithTheSameName = new MapReduceActionBuilder()
+        final Node mrActionWithTheSameName = MapReduceActionBuilder.create()
                 .withName("mr-action")
                 .build();
 
@@ -131,24 +131,24 @@ public class TestWorkflowBuilder {
     public void testAddDagWithConditionalChildrenAndConditionalParents() {
         final String condition = "condition";
 
-        final Node mrAction1 = new MapReduceActionBuilder()
+        final Node mrAction1 = MapReduceActionBuilder.create()
                 .withName("mr1")
                 .build();
 
-        final Node mrAction2 = new MapReduceActionBuilder()
+        final Node mrAction2 = MapReduceActionBuilder.create()
                 .withName("mr2")
                 .build();
 
-        final Node mrAction3 = new MapReduceActionBuilder()
+        final Node mrAction3 = MapReduceActionBuilder.create()
                 .withName("mr3")
                 .withParentWithCondition(mrAction1, condition)
                 .withParent(mrAction2)
                 .build();
-        final Node mrAction4 = new MapReduceActionBuilder()
+        final Node mrAction4 = MapReduceActionBuilder.create()
                 .withName("mr4")
                 .withParentWithCondition(mrAction3, condition)
                 .build();
-        final Node mrAction5 = new MapReduceActionBuilder()
+        final Node mrAction5 = MapReduceActionBuilder.create()
                 .withName("mr5")
                 .withParentWithCondition(mrAction3, condition)
                 .build();

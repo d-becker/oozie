@@ -50,10 +50,10 @@ public class TestGraph {
 
     @Test
     public void testNameIsCorrect() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
 
         final String name = "workflow-name";
         final Workflow workflow = new WorkflowBuilder().withName(name).withDagContainingNode(a).build();
@@ -67,8 +67,8 @@ public class TestGraph {
 
     @Test
     public void testDuplicateNamesThrow() {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
-        final Node b = new MapReduceActionBuilder().withName("A").withParent(a).build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
+        final Node b = MapReduceActionBuilder.create().withName("A").withParent(a).build();
 
         // The exception will be thrown by the Workflow object,
         // but if it breaks there, we want to catch duplicates here, too.
@@ -80,10 +80,10 @@ public class TestGraph {
 
     @Test
     public void testWorkflowWithoutJoin() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("without-join").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -96,11 +96,11 @@ public class TestGraph {
 
     @Test
     public void testWorkflowWithTrivialJoin() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(b).withParent(c).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("trivial-join").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -113,15 +113,15 @@ public class TestGraph {
 
     @Test
     public void testWorkflowNewDependenciesNeeded() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
 
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
-        final Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(b).withParent(c).build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParent(c).build();
 
-        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParent(d).withParent(e).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("new-dependencies-needed").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -166,12 +166,12 @@ public class TestGraph {
 
     @Test
     public void testCrossingDependencyLines() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).withParent(b).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).withParent(b).build();
 
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(a).withParent(b).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(a).withParent(b).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("crossing-dependencies").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -211,15 +211,15 @@ public class TestGraph {
 
     @Test
     public void testSplittingJoins() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(b).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(b).build();
 
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
-        final Node e = new MapReduceActionBuilder().withName("E").withParent(a).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(b).build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParent(a).build();
 
-        final Node f = new MapReduceActionBuilder().withName("F").withParent(c).withParent(d).withParent(e).build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParent(c).withParent(d).withParent(e).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("splitting-joins").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -264,15 +264,15 @@ public class TestGraph {
 
     @Test
     public void testSplittingForks() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
 
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(a).build();
-        final Node e = new MapReduceActionBuilder().withName("E").withParent(b).withParent(c).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(a).build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParent(b).withParent(c).build();
 
-        final Node f = new MapReduceActionBuilder().withName("F").withParent(e).withParent(d).build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParent(e).withParent(d).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("splitting-forks").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -317,17 +317,17 @@ public class TestGraph {
 
     @Test
     public void testBranchingUncles() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
 
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
-        final Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(b).build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParent(c).build();
 
-        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
-        final Node g = new MapReduceActionBuilder().withName("G").withParent(c).build();
-        final Node h = new MapReduceActionBuilder().withName("H").withParent(f).withParent(g).build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParent(d).withParent(e).build();
+        final Node g = MapReduceActionBuilder.create().withName("G").withParent(c).build();
+        final Node h = MapReduceActionBuilder.create().withName("H").withParent(f).withParent(g).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("branching-uncles").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -376,10 +376,10 @@ public class TestGraph {
 
     @Test
     public void testTrivialRedundantEdge() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).withParent(b).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).withParent(b).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("trivial-redundant-edge").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -408,15 +408,15 @@ public class TestGraph {
 
     @Test
     public void testRedundantEdge() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
 
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
-        final Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(b).withParent(c).build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParent(c).build();
 
-        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).withParent(a).build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParent(d).withParent(e).withParent(a).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("redundant-edge").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -461,21 +461,21 @@ public class TestGraph {
 
     @Test
     public void testLateUncle() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
 
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).build();
-        final Node e = new MapReduceActionBuilder().withName("E").withParent(b).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(b).build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParent(b).build();
 
-        final Node f = new MapReduceActionBuilder().withName("F").withParent(c).build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParent(c).build();
 
-        final Node g = new MapReduceActionBuilder().withName("G").withParent(e).build();
-        final Node h = new MapReduceActionBuilder().withName("H").withParent(f).build();
-        final Node i = new MapReduceActionBuilder().withName("I").withParent(d).withParent(g).build();
-        final Node j = new MapReduceActionBuilder().withName("J").withParent(e).withParent(h).build();
-        final Node k = new MapReduceActionBuilder().withName("K").withParent(i).withParent(j).build();
+        final Node g = MapReduceActionBuilder.create().withName("G").withParent(e).build();
+        final Node h = MapReduceActionBuilder.create().withName("H").withParent(f).build();
+        final Node i = MapReduceActionBuilder.create().withName("I").withParent(d).withParent(g).build();
+        final Node j = MapReduceActionBuilder.create().withName("J").withParent(e).withParent(h).build();
+        final Node k = MapReduceActionBuilder.create().withName("K").withParent(i).withParent(j).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("late-uncle").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -536,16 +536,16 @@ public class TestGraph {
 
     @Test
     public void testMultipleRoots() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
-        final Node g = new MapReduceActionBuilder().withName("G").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
+        final Node g = MapReduceActionBuilder.create().withName("G").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).withParent(g).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).withParent(g).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
 
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
-        final Node e = new MapReduceActionBuilder().withName("E").withParent(c).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(b).withParent(c).build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParent(c).build();
 
-        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParent(d).withParent(e).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("multiple-roots").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -600,9 +600,9 @@ public class TestGraph {
     public void testTrivialDecision() {
         final String conditionGotoB = "condition_goto_B";
 
-        final Node a = new MapReduceActionBuilder().withName("A").build();
-        final Node b = new MapReduceActionBuilder().withName("B").withParentWithCondition(a, conditionGotoB).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParentDefaultConditional(a).build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParentWithCondition(a, conditionGotoB).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParentDefaultConditional(a).build();
 
         Workflow workflow = new WorkflowBuilder()
                 .withName("Workflow_to_map")
@@ -638,10 +638,10 @@ public class TestGraph {
         final String conditionGotoB = "condition_goto_B";
         final String conditionGotoC = "condition_goto_C";
 
-        final Node a = new MapReduceActionBuilder().withName("A").build();
-        final Node b = new MapReduceActionBuilder().withName("B").withParentWithCondition(a, conditionGotoB).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParentWithCondition(a, conditionGotoC).build();
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParent(c).build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParentWithCondition(a, conditionGotoB).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParentWithCondition(a, conditionGotoC).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(b).withParent(c).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("trivial-decision").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -679,13 +679,13 @@ public class TestGraph {
         final String conditionGotoD = "condition_goto_D";
         final String conditionGotoE = "condition_goto_E";
 
-        final Node a = new MapReduceActionBuilder().withName("A").build();
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(b).withParentWithCondition(c, conditionGotoD).build();
-        final Node e = new MapReduceActionBuilder().withName("E").withParentWithCondition(c, conditionGotoE).build();
-        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).build();
-        final Node g = new MapReduceActionBuilder().withName("G").withParent(e).build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(b).withParentWithCondition(c, conditionGotoD).build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParentWithCondition(c, conditionGotoE).build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParent(d).build();
+        final Node g = MapReduceActionBuilder.create().withName("G").withParent(e).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("decision-and-join").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -734,14 +734,14 @@ public class TestGraph {
         final String conditionGotoD = "condition_goto_D";
         final String conditionGotoF = "condition_goto_F";
 
-        final Node a = new MapReduceActionBuilder().withName("A").build();
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
-        final Node d = new MapReduceActionBuilder().withName("D").withParentWithCondition(c, conditionGotoD).build();
-        final Node e = new MapReduceActionBuilder().withName("E").withParent(b).withParent(d).build();
-        final Node f = new MapReduceActionBuilder().withName("F").withParentWithCondition(c, conditionGotoF).build();
-        final Node g = new MapReduceActionBuilder().withName("G").withParent(e).build();
-        final Node h = new MapReduceActionBuilder().withName("H").withParent(f).build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParentWithCondition(c, conditionGotoD).build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParent(b).withParent(d).build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParentWithCondition(c, conditionGotoF).build();
+        final Node g = MapReduceActionBuilder.create().withName("G").withParent(e).build();
+        final Node h = MapReduceActionBuilder.create().withName("H").withParent(f).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("decision-at-uncle-of-join").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -792,14 +792,14 @@ public class TestGraph {
         final String conditionGotoD = "condition_goto_D";
         final String conditionGotoE = "condition_goto_E";
 
-        final Node a = new MapReduceActionBuilder().withName("A").build();
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
-        final Node d = new MapReduceActionBuilder().withName("D").withParentWithCondition(b, conditionGotoD).build();
-        final Node e = new MapReduceActionBuilder().withName("E").withParentWithCondition(b, conditionGotoE).build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParentWithCondition(b, conditionGotoD).build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParentWithCondition(b, conditionGotoE).build();
 
-        final Node f = new MapReduceActionBuilder().withName("F").withParent(d).withParent(e).build();
-        final Node g = new MapReduceActionBuilder().withName("G").withParent(f).withParent(c).build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParent(d).withParent(e).build();
+        final Node g = MapReduceActionBuilder.create().withName("G").withParent(f).withParent(c).build();
 
         final Workflow workflow = new WorkflowBuilder().withName("already-closed-decision-branching").withDagContainingNode(a).build();
         final Graph graph = new Graph(workflow);
@@ -846,20 +846,20 @@ public class TestGraph {
 
     @Test
     public void testIncomingConditionalBranchesFromDifferentDecisionsThrows() throws IOException {
-        final Node a = new MapReduceActionBuilder().withName("A").build();
+        final Node a = MapReduceActionBuilder.create().withName("A").build();
 
-        final Node b = new MapReduceActionBuilder().withName("B").withParent(a).build();
-        final Node c = new MapReduceActionBuilder().withName("C").withParent(a).build();
-        final Node d = new MapReduceActionBuilder().withName("D").withParent(a).build();
+        final Node b = MapReduceActionBuilder.create().withName("B").withParent(a).build();
+        final Node c = MapReduceActionBuilder.create().withName("C").withParent(a).build();
+        final Node d = MapReduceActionBuilder.create().withName("D").withParent(a).build();
 
-        final Node e = new MapReduceActionBuilder().withName("E").withParentWithCondition(c, "condition_goto_E").build();
-        final Node f = new MapReduceActionBuilder().withName("F").withParentWithCondition(c, "condition_goto_F").build();
+        final Node e = MapReduceActionBuilder.create().withName("E").withParentWithCondition(c, "condition_goto_E").build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParentWithCondition(c, "condition_goto_F").build();
 
-        final Node g = new MapReduceActionBuilder().withName("G").withParentWithCondition(d, "condition_goto_G").build();
-        final Node h = new MapReduceActionBuilder().withName("H").withParentWithCondition(d, "condition_goto_H").build();
+        final Node g = MapReduceActionBuilder.create().withName("G").withParentWithCondition(d, "condition_goto_G").build();
+        final Node h = MapReduceActionBuilder.create().withName("H").withParentWithCondition(d, "condition_goto_H").build();
 
-        final Node i = new MapReduceActionBuilder().withName("I").withParent(b).withParent(f).withParent(g).build();
-        final Node j = new MapReduceActionBuilder().withName("J").withParent(h).build();
+        final Node i = MapReduceActionBuilder.create().withName("I").withParent(b).withParent(f).withParent(g).build();
+        final Node j = MapReduceActionBuilder.create().withName("J").withParent(h).build();
 
         final Workflow workflow = new WorkflowBuilder()
                 .withName("incoming-conditional-branches-from-different-decisions")

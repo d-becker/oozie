@@ -31,7 +31,7 @@ public class TestSubWorkflowActionMapping {
     public void testMappingSubWorkflowAction() {
         final String appPath = "/path/to/app";
 
-        final SubWorkflowAction action = new SubWorkflowActionBuilder()
+        final SubWorkflowAction action = SubWorkflowActionBuilder.create()
                 .withAppPath(appPath)
                 .withPropagatingConfiguration()
                 .withConfigProperty("propertyName", "propertyValue")

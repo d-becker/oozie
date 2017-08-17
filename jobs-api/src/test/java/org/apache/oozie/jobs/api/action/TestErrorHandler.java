@@ -31,7 +31,7 @@ public class TestErrorHandler {
     @Test
     public void testNameIsCorrect() {
         final String name = "error-handler";
-        final Builder<MapReduceAction> handlerBuilder = new MapReduceActionBuilder().withName(name);
+        final Builder<MapReduceAction> handlerBuilder = MapReduceActionBuilder.create().withName(name);
 
         final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(handlerBuilder);
         assertEquals(name, errorHandler.getName());
@@ -40,8 +40,8 @@ public class TestErrorHandler {
     @Test
     public void testIfThereAreParentsThenThrows() {
         final String name = "error-handler";
-        final Node parent = new MapReduceActionBuilder().withName("parent").build();
-        final Builder<MapReduceAction> handlerBuilder = new MapReduceActionBuilder()
+        final Node parent = MapReduceActionBuilder.create().withName("parent").build();
+        final Builder<MapReduceAction> handlerBuilder = MapReduceActionBuilder.create()
                 .withName(name)
                 .withParent(parent);
 

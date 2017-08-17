@@ -31,36 +31,86 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
     private final ModifyOnce<Streaming> streaming;
     private final ModifyOnce<Pipes> pipes;
     private final List<String> jobXmls;
+    private final ConfigurationHandlerBuilder configurationHandlerBuilder;
     private final ModifyOnce<String> configClass;
     private final List<String> files;
     private final List<String> archives;
 
-    public MapReduceActionBuilder() {
-        super();
+    public static MapReduceActionBuilder create() {
+        final ModifyOnce<String> jobTracker = new ModifyOnce<>();
+        final ModifyOnce<String> nameNode = new ModifyOnce<>();
+        final ModifyOnce<Prepare> prepare = new ModifyOnce<>();
+        final ModifyOnce<Streaming> streaming = new ModifyOnce<>();
+        final ModifyOnce<Pipes> pipes = new ModifyOnce<>();
+        final List<String> jobXmls = new ArrayList<>();
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder();
+        final ModifyOnce<String> configClass = new ModifyOnce<>();
+        final List<String> files = new ArrayList<>();
+        final List<String> archives = new ArrayList<>();
 
-        jobTracker = new ModifyOnce<>();
-        nameNode = new ModifyOnce<>();
-        prepare = new ModifyOnce<>();
-        streaming = new ModifyOnce<>();
-        pipes = new ModifyOnce<>();
-        jobXmls = new ArrayList<>();
-        configClass = new ModifyOnce<>();
-        files = new ArrayList<>();
-        archives = new ArrayList<>();
+        return new MapReduceActionBuilder(
+                null,
+                jobTracker,
+                nameNode,
+                prepare,
+                streaming,
+                pipes,
+                jobXmls,
+                configurationHandlerBuilder,
+                configClass,
+                files,
+                archives);
     }
 
-    public MapReduceActionBuilder(final MapReduceAction action) {
+    public static MapReduceActionBuilder createFromExistingAction(final MapReduceAction action) {
+        final ModifyOnce<String> jobTracker = new ModifyOnce<>(action.getJobTracker());
+        final ModifyOnce<String> nameNode = new ModifyOnce<>(action.getNameNode());
+        final ModifyOnce<Prepare> prepare = new ModifyOnce<>(action.getPrepare());
+        final ModifyOnce<Streaming> streaming = new ModifyOnce<>(action.getStreaming());
+        final ModifyOnce<Pipes> pipes = new ModifyOnce<>(action.getPipes());
+        final List<String> jobXmls = new ArrayList<>(action.getJobXmls());
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder(action.getConfiguration());
+        final ModifyOnce<String> configClass = new ModifyOnce<>(action.getConfigClass());
+        final List<String> files = new ArrayList<>(action.getFiles());
+        final List<String> archives = new ArrayList<>(action.getArchives());
+
+        return new MapReduceActionBuilder(
+                action,
+                jobTracker,
+                nameNode,
+                prepare,
+                streaming,
+                pipes,
+                jobXmls,
+                configurationHandlerBuilder,
+                configClass,
+                files,
+                archives);
+    }
+
+    public MapReduceActionBuilder(final MapReduceAction action,
+                                  final ModifyOnce<String> jobTracker,
+                                  final ModifyOnce<String> nameNode,
+                                  final ModifyOnce<Prepare> prepare,
+                                  final ModifyOnce<Streaming> streaming,
+                                  final ModifyOnce<Pipes> pipes,
+                                  final List<String> jobXmls,
+                                  final ConfigurationHandlerBuilder configurationHandlerBuilder,
+                                  final ModifyOnce<String> configClass,
+                                  final List<String> files,
+                                  final List<String> archives) {
         super(action);
 
-        jobTracker = new ModifyOnce<>(action.getJobTracker());
-        nameNode = new ModifyOnce<>(action.getNameNode());
-        prepare = new ModifyOnce<>(action.getPrepare());
-        streaming = new ModifyOnce<>(action.getStreaming());
-        pipes = new ModifyOnce<>(action.getPipes());
-        jobXmls = new ArrayList<>(action.getJobXmls());
-        configClass = new ModifyOnce<>(action.getConfigClass());
-        files = new ArrayList<>(action.getFiles());
-        archives = new ArrayList<>(action.getArchives());
+        this.jobTracker = jobTracker;
+        this.nameNode = nameNode;
+        this.prepare = prepare;
+        this.streaming = streaming;
+        this.pipes = pipes;
+        this.jobXmls = jobXmls;
+        this.configurationHandlerBuilder = configurationHandlerBuilder;
+        this.configClass = configClass;
+        this.files = files;
+        this.archives = archives;
     }
 
     public MapReduceActionBuilder withJobTracker(final String jobTracker) {
@@ -100,6 +150,17 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
 
     public MapReduceActionBuilder clearJobXmls() {
         jobXmls.clear();
+        return this;
+    }
+
+    /**
+     * Setting a key to null means deleting it.
+     * @param key
+     * @param value
+     * @return
+     */
+    public MapReduceActionBuilder withConfigProperty(final String key, final String value) {
+        configurationHandlerBuilder.withConfigProperty(key, value);
         return this;
     }
 
@@ -147,6 +208,7 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
         final Streaming streamingActual = this.streaming.get();
         final Pipes pipesActual = this.pipes.get();
         final ImmutableList<String> jobXmlsList = new ImmutableList.Builder<String>().addAll(this.jobXmls).build();
+        final ConfigurationHandler configurationHandler = configurationHandlerBuilder.build();
         final String configClassStr = this.configClass.get();
         final ImmutableList<String> filesList = new ImmutableList.Builder<String>().addAll(this.files).build();
         final ImmutableList<String> archivesList = new ImmutableList.Builder<String>().addAll(this.archives).build();
@@ -159,6 +221,7 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
                 streamingActual,
                 pipesActual,
                 jobXmlsList,
+                configurationHandler,
                 configClassStr,
                 filesList,
                 archivesList);

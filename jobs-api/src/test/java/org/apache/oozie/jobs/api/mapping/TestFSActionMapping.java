@@ -52,7 +52,7 @@ public class TestFSActionMapping {
         final Chgrp chgrp = new ChgrpBuilder().withGroup("user:group:").build();
         final Setrep setrep = new Setrep("path", (short) 3);
 
-        final FSActionBuilder builder = new FSActionBuilder()
+        final FSActionBuilder builder = FSActionBuilder.create()
                 .withNameNode(nameNode);
 
         for (String jobXml : jobXmls) {

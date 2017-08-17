@@ -52,7 +52,7 @@ public class TestMapReduceActionMapping {
 
         final List<String> archives = Arrays.asList("archive1", "archive2");
 
-        final MapReduceActionBuilder builder = new MapReduceActionBuilder();
+        final MapReduceActionBuilder builder = MapReduceActionBuilder.create();
 
         builder.withJobTracker(jobTracker)
                 .withNameNode(nameNode)

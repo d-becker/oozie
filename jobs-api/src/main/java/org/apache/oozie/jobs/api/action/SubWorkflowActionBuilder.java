@@ -24,16 +24,33 @@ public class SubWorkflowActionBuilder
         extends ActionBuilderBaseImpl<SubWorkflowActionBuilder> implements Builder<SubWorkflowAction> {
     private final ModifyOnce<String> appPath;
     private final ModifyOnce<Boolean> propagateConfiguration;
+    private final ConfigurationHandlerBuilder configurationHandlerBuilder;
 
-    public SubWorkflowActionBuilder() {
-        appPath = new ModifyOnce<>();
-        propagateConfiguration = new ModifyOnce<>(false);
+    public static SubWorkflowActionBuilder create() {
+        final ModifyOnce<String> appPath = new ModifyOnce<>();
+        final ModifyOnce<Boolean> propagateConfiguration = new ModifyOnce<>(false);
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder();
+
+        return new SubWorkflowActionBuilder(null, appPath, propagateConfiguration, configurationHandlerBuilder);
     }
 
-    public SubWorkflowActionBuilder(final SubWorkflowAction action) {
+    public static SubWorkflowActionBuilder createFromExistingAction(final SubWorkflowAction action) {
+        final ModifyOnce<String> appPath = new ModifyOnce<>(action.getAppPath());
+        final ModifyOnce<Boolean> propagateConfiguration = new ModifyOnce<>(action.isPropagatingConfiguration());
+        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder(action.getConfiguration());
+
+        return new SubWorkflowActionBuilder(action, appPath, propagateConfiguration, configurationHandlerBuilder);
+    }
+
+    SubWorkflowActionBuilder(final SubWorkflowAction action,
+                             final ModifyOnce<String> appPath,
+                             final ModifyOnce<Boolean> propagateConfiguration,
+                             final ConfigurationHandlerBuilder configurationHandlerBuilder) {
         super(action);
-        appPath = new ModifyOnce<>(action.getAppPath());
-        propagateConfiguration = new ModifyOnce<>(action.isPropagatingConfiguration());
+
+        this.appPath = appPath;
+        this.propagateConfiguration = propagateConfiguration;
+        this.configurationHandlerBuilder = configurationHandlerBuilder;
     }
 
     public SubWorkflowActionBuilder withAppPath(final String appPath) {
@@ -51,11 +68,26 @@ public class SubWorkflowActionBuilder
         return this;
     }
 
+    /**
+     * Setting a key to null means deleting it.
+     * @param key
+     * @param value
+     * @return
+     */
+    public SubWorkflowActionBuilder withConfigProperty(final String key, final String value) {
+        configurationHandlerBuilder.withConfigProperty(key, value);
+        return this;
+    }
+
     @Override
     public SubWorkflowAction build() {
         final Action.ConstructionData constructionData = getConstructionData();
 
-        final SubWorkflowAction instance = new SubWorkflowAction(constructionData, appPath.get(), propagateConfiguration.get());
+        final SubWorkflowAction instance = new SubWorkflowAction(
+                constructionData,
+                appPath.get(),
+                propagateConfiguration.get(),
+                configurationHandlerBuilder.build());
 
         addAsChildToAllParents(instance);
 

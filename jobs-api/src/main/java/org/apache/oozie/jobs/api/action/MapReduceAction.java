@@ -21,6 +21,7 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Map;
 
 public class MapReduceAction extends Action {
     private final String jobTracker;
@@ -29,6 +30,7 @@ public class MapReduceAction extends Action {
     private final Streaming streaming;
     private final Pipes pipes;
     private final ImmutableList<String> jobXmls;
+    private final ConfigurationHandler configurationHandler;
     private final String configClass;
     private final ImmutableList<String> files;
     private final ImmutableList<String> archives;
@@ -40,6 +42,7 @@ public class MapReduceAction extends Action {
                     final Streaming streaming,
                     final Pipes pipes,
                     final ImmutableList<String> jobXmls,
+                    final ConfigurationHandler configurationHandler,
                     final String configClass,
                     final ImmutableList<String> files,
                     final ImmutableList<String> archives) {
@@ -51,6 +54,7 @@ public class MapReduceAction extends Action {
         this.streaming = streaming;
         this.pipes = pipes;
         this.jobXmls = jobXmls;
+        this.configurationHandler = configurationHandler;
         this.configClass = configClass;
         this.files = files;
         this.archives = archives;
@@ -78,6 +82,14 @@ public class MapReduceAction extends Action {
 
     public List<String> getJobXmls() {
         return jobXmls;
+    }
+
+    public String getConfigProperty(final String property) {
+        return configurationHandler.getConfigProperty(property);
+    }
+
+    public Map<String, String> getConfiguration() {
+        return configurationHandler.getConfiguration();
     }
 
     public String getConfigClass() {

@@ -31,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
 public class TestExplicitNodeMapping {
     @Test
     public void testMappingExplicitNode() {
-        final MapReduceAction mrAction = new MapReduceActionBuilder().withName("map-reduce-action").build();
+        final MapReduceAction mrAction = MapReduceActionBuilder.create().withName("map-reduce-action").build();
         final ExplicitNode node = new ExplicitNode(mrAction.getName(), mrAction);
 
         final End end = new End("end");
