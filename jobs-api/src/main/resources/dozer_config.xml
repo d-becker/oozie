@@ -58,7 +58,7 @@
                 <class-b>org.apache.oozie.jobs.api.generated.workflow.CONFIGURATION</class-b>
             </converter>
 
-            <converter type="org.apache.oozie.jobs.api.mapping.ActionConverter" >
+            <converter type="org.apache.oozie.jobs.api.mapping.ExplicitNodeConverter" >
                 <class-a>org.apache.oozie.jobs.api.oozie.dag.ExplicitNode</class-a>
                 <class-b>org.apache.oozie.jobs.api.generated.workflow.ACTION</class-b>
             </converter>

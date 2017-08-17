@@ -18,7 +18,6 @@
 
 package org.apache.oozie.jobs.api.action;
 
-// TODO: Action contains a 'configuration' field which an EmailAction should not have.
 public class EmailAction extends Action {
     private final String to;
     private final String cc;

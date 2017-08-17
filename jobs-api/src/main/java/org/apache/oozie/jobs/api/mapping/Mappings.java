@@ -54,7 +54,7 @@ public class Mappings {
 
         DagNodeWithCondition dagNodeWithCondition = new DagNodeWithCondition(graph.getNodeByName("end"), Condition.actualCondition("condition"));
 
-        WORKFLOWAPP workflowapp = mapper.map(graph, WORKFLOWAPP.class);
+        final WORKFLOWAPP workflowapp = mapper.map(graph, WORKFLOWAPP.class);
 
         System.out.println(workflowapp.getName());
     }

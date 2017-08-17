@@ -41,8 +41,7 @@ import org.dozer.MapperAware;
 
 import java.util.Map;
 
-// TODO: Handle kill nodes.
-public class ActionConverter extends DozerConverter<ExplicitNode, ACTION> implements MapperAware{
+public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> implements MapperAware{
     private static final ObjectFactory workflowObjectFactory = new ObjectFactory();
 
     private static final Map<Class<? extends Action>, Class<? extends Object>> actionClassMap = initActionClassMap();
@@ -60,7 +59,7 @@ public class ActionConverter extends DozerConverter<ExplicitNode, ACTION> implem
 
     private Mapper mapper;
 
-    public ActionConverter() {
+    public ExplicitNodeConverter() {
         super(ExplicitNode.class, ACTION.class);
     }
 
@@ -92,8 +91,7 @@ public class ActionConverter extends DozerConverter<ExplicitNode, ACTION> implem
     }
 
     private void mapTransitions(final ExplicitNode source, final ACTION destination) {
-        // TODO: Handle error transitions.
-
+        // Error transitions are handled at the level of converting the Graph object to a WORKFLOWAPP object.
         final ACTIONTRANSITION ok = workflowObjectFactory.createACTIONTRANSITION();
         final NodeBase child = source.getChild();
         ok.setTo(child == null ? "" : child.getName());

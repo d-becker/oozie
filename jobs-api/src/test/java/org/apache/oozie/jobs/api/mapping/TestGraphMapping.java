@@ -16,29 +16,15 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.action;
+package org.apache.oozie.jobs.api.mapping;
 
-public class ErrorHandler {
-    private final Node handlerNode;
+import org.junit.Test;
 
-    public static ErrorHandler buildAsErrorHandler(final Builder<? extends Node> builder) {
-        Node handlerNode = builder.build();
-        return new ErrorHandler(handlerNode);
-    }
+import static org.junit.Assert.fail;
 
-    private ErrorHandler(final Node handlerNode) {
-        if (!handlerNode.getAllParents().isEmpty() || !handlerNode.getAllChildren().isEmpty()) {
-            throw new IllegalStateException("Error handler nodes cannot have parents or children.");
-        }
-
-        this.handlerNode = handlerNode;
-    }
-
-    public String getName() {
-        return handlerNode.getName();
-    }
-
-    public Node getHandlerNode() {
-        return handlerNode;
+public class TestGraphMapping {
+    @Test
+    public void testMappingGraph() {
+        fail();
     }
 }

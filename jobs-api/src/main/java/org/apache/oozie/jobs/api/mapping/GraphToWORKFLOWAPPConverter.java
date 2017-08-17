@@ -18,11 +18,15 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
+import org.apache.oozie.jobs.api.action.ErrorHandler;
+import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.generated.workflow.ACTION;
+import org.apache.oozie.jobs.api.generated.workflow.ACTIONTRANSITION;
 import org.apache.oozie.jobs.api.generated.workflow.DECISION;
 import org.apache.oozie.jobs.api.generated.workflow.END;
 import org.apache.oozie.jobs.api.generated.workflow.FORK;
 import org.apache.oozie.jobs.api.generated.workflow.JOIN;
+import org.apache.oozie.jobs.api.generated.workflow.KILL;
 import org.apache.oozie.jobs.api.generated.workflow.ObjectFactory;
 import org.apache.oozie.jobs.api.generated.workflow.START;
 import org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP;
@@ -40,6 +44,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GraphToWORKFLOWAPPConverter extends DozerConverter<Graph, WORKFLOWAPP> implements MapperAware {
+    private static ObjectFactory objectFactory = new ObjectFactory();
+
     private Mapper mapper;
 
     private Map<Class<? extends Object>, Class<? extends Object>> classMapping = new HashMap<>();
@@ -67,12 +73,11 @@ public class GraphToWORKFLOWAPPConverter extends DozerConverter<Graph, WORKFLOWA
         final END end = mapper.map(graph.getEnd(), END.class);
         workflowapp.setEnd(end);
 
+        final KILL kill = createKillNode();
+        workflowapp.getDecisionOrForkOrJoin().add(kill);
+
         for (NodeBase nodeBase : graph.getNodes()) {
-            Class<? extends Object> sourceClass = nodeBase.getClass();
-            if (classMapping.containsKey(sourceClass)) {
-                Object mappedObject = mapper.map(nodeBase, classMapping.get(sourceClass));
-                workflowapp.getDecisionOrForkOrJoin().add(mappedObject);
-            }
+            convertNode(nodeBase, workflowapp, kill);
         }
 
         return workflowapp;
@@ -86,5 +91,79 @@ public class GraphToWORKFLOWAPPConverter extends DozerConverter<Graph, WORKFLOWA
     @Override
     public void setMapper(Mapper mapper) {
         this.mapper = mapper;
+    }
+
+    private void convertNode(final NodeBase nodeBase, final WORKFLOWAPP workflowapp, final KILL kill) {
+        Class<? extends Object> sourceClass = nodeBase.getClass();
+        if (classMapping.containsKey(sourceClass)) {
+            Object mappedObject = mapper.map(nodeBase, classMapping.get(sourceClass));
+
+            if (nodeBase instanceof ExplicitNode) {
+                final ACTION errorHandlerAction = addErrorTransition((ExplicitNode) nodeBase, (ACTION) mappedObject, kill);
+                if (errorHandlerAction != null) {
+                    workflowapp.getDecisionOrForkOrJoin().add(errorHandlerAction);
+                }
+            }
+
+            workflowapp.getDecisionOrForkOrJoin().add(mappedObject);
+        }
+    }
+
+    private KILL createKillNode() {
+        final KILL kill = objectFactory.createKILL();
+        kill.setName("kill");
+        kill.setMessage("Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]");
+
+        return kill;
+    }
+
+    private ACTION addErrorTransition(final ExplicitNode node, final ACTION action, final KILL kill) {
+        ACTIONTRANSITION error = action.getError();
+
+        if (error == null) {
+            error = objectFactory.createACTIONTRANSITION();
+            action.setError(error);
+        }
+
+        final ErrorHandler errorHandler = node.getRealNode().getErrorHandler();
+
+        if (errorHandler == null) {
+            error.setTo(kill.getName());
+
+            return null;
+        }
+        else {
+            final Node handlerNode = errorHandler.getHandlerNode();
+
+            final ACTION handlerAction = createErrorHandlerAction(handlerNode, kill);
+
+            error.setTo(handlerAction.getName());
+
+            return handlerAction;
+        }
+    }
+
+    private ACTION createErrorHandlerAction(final Node handlerNode, final KILL kill) {
+        final ACTION handlerAction = mapper.map(handlerNode, ACTION.class);
+
+        ACTIONTRANSITION ok = handlerAction.getOk();
+
+        if (ok == null) {
+            ok = objectFactory.createACTIONTRANSITION();
+            handlerAction.setOk(ok);
+        }
+
+        ok.setTo(kill.getName());
+
+        ACTIONTRANSITION error = handlerAction.getError();
+
+        if (error == null) {
+            error = objectFactory.createACTIONTRANSITION();
+            handlerAction.setError(error);
+        }
+
+        error.setTo(kill.getName());
+
+        return handlerAction;
     }
 }
