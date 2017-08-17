@@ -28,13 +28,11 @@ import java.util.Map;
 public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
         extends NodeBuilderBaseImpl<B> {
     private final Map<String, ModifyOnce<String>> configuration;
-    private final ModifyOnce<ErrorHandler> errorHandler;
 
     ActionBuilderBaseImpl() {
         super();
 
         configuration = new LinkedHashMap<>();
-        errorHandler = new ModifyOnce<>();
     }
 
     ActionBuilderBaseImpl(final Action action) {
@@ -46,17 +44,6 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
         }
 
         configuration = modifyOnceEntries;
-        errorHandler = new ModifyOnce<>(action.getErrorHandler());
-    }
-
-    public B withErrorHandler(final ErrorHandler errorHandler) {
-        this.errorHandler.set(errorHandler);
-        return ensureRuntimeSelfReference();
-    }
-
-    public B withoutErrorHandler() {
-        errorHandler.set(null);
-        return ensureRuntimeSelfReference();
     }
 
     /**

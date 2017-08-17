@@ -29,16 +29,30 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
     protected final List<Node> parents;
     protected final List<Node.NodeWithCondition> parentsWithConditions;
 
+    protected final ModifyOnce<ErrorHandler> errorHandler;
+
     NodeBuilderBaseImpl() {
         name = new ModifyOnce<>();
         parents = new ArrayList<>();
         parentsWithConditions = new ArrayList<>();
+        errorHandler = new ModifyOnce<>();
     }
 
     NodeBuilderBaseImpl(final Node node) {
         name = new ModifyOnce<>(node.getName());
         parents = new ArrayList<>(node.getParentsWithoutConditions());
         parentsWithConditions = new ArrayList<>(node.getParentsWithConditions());
+        errorHandler = new ModifyOnce<>(node.getErrorHandler());
+    }
+
+    public B withErrorHandler(final ErrorHandler errorHandler) {
+        this.errorHandler.set(errorHandler);
+        return ensureRuntimeSelfReference();
+    }
+
+    public B withoutErrorHandler() {
+        errorHandler.set(null);
+        return ensureRuntimeSelfReference();
     }
 
     public B withName(final String name) {

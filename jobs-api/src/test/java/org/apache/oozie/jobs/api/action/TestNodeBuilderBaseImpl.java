@@ -64,6 +64,64 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
     }
 
     @Test
+    public void testErrorHandlerAdded() {
+        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler"));
+
+        final B builder = getBuilderInstance();
+        builder.withErrorHandler(errorHandler);
+
+        final N node = builder.build();
+
+        assertEquals(errorHandler, node.getErrorHandler());
+    }
+
+    @Test
+    public void testErrorHandlerAddedTwiceThrows() {
+        final ErrorHandler errorHandler1 = ErrorHandler.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler1"));
+        final ErrorHandler errorHandler2 = ErrorHandler.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler2"));
+
+        final B builder = getBuilderInstance();
+        builder.withErrorHandler(errorHandler1);
+
+        expectedException.expect(IllegalStateException.class);
+        builder.withErrorHandler(errorHandler2);
+    }
+
+    @Test
+    public void testWithoutErrorHandler() {
+        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler"));
+
+        final B builder = getBuilderInstance();
+        builder.withErrorHandler(errorHandler);
+
+        final N node = builder.build();
+
+        final B fromExistingBuilder = getBuilderInstance(node);
+
+        fromExistingBuilder.withoutErrorHandler();
+
+        final N modifiedNode = fromExistingBuilder.build();
+
+        assertEquals(null, modifiedNode.getErrorHandler());
+    }
+
+    @Test
+    public void testRemovingErrorHandlerAfterAddingItThrows() {
+        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
+                new MapReduceActionBuilder().withName("error-handler"));
+
+        final B builder = getBuilderInstance();
+        builder.withErrorHandler(errorHandler);
+
+        expectedException.expect(IllegalStateException.class);
+        builder.withoutErrorHandler();
+    }
+
+    @Test
     public void testAddParents() {
         final N parent1 = Mockito.spy(getBuilderInstance().build());
         final N parent2 = Mockito.spy(getBuilderInstance().build());
