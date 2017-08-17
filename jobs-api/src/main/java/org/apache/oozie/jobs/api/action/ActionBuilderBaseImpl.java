@@ -27,23 +27,18 @@ import java.util.Map;
 
 public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
         extends NodeBuilderBaseImpl<B> {
-    private final Map<String, ModifyOnce<String>> configuration;
+    private final ConfigurationHandlerBuilder configurationHandlerBuilder;
 
     ActionBuilderBaseImpl() {
         super();
 
-        configuration = new LinkedHashMap<>();
+        configurationHandlerBuilder = new ConfigurationHandlerBuilder();
     }
 
     ActionBuilderBaseImpl(final Action action) {
         super(action);
 
-        final Map<String, ModifyOnce<String>> modifyOnceEntries = new LinkedHashMap<>();
-        for (final Map.Entry<String, String> keyAndValue : action.getConfiguration().entrySet()) {
-            modifyOnceEntries.put(keyAndValue.getKey(), new ModifyOnce<>(keyAndValue.getValue()));
-        }
-
-        configuration = modifyOnceEntries;
+        configurationHandlerBuilder = new ConfigurationHandlerBuilder(action.getConfiguration());
     }
 
     /**
@@ -53,15 +48,7 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
      * @return
      */
     public B withConfigProperty(final String key, final String value) {
-        ModifyOnce<String> mappedValue = this.configuration.get(key);
-
-        if (mappedValue == null) {
-            mappedValue = new ModifyOnce<>(value);
-            this.configuration.put(key, mappedValue);
-        }
-
-        mappedValue.set(value);
-
+        configurationHandlerBuilder.withConfigProperty(key, value);
         return ensureRuntimeSelfReference();
     }
 
@@ -72,20 +59,13 @@ public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
         final ImmutableList<Node.NodeWithCondition> parentsWithConditionsList
                 = new ImmutableList.Builder<Node.NodeWithCondition>().addAll(parentsWithConditions).build();
 
-        final Map<String, String> mutableConfiguration = new LinkedHashMap<>();
-        for (final Map.Entry<String, ModifyOnce<String>> modifyOnceEntry : this.configuration.entrySet()) {
-            if (modifyOnceEntry.getValue().get() != null) {
-                mutableConfiguration.put(modifyOnceEntry.getKey(), modifyOnceEntry.getValue().get());
-            }
-        }
-
-        final ImmutableMap<String, String> configurationMap = ImmutableMap.copyOf(mutableConfiguration);
+        final ConfigurationHandler configurationHandler = configurationHandlerBuilder.build();
 
         return new Action.ConstructionData(
                 nameStr,
                 parentsList,
                 parentsWithConditionsList,
-                configurationMap,
+                configurationHandler,
                 errorHandler.get()
         );
     }

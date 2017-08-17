@@ -26,20 +26,20 @@ import java.util.Map;
 public abstract class Action extends Node {
 
     // TODO: Remove this field as not all actions should have it.
-    private final ImmutableMap<String, String> configuration;
+    private final ConfigurationHandler configurationHandler;
 
     Action(final ConstructionData data) {
         super(data.name, data.parents, data.parentsWithConditions, data.errorHandler);
-        this.configuration = data.configuration;
+        this.configurationHandler = data.configurationHandler;
     }
 
 
     String getConfigProperty(final String property) {
-        return configuration.get(property);
+        return configurationHandler.getConfigProperty(property);
     }
 
     public Map<String, String> getConfiguration() {
-        return configuration;
+        return configurationHandler.getConfiguration();
     }
 
     static class ConstructionData {
@@ -47,19 +47,19 @@ public abstract class Action extends Node {
         ConstructionData(final String name,
                          final ImmutableList<Node> parents,
                          final ImmutableList<Node.NodeWithCondition> parentsWithConditions,
-                         final ImmutableMap<String, String> configuration,
+                         final ConfigurationHandler configurationHandler,
                          final ErrorHandler errorHandler) {
             this.name = name;
             this.parents = parents;
             this.parentsWithConditions = parentsWithConditions;
-            this.configuration = configuration;
+            this.configurationHandler = configurationHandler;
             this.errorHandler = errorHandler;
         }
 
         private final String name;
         private final ImmutableList<Node> parents;
         private final ImmutableList<Node.NodeWithCondition> parentsWithConditions;
-        private final ImmutableMap<String, String> configuration;
+        private final ConfigurationHandler configurationHandler;
         private final ErrorHandler errorHandler;
     }
 }
