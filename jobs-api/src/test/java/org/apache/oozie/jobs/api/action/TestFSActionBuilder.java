@@ -566,7 +566,7 @@ public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSA
     }
 
     @Test
-    public void testFromExistiongSubWorkflowAction() {
+    public void testFromExistiongFSAction() {
         final String nameNode = "${nameNode}";
 
         final FSActionBuilder builder = getBuilderInstance();

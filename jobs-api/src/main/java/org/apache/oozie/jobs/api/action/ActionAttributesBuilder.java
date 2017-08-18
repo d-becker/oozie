@@ -244,6 +244,90 @@ public class ActionAttributesBuilder {
         archives.clear();
     }
 
+    public void withDelete(final Delete delete) {
+        this.deletes.add(delete);
+    }
+
+    public void withoutDelete(final Delete delete) {
+        deletes.remove(delete);
+    }
+
+    public void clearDeletes() {
+        deletes.clear();
+    }
+
+    public void withMkdir(final Mkdir mkdir) {
+        this.mkdirs.add(mkdir);
+    }
+
+    public void withoutMkdir(final Mkdir mkdir) {
+        mkdirs.remove(mkdir);
+    }
+
+    public void clearMkdirs() {
+        mkdirs.clear();
+    }
+
+    public void withMove(final Move move) {
+        this.moves.add(move);
+    }
+
+    public void withoutMove(final Move move) {
+        moves.remove(move);
+    }
+
+    public void clearMoves() {
+        moves.clear();
+    }
+
+    public void withChmod(final Chmod chmod) {
+        this.chmods.add(chmod);
+    }
+
+    public void withoutChmod(final Chmod chmod) {
+        chmods.remove(chmod);
+    }
+
+    public void clearChmods() {
+        chmods.clear();
+    }
+
+    public void withTouchz(final Touchz touchz) {
+        this.touchzs.add(touchz);
+    }
+
+    public void withoutTouchz(final Touchz touchz) {
+        touchzs.remove(touchz);
+    }
+
+    public void clearTouchzs() {
+        touchzs.clear();
+    }
+
+    public void withChgrp(final Chgrp chgrp) {
+        this.chgrps.add(chgrp);
+    }
+
+    public void withoutChgrp(final Chgrp chgrp) {
+        chgrps.remove(chgrp);
+    }
+
+    public void clearChgrps() {
+        chgrps.clear();
+    }
+
+    public void withSetrep(final Setrep setrep) {
+        this.setreps.add(setrep);
+    }
+
+    public void withoutSetrep(final Setrep setrep) {
+        setreps.remove(setrep);
+    }
+
+    public void clearSetreps() {
+        setreps.clear();
+    }
+
     public ActionAttributes build() {
         return new ActionAttributes(
                 jobTracker.get(),

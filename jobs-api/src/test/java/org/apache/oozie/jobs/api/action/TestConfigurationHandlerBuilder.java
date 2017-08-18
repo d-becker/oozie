@@ -88,7 +88,7 @@ public class TestConfigurationHandlerBuilder {
     }
 
     @Test
-    public void testFromExistingAction() {
+    public void testFromExistingConfiguration() {
         final ConfigurationHandlerBuilder builder = new ConfigurationHandlerBuilder();
 
         for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
