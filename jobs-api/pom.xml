@@ -144,7 +144,8 @@
                 <configuration>
                     <arguments>
                         <argument>-XhashCode</argument>
-                        <argument>-Xequals</argument>
+                        <!--<argument>-Xequals</argument>-->
+                        <argument>-XsimpleEquals</argument>
                     </arguments>
 
                     <sources>
