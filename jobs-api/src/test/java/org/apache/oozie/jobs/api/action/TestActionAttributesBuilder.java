@@ -35,7 +35,6 @@ public class TestActionAttributesBuilder {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    private static final String NAME = "map-reduce-name";
     private static final String JOB_TRACKER = "${jobTracker}";
     private static final String NAME_NODE = "${nameNode}";
     private static final String EXAMPLE_DIR = "/path/to/directory";

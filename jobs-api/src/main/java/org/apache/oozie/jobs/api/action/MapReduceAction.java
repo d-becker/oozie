@@ -24,83 +24,60 @@ import java.util.List;
 import java.util.Map;
 
 public class MapReduceAction extends Action {
-    private final String jobTracker;
-    private final String nameNode;
-    private final Prepare prepare;
-    private final Streaming streaming;
-    private final Pipes pipes;
-    private final ImmutableList<String> jobXmls;
-    private final ConfigurationHandler configurationHandler;
-    private final String configClass;
-    private final ImmutableList<String> files;
-    private final ImmutableList<String> archives;
+    private final ActionAttributes attributes;
 
-    MapReduceAction(final Action.ConstructionData constructionData,
-                    final String jobTracker,
-                    final String nameNode,
-                    final Prepare prepare,
-                    final Streaming streaming,
-                    final Pipes pipes,
-                    final ImmutableList<String> jobXmls,
-                    final ConfigurationHandler configurationHandler,
-                    final String configClass,
-                    final ImmutableList<String> files,
-                    final ImmutableList<String> archives) {
+    MapReduceAction(final ConstructionData constructionData,
+                    final ActionAttributes attributes) {
         super(constructionData);
 
-        this.jobTracker = jobTracker;
-        this.nameNode = nameNode;
-        this.prepare = prepare;
-        this.streaming = streaming;
-        this.pipes = pipes;
-        this.jobXmls = jobXmls;
-        this.configurationHandler = configurationHandler;
-        this.configClass = configClass;
-        this.files = files;
-        this.archives = archives;
+        this.attributes = attributes;
     }
 
     public String getJobTracker() {
-        return jobTracker;
+        return attributes.getJobTracker();
     }
 
     public String getNameNode() {
-        return nameNode;
+        return attributes.getNameNode();
     }
 
     public Prepare getPrepare() {
-        return prepare;
+        return attributes.getPrepare();
     }
 
     public Streaming getStreaming() {
-        return streaming;
+        return attributes.getStreaming();
     }
 
     public Pipes getPipes() {
-        return pipes;
+        return attributes.getPipes();
     }
 
     public List<String> getJobXmls() {
-        return jobXmls;
+        return attributes.getJobXmls();
     }
 
     public String getConfigProperty(final String property) {
-        return configurationHandler.getConfigProperty(property);
+        return attributes.getConfiguration().get(property);
     }
 
     public Map<String, String> getConfiguration() {
-        return configurationHandler.getConfiguration();
+        return attributes.getConfiguration();
     }
 
     public String getConfigClass() {
-        return configClass;
+        return attributes.getConfigClass();
     }
 
     public List<String> getFiles() {
-        return files;
+        return attributes.getFiles();
     }
 
     public List<String> getArchives() {
-        return archives;
+        return attributes.getArchives();
+    }
+
+    ActionAttributes getAttributes() {
+        return attributes;
     }
 }

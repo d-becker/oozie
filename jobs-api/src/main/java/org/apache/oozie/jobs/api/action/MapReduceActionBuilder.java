@@ -25,131 +25,68 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActionBuilder> implements Builder<MapReduceAction> {
-    private final ModifyOnce<String> jobTracker;
-    private final ModifyOnce<String> nameNode;
-    private final ModifyOnce<Prepare> prepare;
-    private final ModifyOnce<Streaming> streaming;
-    private final ModifyOnce<Pipes> pipes;
-    private final List<String> jobXmls;
-    private final ConfigurationHandlerBuilder configurationHandlerBuilder;
-    private final ModifyOnce<String> configClass;
-    private final List<String> files;
-    private final List<String> archives;
+    private final ActionAttributesBuilder attributesBuilder;
 
     public static MapReduceActionBuilder create() {
-        final ModifyOnce<String> jobTracker = new ModifyOnce<>();
-        final ModifyOnce<String> nameNode = new ModifyOnce<>();
-        final ModifyOnce<Prepare> prepare = new ModifyOnce<>();
-        final ModifyOnce<Streaming> streaming = new ModifyOnce<>();
-        final ModifyOnce<Pipes> pipes = new ModifyOnce<>();
-        final List<String> jobXmls = new ArrayList<>();
-        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder();
-        final ModifyOnce<String> configClass = new ModifyOnce<>();
-        final List<String> files = new ArrayList<>();
-        final List<String> archives = new ArrayList<>();
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.create();
 
         return new MapReduceActionBuilder(
                 null,
-                jobTracker,
-                nameNode,
-                prepare,
-                streaming,
-                pipes,
-                jobXmls,
-                configurationHandlerBuilder,
-                configClass,
-                files,
-                archives);
+                builder);
     }
 
     public static MapReduceActionBuilder createFromExistingAction(final MapReduceAction action) {
-        final ModifyOnce<String> jobTracker = new ModifyOnce<>(action.getJobTracker());
-        final ModifyOnce<String> nameNode = new ModifyOnce<>(action.getNameNode());
-        final ModifyOnce<Prepare> prepare = new ModifyOnce<>(action.getPrepare());
-        final ModifyOnce<Streaming> streaming = new ModifyOnce<>(action.getStreaming());
-        final ModifyOnce<Pipes> pipes = new ModifyOnce<>(action.getPipes());
-        final List<String> jobXmls = new ArrayList<>(action.getJobXmls());
-        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder(action.getConfiguration());
-        final ModifyOnce<String> configClass = new ModifyOnce<>(action.getConfigClass());
-        final List<String> files = new ArrayList<>(action.getFiles());
-        final List<String> archives = new ArrayList<>(action.getArchives());
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromExisting(action.getAttributes());
 
         return new MapReduceActionBuilder(
                 action,
-                jobTracker,
-                nameNode,
-                prepare,
-                streaming,
-                pipes,
-                jobXmls,
-                configurationHandlerBuilder,
-                configClass,
-                files,
-                archives);
+                builder);
     }
 
     public MapReduceActionBuilder(final MapReduceAction action,
-                                  final ModifyOnce<String> jobTracker,
-                                  final ModifyOnce<String> nameNode,
-                                  final ModifyOnce<Prepare> prepare,
-                                  final ModifyOnce<Streaming> streaming,
-                                  final ModifyOnce<Pipes> pipes,
-                                  final List<String> jobXmls,
-                                  final ConfigurationHandlerBuilder configurationHandlerBuilder,
-                                  final ModifyOnce<String> configClass,
-                                  final List<String> files,
-                                  final List<String> archives) {
+                                  final ActionAttributesBuilder attributesBuilder) {
         super(action);
 
-        this.jobTracker = jobTracker;
-        this.nameNode = nameNode;
-        this.prepare = prepare;
-        this.streaming = streaming;
-        this.pipes = pipes;
-        this.jobXmls = jobXmls;
-        this.configurationHandlerBuilder = configurationHandlerBuilder;
-        this.configClass = configClass;
-        this.files = files;
-        this.archives = archives;
+        this.attributesBuilder = attributesBuilder;
     }
 
     public MapReduceActionBuilder withJobTracker(final String jobTracker) {
-        this.jobTracker.set(jobTracker);
+        attributesBuilder.withJobTracker(jobTracker);
         return this;
     }
 
     public MapReduceActionBuilder withNameNode(final String nameNode) {
-        this.nameNode.set(nameNode);
+        attributesBuilder.withNameNode(nameNode);
         return this;
     }
 
     public MapReduceActionBuilder withPrepare(final Prepare prepare) {
-        this.prepare.set(prepare);
+        attributesBuilder.withPrepare(prepare);
         return this;
     }
 
     public MapReduceActionBuilder withStreaming(final Streaming streaming) {
-        this.streaming.set(streaming);
+        attributesBuilder.withStreaming(streaming);
         return this;
     }
 
     public MapReduceActionBuilder withPipes(final Pipes pipes) {
-        this.pipes.set(pipes);
+        attributesBuilder.withPipes(pipes);
         return this;
     }
 
     public MapReduceActionBuilder withJobXml(final String jobXml) {
-        this.jobXmls.add(jobXml);
+        attributesBuilder.withJobXml(jobXml);
         return this;
     }
 
     public MapReduceActionBuilder withoutJobXml(final String jobXml) {
-        jobXmls.remove(jobXml);
+        attributesBuilder.withoutJobXml(jobXml);
         return this;
     }
 
     public MapReduceActionBuilder clearJobXmls() {
-        jobXmls.clear();
+        attributesBuilder.clearJobXmls();
         return this;
     }
 
@@ -160,71 +97,52 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
      * @return
      */
     public MapReduceActionBuilder withConfigProperty(final String key, final String value) {
-        configurationHandlerBuilder.withConfigProperty(key, value);
+        attributesBuilder.withConfigProperty(key, value);
         return this;
     }
 
     public MapReduceActionBuilder withConfigClass(final String configClass) {
-        this.configClass.set(configClass);
+        attributesBuilder.withConfigClass(configClass);
         return this;
     }
 
     public MapReduceActionBuilder withFile(final String file) {
-        this.files.add(file);
+        attributesBuilder.withFile(file);
         return this;
     }
 
     public MapReduceActionBuilder withoutFile(final String file) {
-        files.remove(file);
+        attributesBuilder.withoutFile(file);
         return this;
     }
 
     public MapReduceActionBuilder clearFiles() {
-        files.clear();
+        attributesBuilder.clearFiles();
         return this;
     }
 
     public MapReduceActionBuilder withArchive(final String archive) {
-        this.archives.add(archive);
+        attributesBuilder.withArchive(archive);
         return this;
     }
 
     public MapReduceActionBuilder withoutArchive(final String archive) {
-        archives.remove(archive);
+        attributesBuilder.withoutArchive(archive);
         return this;
     }
 
     public MapReduceActionBuilder clearArchives() {
-        archives.clear();
+        attributesBuilder.clearArchives();
         return this;
     }
 
     @Override
     public MapReduceAction build() {
         final Action.ConstructionData constructionData = getConstructionData();
-        final String jobTrackerStr = this.jobTracker.get();
-        final String nameNodeStr = this.nameNode.get();
-        final Prepare prepareActual = this.prepare.get();
-        final Streaming streamingActual = this.streaming.get();
-        final Pipes pipesActual = this.pipes.get();
-        final ImmutableList<String> jobXmlsList = new ImmutableList.Builder<String>().addAll(this.jobXmls).build();
-        final ConfigurationHandler configurationHandler = configurationHandlerBuilder.build();
-        final String configClassStr = this.configClass.get();
-        final ImmutableList<String> filesList = new ImmutableList.Builder<String>().addAll(this.files).build();
-        final ImmutableList<String> archivesList = new ImmutableList.Builder<String>().addAll(this.archives).build();
 
         final MapReduceAction instance = new MapReduceAction(
                 constructionData,
-                jobTrackerStr,
-                nameNodeStr,
-                prepareActual,
-                streamingActual,
-                pipesActual,
-                jobXmlsList,
-                configurationHandler,
-                configClassStr,
-                filesList,
-                archivesList);
+                attributesBuilder.build());
 
         addAsChildToAllParents(instance);
 
