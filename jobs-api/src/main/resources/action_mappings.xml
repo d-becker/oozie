@@ -238,7 +238,7 @@
         </field>
 
         <field relationship-type="cumulative">
-            <a is-accessible="true">deletes</a>
+            <a>deletes</a>
             <b>deleteOrMkdirOrMove</b>
             <b-hint>org.apache.oozie.jobs.api.generated.workflow.DELETE</b-hint>
         </field>

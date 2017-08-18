@@ -25,115 +25,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FSActionBuilder extends ActionBuilderBaseImpl<FSActionBuilder> implements Builder<FSAction> {
-    private final ModifyOnce<String> nameNode;
-    private final List<String> jobXmls;
-    private final ConfigurationHandlerBuilder configurationHandlerBuilder;
-
-    private final List<Delete> deletes;
-    private final List<Mkdir> mkdirs;
-    private final List<Move> moves;
-    private final List<Chmod> chmods;
-    private final List<Touchz> touchzs;
-    private final List<Chgrp> chgrps;
-    private final List<Setrep> setreps;
+    private final ActionAttributesBuilder attributesBuilder;
 
     public static FSActionBuilder create() {
-        final ModifyOnce<String> nameNode = new ModifyOnce<>();
-        final List<String> jobXmls = new ArrayList<>();
-        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder();
-
-        final List<Delete> deletes = new ArrayList<>();
-        final List<Mkdir> mkdirs = new ArrayList<>();
-        final List<Move> moves = new ArrayList<>();
-        final List<Chmod> chmods = new ArrayList<>();
-        final List<Touchz> touchzs = new ArrayList<>();
-        final List<Chgrp> chgrps = new ArrayList<>();
-        final List<Setrep> setreps = new ArrayList<>();
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.create();
 
         return new FSActionBuilder(
                 null,
-                nameNode,
-                jobXmls,
-                configurationHandlerBuilder,
-                deletes,
-                mkdirs,
-                moves,
-                chmods,
-                touchzs,
-                chgrps,
-                setreps);
+                builder);
     }
 
     public static FSActionBuilder createFromExistingAction(final FSAction action) {
-        final ModifyOnce<String> nameNode = new ModifyOnce<>(action.getNameNode());
-        final List<String> jobXmls = new ArrayList<>(action.getJobXmls());
-        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder(action.getConfiguration());
-
-        final List<Delete> deletes = new ArrayList<>(action.getDeletes());
-        final List<Mkdir> mkdirs = new ArrayList<>(action.getMkdirs());
-        final List<Move> moves = new ArrayList<>(action.getMoves());
-        final List<Chmod> chmods = new ArrayList<>(action.getChmods());
-        final List<Touchz> touchzs = new ArrayList<>(action.getTouchzs());
-        final List<Chgrp> chgrps = new ArrayList<>(action.getChgrps());
-        final List<Setrep> setreps = new ArrayList<>(action.getSetreps());
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromExisting(action.getAttributes());
 
         return new FSActionBuilder(
                 action,
-                nameNode,
-                jobXmls,
-                configurationHandlerBuilder,
-                deletes,
-                mkdirs,
-                moves,
-                chmods,
-                touchzs,
-                chgrps,
-                setreps);
+                builder);
     }
 
     FSActionBuilder(final FSAction action,
-                    final ModifyOnce<String> nameNode,
-                    final List<String> jobXmls,
-                    final ConfigurationHandlerBuilder configurationHandlerBuilder,
-                    final List<Delete> deletes,
-                    final List<Mkdir> mkdirs,
-                    final List<Move> moves,
-                    final List<Chmod> chmods,
-                    final List<Touchz> touchzs,
-                    final List<Chgrp> chgrps,
-                    final List<Setrep> setreps) {
+                    final ActionAttributesBuilder attributesBuilder) {
         super(action);
 
-        this.nameNode = nameNode;
-        this.jobXmls = jobXmls;
-        this.configurationHandlerBuilder = configurationHandlerBuilder;
-
-        this.deletes = deletes;
-        this.mkdirs = mkdirs;
-        this.moves = moves;
-        this.chmods = chmods;
-        this.touchzs = touchzs;
-        this.chgrps = chgrps;
-        this.setreps = setreps;
+        this.attributesBuilder = attributesBuilder;
     }
 
     public FSActionBuilder withNameNode(final String nameNode) {
-        this.nameNode.set(nameNode);
+        attributesBuilder.withNameNode(nameNode);
         return this;
     }
 
     public FSActionBuilder withJobXml(final String jobXml) {
-        this.jobXmls.add(jobXml);
+        attributesBuilder.withJobXml(jobXml);
         return this;
     }
 
     public FSActionBuilder withoutJobXml(final String jobXml) {
-        jobXmls.remove(jobXml);
+        attributesBuilder.withoutJobXml(jobXml);
         return this;
     }
 
     public FSActionBuilder clearJobXmls() {
-        jobXmls.clear();
+        attributesBuilder.clearJobXmls();
         return this;
     }
 
@@ -144,142 +77,122 @@ public class FSActionBuilder extends ActionBuilderBaseImpl<FSActionBuilder> impl
      * @return
      */
     public FSActionBuilder withConfigProperty(final String key, final String value) {
-        configurationHandlerBuilder.withConfigProperty(key, value);
+        attributesBuilder.withConfigProperty(key, value);
         return this;
     }
 
     public FSActionBuilder withDelete(final Delete delete) {
-        this.deletes.add(delete);
+        attributesBuilder.withDelete(delete);
         return this;
     }
 
     public FSActionBuilder withoutDelete(final Delete delete) {
-        deletes.remove(delete);
+        attributesBuilder.withoutDelete(delete);
         return this;
     }
 
     public FSActionBuilder clearDeletes() {
-        deletes.clear();
+        attributesBuilder.clearDeletes();
         return this;
     }
 
     public FSActionBuilder withMkdir(final Mkdir mkdir) {
-        this.mkdirs.add(mkdir);
+        attributesBuilder.withMkdir(mkdir);
         return this;
     }
 
     public FSActionBuilder withoutMkdir(final Mkdir mkdir) {
-        mkdirs.remove(mkdir);
+        attributesBuilder.withoutMkdir(mkdir);
         return this;
     }
 
     public FSActionBuilder clearMkdirs() {
-        mkdirs.clear();
+        attributesBuilder.clearMkdirs();
         return this;
     }
 
     public FSActionBuilder withMove(final Move move) {
-        this.moves.add(move);
+        attributesBuilder.withMove(move);
         return this;
     }
 
     public FSActionBuilder withoutMove(final Move move) {
-        moves.remove(move);
+        attributesBuilder.withoutMove(move);
         return this;
     }
 
     public FSActionBuilder clearMoves() {
-        moves.clear();
+        attributesBuilder.clearMoves();
         return this;
     }
 
     public FSActionBuilder withChmod(final Chmod chmod) {
-        this.chmods.add(chmod);
+        attributesBuilder.withChmod(chmod);
         return this;
     }
 
     public FSActionBuilder withoutChmod(final Chmod chmod) {
-        chmods.remove(chmod);
+        attributesBuilder.withoutChmod(chmod);
         return this;
     }
 
     public FSActionBuilder clearChmods() {
-        chmods.clear();
+        attributesBuilder.clearChmods();
         return this;
     }
 
     public FSActionBuilder withTouchz(final Touchz touchz) {
-        this.touchzs.add(touchz);
+        attributesBuilder.withTouchz(touchz);
         return this;
     }
 
     public FSActionBuilder withoutTouchz(final Touchz touchz) {
-        touchzs.remove(touchz);
+        attributesBuilder.withoutTouchz(touchz);
         return this;
     }
 
     public FSActionBuilder clearTouchzs() {
-        touchzs.clear();
+        attributesBuilder.clearTouchzs();
         return this;
     }
 
     public FSActionBuilder withChgrp(final Chgrp chgrp) {
-        this.chgrps.add(chgrp);
+        attributesBuilder.withChgrp(chgrp);
         return this;
     }
 
     public FSActionBuilder withoutChgrp(final Chgrp chgrp) {
-        chgrps.remove(chgrp);
+        attributesBuilder.withoutChgrp(chgrp);
         return this;
     }
 
     public FSActionBuilder clearChgrps() {
-        chgrps.clear();
+        attributesBuilder.clearChgrps();
         return this;
     }
 
     public FSActionBuilder withSetrep(final Setrep setrep) {
-        this.setreps.add(setrep);
+        attributesBuilder.withSetrep(setrep);
         return this;
     }
 
     public FSActionBuilder withoutSetrep(final Setrep setrep) {
-        setreps.remove(setrep);
+        attributesBuilder.withoutSetrep(setrep);
         return this;
     }
 
     public FSActionBuilder clearSetreps() {
-        setreps.clear();
+        attributesBuilder.clearSetreps();
         return this;
     }
 
     @Override
     public FSAction build() {
         final Action.ConstructionData constructionData = getConstructionData();
-        final String nameNodeActual = nameNode.get();
-        final ImmutableList<String> jobXmlsList = ImmutableList.copyOf(jobXmls);
-        final ConfigurationHandler configurationHandler = configurationHandlerBuilder.build();
-
-        final ImmutableList<Delete> deletesList = ImmutableList.copyOf(deletes);
-        final ImmutableList<Mkdir> mkdirsList = ImmutableList.copyOf(mkdirs);
-        final ImmutableList<Move> movesList = ImmutableList.copyOf(moves);
-        final ImmutableList<Chmod> chmodsList = ImmutableList.copyOf(chmods);
-        final ImmutableList<Touchz> touchzsList = ImmutableList.copyOf(touchzs);
-        final ImmutableList<Chgrp> chgrpsList = ImmutableList.copyOf(chgrps);
-        final ImmutableList<Setrep> setrepsList = ImmutableList.copyOf(setreps);
 
         final FSAction instance = new FSAction(
                 constructionData,
-                nameNodeActual,
-                jobXmlsList,
-                configurationHandler,
-                deletesList,
-                mkdirsList,
-                movesList,
-                chmodsList,
-                touchzsList,
-                chgrpsList,
-                setrepsList);
+                attributesBuilder.build());
 
         addAsChildToAllParents(instance);
 

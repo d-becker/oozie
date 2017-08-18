@@ -18,90 +18,64 @@
 
 package org.apache.oozie.jobs.api.action;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 import java.util.Map;
 
 public class FSAction extends Action {
-    private final String nameNode;
-    private final ImmutableList<String> jobXmls;
-    private final ConfigurationHandler configurationHandler;
-
-    private final ImmutableList<Delete> deletes;
-    private final ImmutableList<Mkdir> mkdirs;
-    private final ImmutableList<Move> moves;
-    private final ImmutableList<Chmod> chmods;
-    private final ImmutableList<Touchz> touchzs;
-    private final ImmutableList<Chgrp> chgrps;
-    private final ImmutableList<Setrep> setreps;
+    private final ActionAttributes attributes;
 
     FSAction(final Action.ConstructionData constructionData,
-             final String nameNode,
-             final ImmutableList<String> jobXmls,
-             final ConfigurationHandler configurationHandler,
-             final ImmutableList<Delete> deletes,
-             final ImmutableList<Mkdir> mkdirs,
-             final ImmutableList<Move> moves,
-             final ImmutableList<Chmod> chmods,
-             final ImmutableList<Touchz> touchzs,
-             final ImmutableList<Chgrp> chgrps,
-             final ImmutableList<Setrep> setreps) {
+             final ActionAttributes attributes) {
         super(constructionData);
 
-        this.nameNode = nameNode;
-        this.jobXmls = jobXmls;
-        this.configurationHandler = configurationHandler;
-        this.deletes = deletes;
-        this.mkdirs = mkdirs;
-        this.moves = moves;
-        this.chmods = chmods;
-        this.touchzs = touchzs;
-        this.chgrps = chgrps;
-        this.setreps = setreps;
+        this.attributes = attributes;
     }
 
     public String getNameNode() {
-        return nameNode;
+        return attributes.getNameNode();
     }
 
     public List<String> getJobXmls() {
-        return jobXmls;
+        return attributes.getJobXmls();
     }
 
     public String getConfigProperty(final String property) {
-        return configurationHandler.getConfigProperty(property);
+        return attributes.getConfiguration().get(property);
     }
 
     public Map<String, String> getConfiguration() {
-        return configurationHandler.getConfiguration();
+        return attributes.getConfiguration();
     }
 
     public List<Delete> getDeletes() {
-        return deletes;
+        return attributes.getDeletes();
     }
 
     public List<Mkdir> getMkdirs() {
-        return mkdirs;
+        return attributes.getMkdirs();
     }
 
     public List<Move> getMoves() {
-        return moves;
+        return attributes.getMoves();
     }
 
     public List<Chmod> getChmods() {
-        return chmods;
+        return attributes.getChmods();
     }
 
     public List<Touchz> getTouchzs() {
-        return touchzs;
+        return attributes.getTouchzs();
     }
 
     public List<Chgrp> getChgrps() {
-        return chgrps;
+        return attributes.getChgrps();
     }
 
     public List<Setrep> getSetreps() {
-        return setreps;
+        return attributes.getSetreps();
+    }
+
+    ActionAttributes getAttributes() {
+        return attributes;
     }
 }
