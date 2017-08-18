@@ -99,6 +99,12 @@
             <artifactId>dozer</artifactId>
             <version>5.5.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics</artifactId>
+            <version>1.11.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -136,6 +142,11 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <arguments>
+                        <argument>-XhashCode</argument>
+                        <argument>-Xequals</argument>
+                    </arguments>
+
                     <sources>
                         <source>../client/src/main/resources/distcp-action-0.2.xsd</source>
                         <source>../client/src/main/resources/email-action-0.2.xsd</source>
@@ -149,6 +160,14 @@
                         <source>../client/src/main/resources/ssh-action-0.2.xsd</source>
                     </sources>
                 </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jvnet.jaxb2_commons</groupId>
+                        <artifactId>jaxb2-basics</artifactId>
+                        <version>1.11.1</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

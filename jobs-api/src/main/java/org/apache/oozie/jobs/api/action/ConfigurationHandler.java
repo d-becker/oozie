@@ -20,6 +20,7 @@ package org.apache.oozie.jobs.api.action;
 
 import com.google.common.collect.ImmutableMap;
 
+// TODO: This class should be removed.
 public class ConfigurationHandler {
     private final ImmutableMap<String, String> configuration;
 
