@@ -20,37 +20,40 @@ package org.apache.oozie.jobs.api.action;
 
 import org.apache.oozie.jobs.api.ModifyOnce;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class SubWorkflowActionBuilder
         extends ActionBuilderBaseImpl<SubWorkflowActionBuilder> implements Builder<SubWorkflowAction> {
     private final ModifyOnce<String> appPath;
     private final ModifyOnce<Boolean> propagateConfiguration;
-    private final ConfigurationHandlerBuilder configurationHandlerBuilder;
+    private final Map<String, ModifyOnce<String>> configuration;
 
     public static SubWorkflowActionBuilder create() {
         final ModifyOnce<String> appPath = new ModifyOnce<>();
         final ModifyOnce<Boolean> propagateConfiguration = new ModifyOnce<>(false);
-        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder();
+        final Map<String, ModifyOnce<String>> configuration = new LinkedHashMap<>();
 
-        return new SubWorkflowActionBuilder(null, appPath, propagateConfiguration, configurationHandlerBuilder);
+        return new SubWorkflowActionBuilder(null, appPath, propagateConfiguration, configuration);
     }
 
     public static SubWorkflowActionBuilder createFromExistingAction(final SubWorkflowAction action) {
         final ModifyOnce<String> appPath = new ModifyOnce<>(action.getAppPath());
         final ModifyOnce<Boolean> propagateConfiguration = new ModifyOnce<>(action.isPropagatingConfiguration());
-        final ConfigurationHandlerBuilder configurationHandlerBuilder = new ConfigurationHandlerBuilder(action.getConfiguration());
+        final Map<String, ModifyOnce<String>> configuration = ActionAttributesBuilder.getModifiedOnceMap(action.getConfiguration());
 
-        return new SubWorkflowActionBuilder(action, appPath, propagateConfiguration, configurationHandlerBuilder);
+        return new SubWorkflowActionBuilder(action, appPath, propagateConfiguration, configuration);
     }
 
     SubWorkflowActionBuilder(final SubWorkflowAction action,
                              final ModifyOnce<String> appPath,
                              final ModifyOnce<Boolean> propagateConfiguration,
-                             final ConfigurationHandlerBuilder configurationHandlerBuilder) {
+                             final Map<String, ModifyOnce<String>> configuration) {
         super(action);
 
         this.appPath = appPath;
         this.propagateConfiguration = propagateConfiguration;
-        this.configurationHandlerBuilder = configurationHandlerBuilder;
+        this.configuration = configuration;
     }
 
     public SubWorkflowActionBuilder withAppPath(final String appPath) {
@@ -75,7 +78,15 @@ public class SubWorkflowActionBuilder
      * @return
      */
     public SubWorkflowActionBuilder withConfigProperty(final String key, final String value) {
-        configurationHandlerBuilder.withConfigProperty(key, value);
+        ModifyOnce<String> mappedValue = this.configuration.get(key);
+
+        if (mappedValue == null) {
+            mappedValue = new ModifyOnce<>(value);
+            this.configuration.put(key, mappedValue);
+        }
+
+        mappedValue.set(value);
+
         return this;
     }
 
@@ -87,7 +98,7 @@ public class SubWorkflowActionBuilder
                 constructionData,
                 appPath.get(),
                 propagateConfiguration.get(),
-                configurationHandlerBuilder.build());
+                ActionAttributesBuilder.getConfigurationMap(configuration));
 
         addAsChildToAllParents(instance);
 

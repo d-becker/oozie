@@ -19,11 +19,8 @@
 package org.apache.oozie.jobs.api.action;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.oozie.jobs.api.ModifyOnce;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;

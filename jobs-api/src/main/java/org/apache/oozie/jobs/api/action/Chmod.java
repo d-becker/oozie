@@ -18,7 +18,6 @@
 
 package org.apache.oozie.jobs.api.action;
 
-
 public class Chmod extends ChFSBase {
     private final String permissions;
 

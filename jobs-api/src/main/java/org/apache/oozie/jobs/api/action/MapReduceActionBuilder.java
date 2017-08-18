@@ -18,12 +18,6 @@
 
 package org.apache.oozie.jobs.api.action;
 
-import com.google.common.collect.ImmutableList;
-import org.apache.oozie.jobs.api.ModifyOnce;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActionBuilder> implements Builder<MapReduceAction> {
     private final ActionAttributesBuilder attributesBuilder;
 

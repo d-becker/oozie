@@ -30,7 +30,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-// TODO: Test from existing, config.
+// TODO: Test from existing.
 public class TestActionAttributesBuilder {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();

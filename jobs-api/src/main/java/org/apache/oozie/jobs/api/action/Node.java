@@ -20,7 +20,6 @@ package org.apache.oozie.jobs.api.action;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.oozie.jobs.api.Condition;
-import org.apache.oozie.jobs.api.ModifyOnce;
 
 import java.util.ArrayList;
 import java.util.Collections;

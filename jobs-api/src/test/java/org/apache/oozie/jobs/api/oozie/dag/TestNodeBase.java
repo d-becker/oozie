@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public abstract class TestNodeBase<T extends NodeBase> {
     @Rule

@@ -18,8 +18,6 @@
 
 package org.apache.oozie.jobs.api.action;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 import java.util.Map;
 

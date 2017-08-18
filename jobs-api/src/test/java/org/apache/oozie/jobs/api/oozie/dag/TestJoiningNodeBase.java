@@ -23,7 +23,6 @@ import org.junit.Test;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public abstract class TestJoiningNodeBase<B, J extends JoiningNodeBase<B>> extends TestNodeBase<JoiningNodeBase> {
     protected abstract B getBranchingInstance(final String name);

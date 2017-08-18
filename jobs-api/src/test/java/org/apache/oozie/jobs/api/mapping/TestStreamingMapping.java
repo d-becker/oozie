@@ -18,7 +18,6 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
-import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 import org.apache.oozie.jobs.api.action.Streaming;
 import org.apache.oozie.jobs.api.action.StreamingBuilder;
 import org.apache.oozie.jobs.api.generated.workflow.STREAMING;

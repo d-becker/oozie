@@ -20,7 +20,6 @@ package org.apache.oozie.jobs.api.mapping;
 
 import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.action.EmailActionBuilder;
-import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.generated.workflow.ACTION;
 import org.apache.oozie.jobs.api.generated.workflow.ACTIONTRANSITION;
 import org.apache.oozie.jobs.api.generated.workflow.CASE;
@@ -48,7 +47,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class TestGraphMapping {
     private static final ObjectFactory objectFactory = new ObjectFactory();
@@ -138,6 +136,7 @@ public class TestGraphMapping {
         joinJaxb.setName(join.getName());
         joinJaxb.setTo(end.getName());
 
+        // TODO: Unfortunately the order of the elements counts.
         nodesInWorkflowApp.add(createKillNode());
         nodesInWorkflowApp.add(actionA);
         nodesInWorkflowApp.add(actionB);

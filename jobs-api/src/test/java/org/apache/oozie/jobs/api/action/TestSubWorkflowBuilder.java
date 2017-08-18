@@ -19,9 +19,7 @@
 package org.apache.oozie.jobs.api.action;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.oozie.jobs.api.ModifyOnce;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -130,32 +128,28 @@ public class TestSubWorkflowBuilder extends TestActionBuilderBaseImpl<SubWorkflo
 
     @Test
     public void testConfigPropertyAdded() {
-        final ModifyOnce<String> appPath = new ModifyOnce<>();
-        final ModifyOnce<Boolean> propagateConfiguration = new ModifyOnce<>(false);
-        final ConfigurationHandlerBuilder configurationHandlerBuilder = Mockito.mock(ConfigurationHandlerBuilder.class);
-
-        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder(null, appPath, propagateConfiguration, configurationHandlerBuilder);
-
+        final SubWorkflowActionBuilder builder = getBuilderInstance();
         builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
 
-        Mockito.verify(configurationHandlerBuilder).withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
-        Mockito.verifyNoMoreInteractions(configurationHandlerBuilder);
+        final SubWorkflowAction action = builder.build();
+        assertEquals(DEFAULT, action.getConfiguration().get(MAPRED_JOB_QUEUE_NAME));
     }
 
     @Test
     public void testSeveralConfigPropertiesAdded() {
-        final ModifyOnce<String> appPath = new ModifyOnce<>();
-        final ModifyOnce<Boolean> propagateConfiguration = new ModifyOnce<>(false);
-        final ConfigurationHandlerBuilder configurationHandlerBuilder = Mockito.mock(ConfigurationHandlerBuilder.class);
-
-        final SubWorkflowActionBuilder builder = new SubWorkflowActionBuilder(null, appPath, propagateConfiguration, configurationHandlerBuilder);
+        final SubWorkflowActionBuilder builder = getBuilderInstance();
 
         for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
             builder.withConfigProperty(entry.getKey(), entry.getValue());
-            Mockito.verify(configurationHandlerBuilder).withConfigProperty(entry.getKey(), entry.getValue());
         }
 
-        Mockito.verifyNoMoreInteractions(configurationHandlerBuilder);
+        final SubWorkflowAction action = builder.build();
+
+        for (final Map.Entry<String, String> entry : CONFIG_EXAMPLE.entrySet()) {
+            assertEquals(entry.getValue(), action.getConfiguration().get(entry.getKey()));
+        }
+
+        assertEquals(CONFIG_EXAMPLE, action.getConfiguration());
     }
 
     @Test

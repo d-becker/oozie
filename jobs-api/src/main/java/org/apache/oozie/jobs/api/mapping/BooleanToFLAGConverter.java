@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.oozie.jobs.api.mapping;
 
 import org.apache.oozie.jobs.api.generated.workflow.FLAG;

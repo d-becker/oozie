@@ -95,7 +95,7 @@ public class ActionAttributesBuilder {
         final ModifyOnce<Streaming> streaming = new ModifyOnce<>(attributes.getStreaming());
         final ModifyOnce<Pipes> pipes = new ModifyOnce<>(attributes.getPipes());
         final List<String> jobXmls = new ArrayList<>(attributes.getJobXmls());
-        final Map<String, ModifyOnce<String>> configuration = getModifiedOnceMap(attributes.getConfiguration()); // TODO: Reset the modify ones.
+        final Map<String, ModifyOnce<String>> configuration = getModifiedOnceMap(attributes.getConfiguration());
         final ModifyOnce<String> configClass = new ModifyOnce<>(attributes.getConfigClass());
         final List<String> files = new ArrayList<>(attributes.getFiles());
         final List<String> archives = new ArrayList<>(attributes.getArchives());
@@ -351,7 +351,7 @@ public class ActionAttributesBuilder {
         );
     }
 
-    private static Map<String, ModifyOnce<String>> getModifiedOnceMap(final Map<String, String> configurationMap) {
+    public static Map<String, ModifyOnce<String>> getModifiedOnceMap(final Map<String, String> configurationMap) {
         final Map<String, ModifyOnce<String>> modifyOnceEntries = new LinkedHashMap<>();
         for (final Map.Entry<String, String> keyAndValue : configurationMap.entrySet()) {
             modifyOnceEntries.put(keyAndValue.getKey(), new ModifyOnce<>(keyAndValue.getValue()));
@@ -360,7 +360,7 @@ public class ActionAttributesBuilder {
         return modifyOnceEntries;
     }
 
-    private static ImmutableMap<String, String> getConfigurationMap(final Map<String, ModifyOnce<String>> map) {
+    public static ImmutableMap<String, String> getConfigurationMap(final Map<String, ModifyOnce<String>> map) {
         final Map<String, String> mutableConfiguration = new LinkedHashMap<>();
         for (final Map.Entry<String, ModifyOnce<String>> modifyOnceEntry : map.entrySet()) {
             if (modifyOnceEntry.getValue().get() != null) {

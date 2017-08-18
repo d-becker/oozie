@@ -20,7 +20,6 @@ package org.apache.oozie.jobs.api.oozie.dag;
 
 import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.NodesToPng;
-import org.apache.oozie.jobs.api.action.MapReduceAction;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.workflow.Workflow;

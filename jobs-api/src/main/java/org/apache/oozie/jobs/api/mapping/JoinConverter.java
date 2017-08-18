@@ -18,10 +18,8 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
-import org.apache.oozie.jobs.api.generated.workflow.FORK;
 import org.apache.oozie.jobs.api.generated.workflow.JOIN;
 import org.apache.oozie.jobs.api.generated.workflow.ObjectFactory;
-import org.apache.oozie.jobs.api.oozie.dag.Fork;
 import org.apache.oozie.jobs.api.oozie.dag.Join;
 import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.dozer.DozerConverter;

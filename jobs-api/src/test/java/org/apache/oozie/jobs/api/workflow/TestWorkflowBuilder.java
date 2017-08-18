@@ -18,11 +18,8 @@
 
 package org.apache.oozie.jobs.api.workflow;
 
-import org.apache.oozie.jobs.api.action.MapReduceAction;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.action.Node;
-import org.apache.oozie.jobs.api.workflow.Workflow;
-import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

@@ -18,12 +18,6 @@
 
 package org.apache.oozie.jobs.api.action;
 
-import com.google.common.collect.ImmutableList;
-import org.apache.oozie.jobs.api.ModifyOnce;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class FSActionBuilder extends ActionBuilderBaseImpl<FSActionBuilder> implements Builder<FSAction> {
     private final ActionAttributesBuilder attributesBuilder;
 

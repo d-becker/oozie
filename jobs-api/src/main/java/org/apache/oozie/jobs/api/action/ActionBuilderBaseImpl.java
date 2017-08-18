@@ -19,11 +19,6 @@
 package org.apache.oozie.jobs.api.action;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import org.apache.oozie.jobs.api.ModifyOnce;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public abstract class ActionBuilderBaseImpl<B extends ActionBuilderBaseImpl<B>>
         extends NodeBuilderBaseImpl<B> {
