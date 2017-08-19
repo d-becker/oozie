@@ -39,6 +39,7 @@ import org.dozer.DozerConverter;
 import org.dozer.Mapper;
 import org.dozer.MapperAware;
 
+import javax.xml.bind.JAXBElement;
 import java.util.Map;
 
 public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> implements MapperAware{
@@ -124,7 +125,11 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
             destination.setJava((JAVA) actionTypeObject);
         }
         else {
-            destination.setOther(actionTypeObject);
+            // TODO: Handle all other action types, not just email actions.
+            final JAXBElement jaxbElement
+                    = new org.apache.oozie.jobs.api.generated.action.email.ObjectFactory().createEmail(
+                            (org.apache.oozie.jobs.api.generated.action.email.ACTION) actionTypeObject);
+            destination.setOther(jaxbElement);
         }
     }
 }

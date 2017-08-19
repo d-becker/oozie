@@ -37,6 +37,7 @@ public class TestEmailActionMapping {
         final String attachment = "attachment";
 
         final EmailAction action = EmailActionBuilder.create()
+                .withName("email-action")
                 .withRecipient(to)
                 .withCc(cc)
                 .withBcc(bcc)

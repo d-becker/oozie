@@ -143,7 +143,8 @@ public class NodesToWORKFLOWAPPConverter extends DozerConverter<Nodes, WORKFLOWA
     }
 
     private ACTION createErrorHandlerAction(final Node handlerNode, final KILL kill) {
-        final ACTION handlerAction = mapper.map(handlerNode, ACTION.class);
+        final ExplicitNode explicitNode = new ExplicitNode(handlerNode.getName(), handlerNode);
+        final ACTION handlerAction = mapper.map(explicitNode, ACTION.class);
 
         ACTIONTRANSITION ok = handlerAction.getOk();
 

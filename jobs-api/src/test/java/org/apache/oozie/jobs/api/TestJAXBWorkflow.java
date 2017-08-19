@@ -228,7 +228,7 @@ public class TestJAXBWorkflow {
     public void marshallingWorkflowProducesCorrectXml() throws JAXBException, URISyntaxException, IOException,
                                                  ParserConfigurationException, SAXException {
         final WORKFLOWAPP programmaticallyCreatedWfApp = getWfApp();
-        final String outputXml = marshalWorkflowApp(programmaticallyCreatedWfApp);
+        final String outputXml = marshalWorkflowApp(programmaticallyCreatedWfApp, GENERATED_PACKAGES_WORKFLOW);
 
         final Diff diff = DiffBuilder.compare(Input.fromURL(getClass().getResource(WORKFLOW_MAPREDUCE_ACTION)))
                 .withTest(Input.fromString(outputXml))
@@ -238,6 +238,24 @@ public class TestJAXBWorkflow {
                         new IgnoreWhitespaceInTextValueDifferenceEvaluator()))
                 .build();
 
+        assertFalse(diff.hasDifferences());
+    }
+
+    @Test
+    public void testMarshallingWorkflowWithAllActionTypesWorks() throws JAXBException, SAXException,
+            URISyntaxException, UnsupportedEncodingException {
+        final WORKFLOWAPP wf = unmarshalWorkflowWithAllActionTypes();
+        final String outputXml = marshalWorkflowApp(wf, GENERATED_PACKAGES_ALL);
+
+        final Diff diff = DiffBuilder.compare(Input.fromURL(getClass().getResource(WORKFLOW_ALL_ACTIONS)))
+                .withTest(Input.fromString(outputXml))
+                .ignoreComments()
+                .withDifferenceEvaluator(DifferenceEvaluators.chain(
+                        DifferenceEvaluators.Default,
+                        new IgnoreWhitespaceInTextValueDifferenceEvaluator()))
+                .build();
+
+        // TODO: The problem is the issue with namespaces / namespace prefixes.
         assertFalse(diff.hasDifferences());
     }
 
@@ -301,10 +319,11 @@ public class TestJAXBWorkflow {
         return new StreamSource(new File(getClass().getResource(resourceURI).toURI()));
     }
 
-    private String marshalWorkflowApp(final WORKFLOWAPP wfApp) throws JAXBException, UnsupportedEncodingException {
+    private String marshalWorkflowApp(final WORKFLOWAPP wfApp, final String packages)
+            throws JAXBException, UnsupportedEncodingException {
         final JAXBElement wfElement = new ObjectFactory().createWorkflowApp(wfApp);
 
-        final JAXBContext jc = JAXBContext.newInstance(GENERATED_PACKAGES_WORKFLOW);
+        final JAXBContext jc = JAXBContext.newInstance(packages);
         final Marshaller m =  jc.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
