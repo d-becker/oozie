@@ -18,7 +18,7 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public class FSActionBuilder extends ActionBuilderBaseImpl<FSActionBuilder> implements Builder<FSAction> {
+public class FSActionBuilder extends NodeBuilderBaseImpl<FSActionBuilder> implements Builder<FSAction> {
     private final ActionAttributesBuilder attributesBuilder;
 
     public static FSActionBuilder create() {
@@ -182,7 +182,7 @@ public class FSActionBuilder extends ActionBuilderBaseImpl<FSActionBuilder> impl
 
     @Override
     public FSAction build() {
-        final Action.ConstructionData constructionData = getConstructionData();
+        final Node.ConstructionData constructionData = getConstructionData();
 
         final FSAction instance = new FSAction(
                 constructionData,

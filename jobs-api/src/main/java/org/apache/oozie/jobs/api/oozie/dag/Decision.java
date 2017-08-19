@@ -115,8 +115,6 @@ public class Decision extends NodeBase {
     @Override
     protected void addChild(final NodeBase child) {
         throw new IllegalStateException("Decision nodes cannot have normal children.");
-        // TODO: choose which approach to use.
-        // addChildWithCondition(child, null);
     }
 
     protected void addChildWithCondition(final NodeBase child, final Condition condition) {

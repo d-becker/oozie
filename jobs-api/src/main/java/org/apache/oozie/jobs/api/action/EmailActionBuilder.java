@@ -20,7 +20,7 @@ package org.apache.oozie.jobs.api.action;
 
 import org.apache.oozie.jobs.api.ModifyOnce;
 
-public class EmailActionBuilder extends ActionBuilderBaseImpl<EmailActionBuilder> implements Builder<EmailAction> {
+public class EmailActionBuilder extends NodeBuilderBaseImpl<EmailActionBuilder> implements Builder<EmailAction> {
     private final ModifyOnce<String> to;
     private final ModifyOnce<String> cc;
     private final ModifyOnce<String> bcc;
@@ -124,7 +124,7 @@ public class EmailActionBuilder extends ActionBuilderBaseImpl<EmailActionBuilder
 
     @Override
     public EmailAction build() {
-        final Action.ConstructionData constructionData = getConstructionData();
+        final Node.ConstructionData constructionData = getConstructionData();
 
         final EmailAction instance = new EmailAction(
                 constructionData,

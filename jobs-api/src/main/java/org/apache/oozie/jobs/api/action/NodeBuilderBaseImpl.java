@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.ModifyOnce;
 
@@ -25,11 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
-    protected final ModifyOnce<String> name;
-    protected final List<Node> parents;
-    protected final List<Node.NodeWithCondition> parentsWithConditions;
+    private final ModifyOnce<String> name;
+    private final List<Node> parents;
+    private final List<Node.NodeWithCondition> parentsWithConditions;
 
-    protected final ModifyOnce<ErrorHandler> errorHandler;
+    private final ModifyOnce<ErrorHandler> errorHandler;
 
     NodeBuilderBaseImpl() {
         this(null);
@@ -105,7 +106,7 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
         final B concrete = getRuntimeSelfReference();
         if (concrete != this) {
             throw new IllegalStateException(
-                    "The builder type B doesn't extend ActionBuilderBaseImpl<B>.");
+                    "The builder type B doesn't extend NodeBuilderBaseImpl<B>.");
         }
 
         return concrete;
@@ -149,6 +150,21 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
                 }
             }
         }
+    }
+
+    Node.ConstructionData getConstructionData() {
+        final String nameStr = this.name.get();
+
+        final ImmutableList<Node> parentsList = new ImmutableList.Builder<Node>().addAll(parents).build();
+        final ImmutableList<Node.NodeWithCondition> parentsWithConditionsList
+                = new ImmutableList.Builder<Node.NodeWithCondition>().addAll(parentsWithConditions).build();
+
+        return new Node.ConstructionData(
+                nameStr,
+                parentsList,
+                parentsWithConditionsList,
+                errorHandler.get()
+        );
     }
 
     protected abstract B getRuntimeSelfReference();

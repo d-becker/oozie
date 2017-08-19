@@ -26,7 +26,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestSubWorkflowBuilder extends TestActionBuilderBaseImpl<SubWorkflowAction, SubWorkflowActionBuilder> {
+public class TestSubWorkflowBuilder extends TestNodeBuilderBaseImpl<SubWorkflowAction, SubWorkflowActionBuilder> {
     private static final String MAPRED_JOB_QUEUE_NAME = "mapred.job.queue.name";
     private static final String DEFAULT = "default";
 

@@ -28,7 +28,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestMapReduceActionBuilder extends TestActionBuilderBaseImpl<MapReduceAction, MapReduceActionBuilder> {
+public class TestMapReduceActionBuilder extends TestNodeBuilderBaseImpl<MapReduceAction, MapReduceActionBuilder> {
     private static final String NAME = "map-reduce-name";
     private static final String JOB_TRACKER = "${jobTracker}";
     private static final String NAME_NODE = "${nameNode}";

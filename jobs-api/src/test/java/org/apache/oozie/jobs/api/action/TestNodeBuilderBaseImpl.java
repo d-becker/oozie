@@ -387,6 +387,9 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
 
     @Test
     public void testFromExistingNode() {
+        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(
+                MapReduceActionBuilder.create().withName("error-handler"));
+
         final Node parent1 = MapReduceActionBuilder.create().withName("parent1").build();
         final Node parent2 = MapReduceActionBuilder.create().withName("parent2").build();
         final Node parent3 = MapReduceActionBuilder.create().withName("parent3").build();
@@ -399,7 +402,8 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
         builder.withName(NAME)
                 .withParent(parent1)
                 .withParent(parent2)
-                .withParentWithCondition(parent4, condition);
+                .withParentWithCondition(parent4, condition)
+                .withErrorHandler(errorHandler);
 
         final N node = builder.build();
 
@@ -415,6 +419,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
         assertEquals(newName, modifiedNode.getName());
         assertEquals(Arrays.asList(parent1, parent3, parent4), modifiedNode.getAllParents());
         assertEquals(Arrays.asList(parent1, parent3), modifiedNode.getParentsWithoutConditions());
+        assertEquals(errorHandler, modifiedNode.getErrorHandler());
 
         final List<Node.NodeWithCondition> parentsWithConditions = modifiedNode.getParentsWithConditions();
         assertEquals(1, parentsWithConditions.size());

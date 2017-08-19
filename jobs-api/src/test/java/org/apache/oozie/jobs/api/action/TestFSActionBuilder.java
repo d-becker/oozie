@@ -29,7 +29,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class TestFSActionBuilder extends TestActionBuilderBaseImpl<FSAction, FSActionBuilder> {
+public class TestFSActionBuilder extends TestNodeBuilderBaseImpl<FSAction, FSActionBuilder> {
     private static final String NAME_NODE = "${nameNode}";
     private static final String[] JOB_XMLS = {"jobXml1.xml", "jobXml2.xml", "jobXml3.xml", "jobXml4.xml"};
     private static final Delete[] DELETES = {new Delete("path0", null),

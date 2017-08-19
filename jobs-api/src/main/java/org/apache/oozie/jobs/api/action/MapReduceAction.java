@@ -21,7 +21,7 @@ package org.apache.oozie.jobs.api.action;
 import java.util.List;
 import java.util.Map;
 
-public class MapReduceAction extends Action {
+public class MapReduceAction extends Node {
     private final ActionAttributes attributes;
 
     MapReduceAction(final ConstructionData constructionData,

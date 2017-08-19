@@ -124,7 +124,6 @@ public class TestGraphMapping {
         actions.add(errorHandlerAction);
         actions.add(actionFs);
 
-        // TODO: this is not ready.
         assertEquals(expectedWorkflowapp, workflowapp);
     }
 
@@ -146,6 +145,7 @@ public class TestGraphMapping {
         final Decision decision = new Decision("decision");
         final DecisionJoin decisionJoin = new DecisionJoin("decisionJoin", decision);
 
+        // TODO: Unfortunately the order of the elements counts.
         end.addParent(join);
         join.addParent(decisionJoin);
         join.addParent(C);
@@ -225,7 +225,6 @@ public class TestGraphMapping {
         nodesInWorkflowApp.add(decisionJaxb);
 
         final WORKFLOWAPP workflowapp = DozerMapperSingletonWrapper.getMapperInstance().map(nodes, WORKFLOWAPP.class);
-        // TODO: Not equal because JAXBElement doesn't override equals.
         assertEquals(expectedWorkflowApp, workflowapp);
     }
 

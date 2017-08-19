@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class SubWorkflowActionBuilder
-        extends ActionBuilderBaseImpl<SubWorkflowActionBuilder> implements Builder<SubWorkflowAction> {
+        extends NodeBuilderBaseImpl<SubWorkflowActionBuilder> implements Builder<SubWorkflowAction> {
     private final ModifyOnce<String> appPath;
     private final ModifyOnce<Boolean> propagateConfiguration;
     private final Map<String, ModifyOnce<String>> configuration;
@@ -92,7 +92,7 @@ public class SubWorkflowActionBuilder
 
     @Override
     public SubWorkflowAction build() {
-        final Action.ConstructionData constructionData = getConstructionData();
+        final Node.ConstructionData constructionData = getConstructionData();
 
         final SubWorkflowAction instance = new SubWorkflowAction(
                 constructionData,

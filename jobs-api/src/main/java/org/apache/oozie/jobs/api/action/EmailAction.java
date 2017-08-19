@@ -18,7 +18,7 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public class EmailAction extends Action {
+public class EmailAction extends Node {
     private final String to;
     private final String cc;
     private final String bcc;
@@ -27,7 +27,7 @@ public class EmailAction extends Action {
     private final String contentType;
     private final String attachment;
 
-    EmailAction(final Action.ConstructionData constructionData,
+    EmailAction(final Node.ConstructionData constructionData,
                 final String to,
                 final String cc,
                 final String bcc,

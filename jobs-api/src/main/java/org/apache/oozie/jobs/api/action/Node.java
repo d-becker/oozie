@@ -35,6 +35,13 @@ public abstract class Node {
     private final List<NodeWithCondition> childrenWithConditions; // MUTABLE!
     private Node defaultConditionalChild; // MUTABLE!
 
+    Node(final ConstructionData constructionData) {
+        this(constructionData.name,
+             constructionData.parents,
+             constructionData.parentsWithConditions,
+             constructionData.errorHandler);
+    }
+
     Node(final String name,
          final ImmutableList<Node> parentsWithoutConditions,
          final ImmutableList<Node.NodeWithCondition> parentsWithConditions,
@@ -109,8 +116,8 @@ public abstract class Node {
     }
 
     /**
-     * Returns an unmodifiable view of list of the children of this <code>Action</code>.
-     * @return An unmodifiable view of list of the children of this <code>Action</code>.
+     * Returns an unmodifiable view of list of the children of this <code>Node</code>.
+     * @return An unmodifiable view of list of the children of this <code>Node</code>.
      */
     public List<Node> getAllChildren() {
         final List<Node> allChildren = new ArrayList<>(childrenWithoutConditions);
@@ -123,16 +130,16 @@ public abstract class Node {
     }
 
     /**
-     * Returns an unmodifiable view of list of the children without condition of this <code>Action</code>.
-     * @return An unmodifiable view of list of the children without condition of this <code>Action</code>.
+     * Returns an unmodifiable view of list of the children without condition of this <code>Node</code>.
+     * @return An unmodifiable view of list of the children without condition of this <code>Node</code>.
      */
     public List<Node> getChildrenWithoutConditions() {
         return Collections.unmodifiableList(childrenWithoutConditions);
     }
 
     /**
-     * Returns an unmodifiable view of list of the children with condition (including the default) of this <code>Action</code>.
-     * @return An unmodifiable view of list of the children with condition (including the default) of this <code>Action</code>.
+     * Returns an unmodifiable view of list of the children with condition (including the default) of this <code>Node</code>.
+     * @return An unmodifiable view of list of the children with condition (including the default) of this <code>Node</code>.
      */
     public List<NodeWithCondition> getChildrenWithConditions() {
         if (defaultConditionalChild == null) {
@@ -167,5 +174,23 @@ public abstract class Node {
         public Condition getCondition() {
             return condition;
         }
+    }
+
+    static class ConstructionData {
+
+        ConstructionData(final String name,
+                         final ImmutableList<Node> parents,
+                         final ImmutableList<NodeWithCondition> parentsWithConditions,
+                         final ErrorHandler errorHandler) {
+            this.name = name;
+            this.parents = parents;
+            this.parentsWithConditions = parentsWithConditions;
+            this.errorHandler = errorHandler;
+        }
+
+        private final String name;
+        private final ImmutableList<Node> parents;
+        private final ImmutableList<NodeWithCondition> parentsWithConditions;
+        private final ErrorHandler errorHandler;
     }
 }

@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestEmailActionBuilder extends TestActionBuilderBaseImpl<EmailAction, EmailActionBuilder> {
+public class TestEmailActionBuilder extends TestNodeBuilderBaseImpl<EmailAction, EmailActionBuilder> {
     @Override
     protected EmailActionBuilder getBuilderInstance() {
         return EmailActionBuilder.create();

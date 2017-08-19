@@ -18,7 +18,7 @@
 
 package org.apache.oozie.jobs.api.action;
 
-public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActionBuilder> implements Builder<MapReduceAction> {
+public class MapReduceActionBuilder extends NodeBuilderBaseImpl<MapReduceActionBuilder> implements Builder<MapReduceAction> {
     private final ActionAttributesBuilder attributesBuilder;
 
     public static MapReduceActionBuilder create() {
@@ -132,7 +132,7 @@ public class MapReduceActionBuilder extends ActionBuilderBaseImpl<MapReduceActio
 
     @Override
     public MapReduceAction build() {
-        final Action.ConstructionData constructionData = getConstructionData();
+        final Node.ConstructionData constructionData = getConstructionData();
 
         final MapReduceAction instance = new MapReduceAction(
                 constructionData,

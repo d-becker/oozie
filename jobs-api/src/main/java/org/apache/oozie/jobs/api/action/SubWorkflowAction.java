@@ -22,12 +22,12 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
-public class SubWorkflowAction extends Action {
+public class SubWorkflowAction extends Node {
     private final String appPath;
     private final boolean propagateConfiguration;
     private final ImmutableMap<String, String> configuration;
 
-    SubWorkflowAction(final Action.ConstructionData constructionData,
+    SubWorkflowAction(final Node.ConstructionData constructionData,
                       final String appPath,
                       final boolean propagateConfiguration,
                       final ImmutableMap<String, String> configuration) {

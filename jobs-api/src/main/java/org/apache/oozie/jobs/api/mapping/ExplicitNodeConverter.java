@@ -19,7 +19,6 @@
 package org.apache.oozie.jobs.api.mapping;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.oozie.jobs.api.action.Action;
 import org.apache.oozie.jobs.api.action.EmailAction;
 import org.apache.oozie.jobs.api.action.FSAction;
 import org.apache.oozie.jobs.api.action.MapReduceAction;
@@ -45,10 +44,10 @@ import java.util.Map;
 public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> implements MapperAware{
     private static final ObjectFactory workflowObjectFactory = new ObjectFactory();
 
-    private static final Map<Class<? extends Action>, Class<? extends Object>> actionClassMap = initActionClassMap();
+    private static final Map<Class<? extends Node>, Class<? extends Object>> actionClassMap = initActionClassMap();
 
-    private static Map<Class<? extends Action>, Class<? extends Object>> initActionClassMap() {
-        final ImmutableMap.Builder<Class<? extends Action>, Class<? extends Object>> builder = new ImmutableMap.Builder<>();
+    private static Map<Class<? extends Node>, Class<? extends Object>> initActionClassMap() {
+        final ImmutableMap.Builder<Class<? extends Node>, Class<? extends Object>> builder = new ImmutableMap.Builder<>();
 
         builder.put(MapReduceAction.class, MAPREDUCE.class)
                 .put(SubWorkflowAction.class, SUBWORKFLOW.class)

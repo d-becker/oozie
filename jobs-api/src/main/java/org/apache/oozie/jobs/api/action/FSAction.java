@@ -21,10 +21,10 @@ package org.apache.oozie.jobs.api.action;
 import java.util.List;
 import java.util.Map;
 
-public class FSAction extends Action {
+public class FSAction extends Node {
     private final ActionAttributes attributes;
 
-    FSAction(final Action.ConstructionData constructionData,
+    FSAction(final Node.ConstructionData constructionData,
              final ActionAttributes attributes) {
         super(constructionData);
 
