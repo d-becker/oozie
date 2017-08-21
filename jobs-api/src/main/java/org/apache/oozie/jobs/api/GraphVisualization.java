@@ -49,7 +49,7 @@ public class GraphVisualization {
             final List<NodeBase> children = node.getChildren();
 
             for (final NodeBase child : children) {
-                final String s = String.format("\t%s -> %s%n", node.getName(), child.getName());
+                final String s = String.format("\t\"%s\" -> \"%s\"%n", node.getName(), child.getName());
                 builder.append(s);
             }
         }
@@ -70,7 +70,7 @@ public class GraphVisualization {
             final List<Node> children = node.getAllChildren();
 
             for (final Node child : children) {
-                builder.append(String.format("\t%s -> %s%n", node.getName(), child.getName()));
+                builder.append(String.format("\t\"%s\" -> \"%s\"%n", node.getName(), child.getName()));
             }
         }
 
@@ -79,13 +79,13 @@ public class GraphVisualization {
         return builder.toString();
     }
 
-    static void graphToPng(final Graph graph, final String fileName) throws IOException {
+    public static void graphToPng(final Graph graph, final String fileName) throws IOException {
         final MutableGraph mg = Parser.read(graphToDot(graph));
         mg.setLabel(fileName);
         Graphviz.fromGraph(mg).width(PNG_WIDTH).render(Format.PNG).toFile(new File(PARENT_FOLDER_NAME, fileName));
     }
 
-    static void workflowToPng(final Workflow workflow, final String fileName) throws IOException {
+    public static void workflowToPng(final Workflow workflow, final String fileName) throws IOException {
         final MutableGraph mg = Parser.read(workflowToDot(workflow));
         mg.setLabel(fileName);
         Graphviz.fromGraph(mg).width(PNG_WIDTH).render(Format.PNG).toFile(new File(PARENT_FOLDER_NAME, fileName));

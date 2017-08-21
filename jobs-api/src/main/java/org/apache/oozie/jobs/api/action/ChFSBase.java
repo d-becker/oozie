@@ -18,6 +18,9 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A base class for {@link Chgrp} and {@ling Chmod}.
+ */
 public class ChFSBase {
     private final boolean recursive;
     private final String path;
@@ -29,18 +32,34 @@ public class ChFSBase {
         this.dirFiles = constructionData.dirFiles;
     }
 
+    /**
+     * Returns whether this file system operation is recursive.
+     * @return {@code true} if this file system operation is recursive; {@code false} otherwise.
+     */
     public boolean isRecursive() {
         return recursive;
     }
 
+    /**
+     * Returns the path of the target of this file system operation.
+     * @return The path of the target of this file system operation.
+     */
     public String getPath() {
         return path;
     }
 
+    /**
+     * Returns whether this file system operation should be applied to all files in the given directory.
+     * @return "true" if this file system operation should be applied to all files in the given directory;
+     *         "false" otherwise.
+     */
     public String getDirFiles() {
         return dirFiles;
     }
 
+    /**
+     * Helper class that is used by the subclasses of this class and their builders.
+     */
     public static class ConstructionData {
         private final boolean recursive;
         private final String path;

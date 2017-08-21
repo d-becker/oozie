@@ -18,6 +18,9 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A class representing the chmod operation of {@link FSAction}.
+ */
 public class Chmod extends ChFSBase {
     private final String permissions;
 
@@ -27,6 +30,10 @@ public class Chmod extends ChFSBase {
         this.permissions = permissions;
     }
 
+    /**
+     * Returns the new permissions that will be set by the operation.
+     * @return The new permissions that will be set by the operation.
+     */
     public String getPermissions() {
         return permissions;
     }

@@ -28,11 +28,21 @@ public class ChmodBuilder extends ChFSBaseBuilder<ChmodBuilder> implements Build
         permissions = new ModifyOnce<>();
     }
 
+    /**
+     * Sets the new permissions that will be set by the operation.
+     * @param permissions The new permissions that will be set by the operation.
+     * @return This builder.
+     */
     public ChmodBuilder withPermissions(final String permissions) {
         this.permissions.set(permissions);
         return this;
     }
 
+    /**
+     * Builds and returns a new {@link Chmod} object with the properties set in this builder.
+     * The new {@link Chmod} object is independent of this builder and the builder can be used to build new instances.
+     * @return The newly built {@link Chmod} object.
+     */
     public Chmod build() {
         return new Chmod(getConstructionData(), permissions.get());
     }

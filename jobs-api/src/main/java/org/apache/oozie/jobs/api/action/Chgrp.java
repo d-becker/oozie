@@ -18,6 +18,9 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A class representing the chgrp operation of {@link FSAction}.
+ */
 public class Chgrp extends ChFSBase {
     private String group;
 
@@ -27,6 +30,11 @@ public class Chgrp extends ChFSBase {
         this.group = group;
     }
 
+
+    /**
+     * Returns the new group that will be set by the operation.
+     * @return The new group that will be set by the operation.
+     */
     public String getGroup() {
         return group;
     }

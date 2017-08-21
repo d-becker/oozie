@@ -27,7 +27,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ActionAttributesBuilder {
+/**
+ * A builder class for {@link ActionAttributes}.
+ *
+ * The properties of the builder can only be set once, an attempt to set them a second time will trigger
+ * an {@link IllegalStateException}. The properties that are lists are an exception to this rule, of course multiple
+ * elements can be added / removed.
+ *
+ * Builder instances can be used to build several elements, although properties already set cannot be changed after
+ * a call to {@link ActionAttributesBuilder#build} either.
+ */
+public class ActionAttributesBuilder implements Builder<ActionAttributes> {
     private final ModifyOnce<String> jobTracker;
     private final ModifyOnce<String> nameNode;
     private final ModifyOnce<Prepare> prepare;
@@ -47,7 +57,11 @@ public class ActionAttributesBuilder {
     private final List<Chgrp> chgrps;
     private final List<Setrep> setreps;
 
-    public static ActionAttributesBuilder create() {
+    /**
+     * Creates and returns an empty builder.
+     * @return An empty builder.
+     */
+    static ActionAttributesBuilder create() {
         final ModifyOnce<String> jobTracker = new ModifyOnce<>();
         final ModifyOnce<String> nameNode = new ModifyOnce<>();
         final ModifyOnce<Prepare> prepare = new ModifyOnce<>();
@@ -88,6 +102,14 @@ public class ActionAttributesBuilder {
                 setreps);
     }
 
+    /**
+     * Create and return a new {@link ActionAttributesBuilder} that is based on an already built
+     * {@link ActionAttributes} object. The properties of the builder will initially be the same as those of the
+     * provided {@link ActionAttributes} object, but it is possible to modify them once.
+     * @param attributes The {@link ActionAttributes} object on which this {@link ActionAttributesBuilder} will be based.
+     * @return A new {@link ActionAttributesBuilder} that is based on a previously built
+     *         {@link ActionAttributes} object.
+     */
     static ActionAttributesBuilder createFromExisting(final ActionAttributes attributes) {
         final ModifyOnce<String> jobTracker = new ModifyOnce<>(attributes.getJobTracker());
         final ModifyOnce<String> nameNode = new ModifyOnce<>(attributes.getNameNode());
@@ -167,45 +189,82 @@ public class ActionAttributesBuilder {
         this.setreps = setreps;
     }
 
+    /**
+     * Registers a job tracker.
+     * @param jobTracker The string representing the job tracker.
+     * @throws IllegalStateException if a job tracker has already been set on this builder.
+     */
     void withJobTracker(final String jobTracker) {
         this.jobTracker.set(jobTracker);
     }
 
-    public void withNameNode(final String nameNode) {
+    /**
+     * Registers a name node.
+     * @param nameNode The string representing the name node.
+     * @throws IllegalStateException if a name node has already been set on this builder.
+     */
+    void withNameNode(final String nameNode) {
         this.nameNode.set(nameNode);
     }
 
+    /**
+     * Registers a {@link Prepare} object.
+     * @param prepare The {@link Prepare} object to register.
+     * @throws IllegalStateException if a {@link Prepare} object has already been set on this builder.
+     */
     void withPrepare(final Prepare prepare) {
         this.prepare.set(prepare);
     }
 
+    /**
+     * Registers a {@link Streaming} object.
+     * @param streaming The {@link Streaming} object to register.
+     * @throws IllegalStateException if a {@link Streaming} object has already been set on this builder.
+     */
     void withStreaming(final Streaming streaming) {
         this.streaming.set(streaming);
     }
 
+    /**
+     * Registers a {@link Pipes} object.
+     * @param pipes The {@link Pipes} object to register.
+     * @throws IllegalStateException if a {@link Pipes} object has already been set on this builder.
+     */
     void withPipes(final Pipes pipes) {
         this.pipes.set(pipes);
     }
 
+    /**
+     * Registers a job XML with this builder.
+     * @param jobXml The job XML to register.
+     */
     void withJobXml(final String jobXml) {
         this.jobXmls.add(jobXml);
     }
 
+    /**
+     * Removes a job XML if it is registered with this builder, otherwise does nothing.
+     * @param jobXml The job XML to remove.
+     */
     void withoutJobXml(final String jobXml) {
         jobXmls.remove(jobXml);
     }
 
+    /**
+     * Removes all job XMLs that are registered with this builder.
+     */
     void clearJobXmls() {
         jobXmls.clear();
     }
 
     /**
-     * Setting a key to null means deleting it.
-     * @param key
-     * @param value
-     * @return
+     * Registers a configuration property (a key-value pair) with this builder. If the provided key has already been
+     * set on this builder, an exception is thrown. Setting a key to null means deleting it.
+     * @param key The name of the property to set.
+     * @param value The value of the property to set.
+     * @throws IllegalStateException if the provided key has already been set on this builder.
      */
-    public void withConfigProperty(final String key, final String value) {
+    void withConfigProperty(final String key, final String value) {
         ModifyOnce<String> mappedValue = this.configuration.get(key);
 
         if (mappedValue == null) {
@@ -216,118 +275,228 @@ public class ActionAttributesBuilder {
         mappedValue.set(value);
     }
 
+    /**
+     * Registers a configuration class with this builder.
+     * @param configClass The string representing the configuration class.
+     * @throws IllegalStateException if a configuration class has already been set on this builder.
+     */
     void withConfigClass(final String configClass) {
         this.configClass.set(configClass);
     }
 
+    /**
+     * Registers a file with this builder.
+     * @param file The file to register.
+     */
     void withFile(final String file) {
         this.files.add(file);
     }
 
+    /**
+     * Removes a file if it is registered with this builder, otherwise does nothing.
+     * @param file The file to remove.
+     */
     void withoutFile(final String file) {
         files.remove(file);
     }
 
+    /**
+     * Removes all files that are registered with this builder.
+     */
     void clearFiles() {
         files.clear();
     }
 
+    /**
+     * Registers an archive with this builder.
+     * @param archive The archive to register.
+     */
     void withArchive(final String archive) {
         this.archives.add(archive);
     }
 
+    /**
+     * Removes an archive if it is registered with this builder, otherwise does nothing.
+     * @param archive The archive to remove.
+     */
     void withoutArchive(final String archive) {
         archives.remove(archive);
     }
 
+    /**
+     * Removes all archives that are registered with this builder.
+     */
     void clearArchives() {
         archives.clear();
     }
 
+    /**
+     * Registers a {@link Delete} object with this builder.
+     * @param delete The {@link Delete} object to register.
+     */
     void withDelete(final Delete delete) {
         this.deletes.add(delete);
     }
 
+    /**
+     * Removes a {@link Delete} object if it is registered with this builder, otherwise does nothing.
+     * @param delete The {@link Delete} object to remove.
+     */
     void withoutDelete(final Delete delete) {
         deletes.remove(delete);
     }
 
+    /**
+     * Removes all {@link Delete} objects that are registered with this builder.
+     */
     void clearDeletes() {
         deletes.clear();
     }
 
+    /**
+     * Registers a {@link Mkdir} object with this builder.
+     * @param mkdir The {@link Mkdir} object to register.
+     */
     void withMkdir(final Mkdir mkdir) {
         this.mkdirs.add(mkdir);
     }
 
+    /**
+     * Removes a {@link Mkdir} object if it is registered with this builder, otherwise does nothing.
+     * @param mkdir The {@link Mkdir} object to remove.
+     */
     void withoutMkdir(final Mkdir mkdir) {
         mkdirs.remove(mkdir);
     }
 
+    /**
+     * Removes all {@link Mkdir} objects that are registered with this builder.
+     */
     void clearMkdirs() {
         mkdirs.clear();
     }
 
+    /**
+     * Registers a {@link Move} object with this builder.
+     * @param move The {@link Move} object to register.
+     */
     void withMove(final Move move) {
         this.moves.add(move);
     }
 
+    /**
+     * Removes a {@link Move} object if it is registered with this builder, otherwise does nothing.
+     * @param move The {@link Move} object to remove.
+     */
     void withoutMove(final Move move) {
         moves.remove(move);
     }
 
+    /**
+     * Removes all {@link Move} objects that are registered with this builder.
+     */
     void clearMoves() {
         moves.clear();
     }
 
+    /**
+     * Registers a {@link Chmod} object with this builder.
+     * @param chmod The {@link Chmod} object to register.
+     */
     void withChmod(final Chmod chmod) {
         this.chmods.add(chmod);
     }
 
+    /**
+     * Removes a {@link Chmod} object if it is registered with this builder, otherwise does nothing.
+     * @param chmod The {@link Chmod} object to remove.
+     */
     void withoutChmod(final Chmod chmod) {
         chmods.remove(chmod);
     }
 
+    /**
+     * Removes all {@link Chmod} objects that are registered with this builder.
+     */
     void clearChmods() {
         chmods.clear();
     }
 
+    /**
+     * Registers a {@link Touchz} object with this builder.
+     * @param touchz The {@link Touchz} object to register.
+     */
     void withTouchz(final Touchz touchz) {
         this.touchzs.add(touchz);
     }
 
+    /**
+     * Removes a {@link Touchz} object if it is registered with this builder, otherwise does nothing.
+     * @param touchz The {@link Touchz} object to remove.
+     */
     void withoutTouchz(final Touchz touchz) {
         touchzs.remove(touchz);
     }
 
+    /**
+     * Removes all {@link Touchz} objects that are registered with this builder.
+     */
     void clearTouchzs() {
         touchzs.clear();
     }
 
+    /**
+     * Registers a {@link Chgrp} object with this builder.
+     * @param chgrp The {@link Chgrp} object to register.
+     */
     void withChgrp(final Chgrp chgrp) {
         this.chgrps.add(chgrp);
     }
 
+    /**
+     * Removes a {@link Chgrp} object if it is registered with this builder, otherwise does nothing.
+     * @param chgrp The {@link Chgrp} object to remove.
+     */
     void withoutChgrp(final Chgrp chgrp) {
         chgrps.remove(chgrp);
     }
 
+    /**
+     * Removes all {@link Touchz} objects that are registered with this builder.
+     */
     void clearChgrps() {
         chgrps.clear();
     }
 
+    /**
+     * Registers a {@link Setrep} object with this builder.
+     * @param setrep The {@link Setrep} object to register.
+     */
     void withSetrep(final Setrep setrep) {
         this.setreps.add(setrep);
     }
 
+    /**
+     * Removes a {@link Setrep} object if it is registered with this builder, otherwise does nothing.
+     * @param setrep The {@link Setrep} object to remove.
+     */
     void withoutSetrep(final Setrep setrep) {
         setreps.remove(setrep);
     }
 
+    /**
+     * Removes all {@link Setrep} objects that are registered with this builder.
+     */
     void clearSetreps() {
         setreps.clear();
     }
 
+    /**
+     * Creates a new {@link ActionAttributes} object with the properties stores in this builder.
+     * The new {@link ActionAttributes} object is independent of this builder and the builder can be used to build
+     * new instances.
+     * @return A new {@link ActionAttributes} object with the propertied stores in this builder.
+     */
     public ActionAttributes build() {
         return new ActionAttributes(
                 jobTracker.get(),

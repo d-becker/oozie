@@ -18,6 +18,16 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A class representing the Oozie email action.
+ * Instances of this class should be built using the builder {@link EmailActionBuilder}.
+ *
+ * The properties of the builder can only be set once, an attempt to set them a second time will trigger
+ * an {@link IllegalStateException}.
+ *
+ * Builder instances can be used to build several elements, although properties already set cannot be changed after
+ * a call to {@link EmailActionBuilder#build} either.
+ */
 public class EmailAction extends Node {
     private final String to;
     private final String cc;
@@ -45,30 +55,58 @@ public class EmailAction extends Node {
         this.attachment = attachment;
     }
 
+    /**
+     * Returns the address of the recipient of the email.
+     * @return The address of the recipient of the email.
+     */
     public String getRecipient() {
         return to;
     }
 
+    /**
+     * Returns the address of the recipient of a copy of the email.
+     * @return The address of the recipient of a copy of the email.
+     */
     public String getCc() {
         return cc;
     }
 
+    /**
+     * Returns the address of the secret recipient of a copy of the email.
+     * @return The address of the secret recipient of a copy of the email.
+     */
     public String getBcc() {
         return bcc;
     }
 
+    /**
+     * Returns the subject of the email.
+     * @return The subject of the email.
+     */
     public String getSubject() {
         return subject;
     }
 
+    /**
+     * Returns the body of the email.
+     * @return The body of the email.
+     */
     public String getBody() {
         return body;
     }
 
+    /**
+     * Returns the content type of the email.
+     * @return The content type of the email.
+     */
     public String getContentType() {
         return contentType;
     }
 
+    /**
+     * Returns the attachment of the email.
+     * @return The attachment of the email.
+     */
     public String getAttachment() {
         return attachment;
     }

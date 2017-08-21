@@ -21,6 +21,10 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * An immutable class holding data that is used by several actions. It should be constructed by using an
+ * {@link ActionAttributesBuilder}.
+ */
 public class ActionAttributes {
     private final String jobTracker;
     private final String nameNode;
@@ -79,70 +83,138 @@ public class ActionAttributes {
         this.setreps = setreps;
     }
 
+    /**
+     * Returns the job tracker name.
+     * @return The job tracker name.
+     */
     public String getJobTracker() {
         return jobTracker;
     }
 
+    /**
+     * Return the name of the name node.
+     * @return The name of the name node.
+     */
     public String getNameNode() {
         return nameNode;
     }
 
+    /**
+     * Return the {@link Prepare} object stored in this {@link ActionAttributes}.
+     * @return The {@link Prepare} object stored in this {@link ActionAttributes}.
+     */
     public Prepare getPrepare() {
         return prepare;
     }
 
+    /**
+     * Return the {@link Streaming} object stored in this {@link ActionAttributes}.
+     * @return The {@link Streaming} object stored in this {@link ActionAttributes}.
+     */
     public Streaming getStreaming() {
         return streaming;
     }
 
+    /**
+     * Return the {@link Pipes} object stored in this {@link ActionAttributes}.
+     * @return The {@link Pipes} object stored in this {@link ActionAttributes}.
+     */
     public Pipes getPipes() {
         return pipes;
     }
 
+    /**
+     * Return the list of job XMLs stored in this {@link ActionAttributes}.
+     * @return The list of job XMLs stored in this {@link ActionAttributes}.
+     */
     public ImmutableList<String> getJobXmls() {
         return jobXmls;
     }
 
+    /**
+     * Return an immutable map of the configuration key-value pairs stored in this {@link ActionAttributes}.
+     * @return An immutable map of the configuration key-value pairs stored in this {@link ActionAttributes}.
+     */
     public ImmutableMap<String, String> getConfiguration() {
         return configuration;
     }
 
+    /**
+     * Return the configuration class property of this {@link ActionAttributes}.
+     * @return The configuration class property of this {@link ActionAttributes}.
+     */
     public String getConfigClass() {
         return configClass;
     }
 
+    /**
+     * Return an immutable list of the names of the files associated with this {@link ActionAttributes}.
+     * @return An immutable list of the names of the files associated with this {@link ActionAttributes}.
+     */
     public ImmutableList<String> getFiles() {
         return files;
     }
 
+    /**
+     * Return an immutable list of the names of the archives associated with this {@link ActionAttributes}.
+     * @return An immutable list of the names of the archives associated with this {@link ActionAttributes}.
+     */
     public ImmutableList<String> getArchives() {
         return archives;
     }
 
+    /**
+     * Return an immutable list of the {@link Delete} objects stored in this {@link ActionAttributes}.
+     * @return An immutable list of the {@link Delete} objects stored in this {@link ActionAttributes}.
+     */
     public ImmutableList<Delete> getDeletes() {
         return deletes;
     }
 
+    /**
+     * Return an immutable list of the {@link Mkdir} objects stored in this {@link ActionAttributes}.
+     * @return An immutable list of the {@link Mkdir} objects stored in this {@link ActionAttributes}.
+     */
     public ImmutableList<Mkdir> getMkdirs() {
         return mkdirs;
     }
 
+    /**
+     * Return an immutable list of the {@link Move} objects stored in this {@link ActionAttributes}.
+     * @return An immutable list of the {@link Move} objects stored in this {@link ActionAttributes}.
+     */
     public ImmutableList<Move> getMoves() {
         return moves;
     }
 
+    /**
+     * Return an immutable list of the {@link Chmod} objects stored in this {@link ActionAttributes}.
+     * @return An immutable list of the {@link Chmod} objects stored in this {@link ActionAttributes}.
+     */
     public ImmutableList<Chmod> getChmods() {
         return chmods;
     }
 
+    /**
+     * Return an immutable list of the {@link Touchz} objects stored in this {@link ActionAttributes}.
+     * @return An immutable list of the {@link Touchz} objects stored in this {@link ActionAttributes}.
+     */
     public ImmutableList<Touchz> getTouchzs() {
         return touchzs;
     }
 
+    /**
+     * Return an immutable list of the {@link Chgrp} objects stored in this {@link ActionAttributes}.
+     * @return An immutable list of the {@link Delete} objects stored in this {@link ActionAttributes}.
+     */
     public ImmutableList<Chgrp> getChgrps() {
         return chgrps;
     }
 
+    /**
+     * Return an immutable list of the {@link Setrep} objects stored in this {@link ActionAttributes}.
+     * @return An immutable list of the {@link Setrep} objects stored in this {@link ActionAttributes}.
+     */
     public ImmutableList<Setrep> getSetreps() {
         return setreps;
     }

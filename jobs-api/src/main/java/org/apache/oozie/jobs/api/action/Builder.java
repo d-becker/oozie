@@ -18,6 +18,14 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A common interface for builders.
+ * @param <T> The type of the object that is build using this builder.
+ */
 public interface Builder<T> {
+    /**
+     * Builds and returns an object.
+     * @return The built object.
+     */
     T build();
 }

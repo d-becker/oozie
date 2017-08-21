@@ -31,21 +31,39 @@ public abstract class ChFSBaseBuilder <B extends ChFSBaseBuilder<B>> {
         dirFiles = new ModifyOnce<>("true");
     }
 
+    /**
+     * Sets this file system operation to be recursive.
+     * @return This builder.
+     */
     public B setRecursive() {
         this.recursive.set(true);
         return ensureRuntimeSelfReference();
     }
 
+    /**
+     * Sets this file system operation to be non-recursive.
+     * @return This builder.
+     */
     public B setNonRecursive() {
         this.recursive.set(false);
         return ensureRuntimeSelfReference();
     }
 
+    /**
+     * Sets the path of the target of this file system operation.
+     * @return This builder.
+     */
     public B withPath(final String path) {
         this.path.set(path);
         return ensureRuntimeSelfReference();
     }
 
+    /**
+     * Sets whether this file system operation should be applied to all files in the given directory.
+     * @param dirFiles {@code true} if the operation should be applied to all files in the given directory;
+     *                 {@code false} if it shouldn't.
+     * @return This builder.
+     */
     public B setDirFiles(final boolean dirFiles) {
         this.dirFiles.set(Boolean.toString(dirFiles));
         return ensureRuntimeSelfReference();

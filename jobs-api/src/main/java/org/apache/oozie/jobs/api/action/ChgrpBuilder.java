@@ -27,11 +27,21 @@ public class ChgrpBuilder extends ChFSBaseBuilder<ChgrpBuilder> implements Build
         this.group = new ModifyOnce<>();
     }
 
+    /**
+     * Sets the new group that will be set by the operation.
+     * @param group The group that will be set by the operation.
+     * @return This builder.
+     */
     public ChgrpBuilder withGroup(final String group) {
         this.group.set(group);
         return this;
     }
 
+    /**
+     * Builds and returns a new {@link Chgrp} object with the properties set in this builder.
+     * The new {@link Chgrp} object is independent of this builder and the builder can be used to build new instances.
+     * @return The newly built {@link Chgrp} object.
+     */
     @Override
     public Chgrp build() {
         return new Chgrp(getConstructionData(), group.get());

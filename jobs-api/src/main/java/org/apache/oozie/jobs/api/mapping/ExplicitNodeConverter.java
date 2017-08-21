@@ -37,7 +37,7 @@ import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.dozer.DozerConverter;
 import org.dozer.Mapper;
 import org.dozer.MapperAware;
-import parquet.Preconditions;
+import com.google.common.base.Preconditions;
 
 import javax.xml.bind.JAXBElement;
 import java.util.Map;
