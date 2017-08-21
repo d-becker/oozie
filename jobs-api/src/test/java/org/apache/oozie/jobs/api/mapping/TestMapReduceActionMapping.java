@@ -60,7 +60,7 @@ public class TestMapReduceActionMapping {
                 .withStreaming(new StreamingBuilder().build())
                 .withPipes(new PipesBuilder().build());
 
-        for (String jobXml : jobXmls) {
+        for (final String jobXml : jobXmls) {
             builder.withJobXml(jobXml);
         }
 
@@ -69,17 +69,17 @@ public class TestMapReduceActionMapping {
 
         builder.withConfigClass(configClass);
 
-        for (String file : files) {
+        for (final String file : files) {
             builder.withFile(file);
         }
 
-        for (String archive : archives) {
+        for (final String archive : archives) {
             builder.withArchive(archive);
         }
 
         final MapReduceAction action = builder.build();
 
-        final MAPREDUCE mapreduce = DozerMapperSingletonWrapper.getMapperInstance().map(action, MAPREDUCE.class);
+        final MAPREDUCE mapreduce = DozerMapperSingletonWrapper.instance().map(action, MAPREDUCE.class);
 
         assertEquals(jobTracker, mapreduce.getJobTracker());
         assertEquals(nameNode, mapreduce.getNameNode());

@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import com.google.common.base.Preconditions;
 import org.apache.oozie.jobs.api.Condition;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public abstract class JoiningNodeBase<T> extends NodeBase {
 
     private final T branching;
 
-    protected JoiningNodeBase(final String name, final T branching) {
+    JoiningNodeBase(final String name, final T branching) {
         super(name);
 
         this.parents = new ArrayList<>();
@@ -71,9 +72,7 @@ public abstract class JoiningNodeBase<T> extends NodeBase {
 
     @Override
     public void removeParent(final NodeBase parent) {
-        if (!parents.remove(parent)) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent parent");
-        }
+        Preconditions.checkArgument(parents.remove(parent), "Trying to remove a nonexistent parent");
 
         parent.removeChild(this);
     }
@@ -105,18 +104,14 @@ public abstract class JoiningNodeBase<T> extends NodeBase {
 
     @Override
     protected void addChild(final NodeBase child) {
-        if (this.child != null) {
-            throw new IllegalStateException("JoiningNodeBase nodes cannot have multiple children.");
-        }
+        Preconditions.checkState(this.child == null, "JoiningNodeBase nodes cannot have multiple children.");
 
         this.child = child;
     }
 
     @Override
     protected void removeChild(final NodeBase child) {
-        if (this.child != child) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent child.");
-        }
+        Preconditions.checkArgument(this.child == child, "Trying to remove a nonexistent child.");
 
         this.child = null;
     }

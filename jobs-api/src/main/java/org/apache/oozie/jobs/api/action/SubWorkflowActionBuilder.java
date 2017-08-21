@@ -40,7 +40,7 @@ public class SubWorkflowActionBuilder
     public static SubWorkflowActionBuilder createFromExistingAction(final SubWorkflowAction action) {
         final ModifyOnce<String> appPath = new ModifyOnce<>(action.getAppPath());
         final ModifyOnce<Boolean> propagateConfiguration = new ModifyOnce<>(action.isPropagatingConfiguration());
-        final Map<String, ModifyOnce<String>> configuration = ActionAttributesBuilder.getModifiedOnceMap(action.getConfiguration());
+        final Map<String, ModifyOnce<String>> configuration = ActionAttributesBuilder.convertToModifyOnceMap(action.getConfiguration());
 
         return new SubWorkflowActionBuilder(action, appPath, propagateConfiguration, configuration);
     }
@@ -98,7 +98,7 @@ public class SubWorkflowActionBuilder
                 constructionData,
                 appPath.get(),
                 propagateConfiguration.get(),
-                ActionAttributesBuilder.getConfigurationMap(configuration));
+                ActionAttributesBuilder.convertToConfigurationMap(configuration));
 
         addAsChildToAllParents(instance);
 

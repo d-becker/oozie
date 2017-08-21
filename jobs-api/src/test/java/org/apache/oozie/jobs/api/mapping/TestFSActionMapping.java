@@ -55,7 +55,7 @@ public class TestFSActionMapping {
         final FSActionBuilder builder = FSActionBuilder.create()
                 .withNameNode(nameNode);
 
-        for (String jobXml : jobXmls) {
+        for (final String jobXml : jobXmls) {
             builder.withJobXml(jobXml);
         }
 
@@ -69,7 +69,7 @@ public class TestFSActionMapping {
 
         final FSAction action = builder.build();
 
-        final FS fsAction = DozerMapperSingletonWrapper.getMapperInstance().map(action, FS.class);
+        final FS fsAction = DozerMapperSingletonWrapper.instance().map(action, FS.class);
 
         assertEquals(nameNode, fsAction.getNameNode());
         assertEquals(jobXmls, fsAction.getJobXml());

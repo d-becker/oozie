@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.action.Node;
@@ -90,37 +91,56 @@ public class Graph {
             nodeToNodeBase.put(originalNode, convertedNode);
             storeNode(convertedNode);
 
-            if (!originalNode.getChildrenWithConditions().isEmpty()) {
-                // We insert a decision node below the current convertedNode.
-                final Decision decision = newDecision();
-                decision.addParent(convertedNode);
-                originalParentToCorrespondingDecision.put(convertedNode, decision);
-            }
+            checkAndInsertDecisionNode(originalNode, convertedNode);
 
-            final List<DagNodeWithCondition> mappedParentsWithConditions = new ArrayList<>();
-            for (final Node.NodeWithCondition parentNodeWithCondition : originalNode.getParentsWithConditions()) {
-                final NodeBase mappedParentNode = nodeToNodeBase.get(parentNodeWithCondition.getNode());
-                final Condition condition = parentNodeWithCondition.getCondition();
-                DagNodeWithCondition parentNodeBaseWithCondition = new DagNodeWithCondition(mappedParentNode, condition);
-                mappedParentsWithConditions.add(parentNodeBaseWithCondition);
-            }
+            final List<DagNodeWithCondition> mappedParentsWithConditions = findMappedParents(originalNode, nodeToNodeBase);
 
-            for (final Node parent : originalNode.getParentsWithoutConditions()) {
-                mappedParentsWithConditions.add(new DagNodeWithCondition(nodeToNodeBase.get(parent), null));
-            }
-
-            handleNodeWithParents(mappedParentsWithConditions, convertedNode);
+            handleNodeWithParents(convertedNode, mappedParentsWithConditions);
         }
 
+        final List<DagNodeWithCondition> finalNodes = findFinalNodes();
+
+        handleNodeWithParents(end, finalNodes);
+    }
+
+    void checkAndInsertDecisionNode(Node originalNode, ExplicitNode convertedNode) {
+        if (!originalNode.getChildrenWithConditions().isEmpty()) {
+            // We insert a decision node below the current convertedNode.
+            final Decision decision = newDecision();
+            decision.addParent(convertedNode);
+            originalParentToCorrespondingDecision.put(convertedNode, decision);
+        }
+    }
+
+    private List<DagNodeWithCondition> findMappedParents(Node originalNode, Map<Node, NodeBase> nodeToNodeBase) {
+        final List<DagNodeWithCondition> mappedParentsWithConditions = new ArrayList<>();
+
+        for (final Node.NodeWithCondition parentNodeWithCondition : originalNode.getParentsWithConditions()) {
+            final NodeBase mappedParentNode = nodeToNodeBase.get(parentNodeWithCondition.getNode());
+            final Condition condition = parentNodeWithCondition.getCondition();
+            final DagNodeWithCondition parentNodeBaseWithCondition = new DagNodeWithCondition(mappedParentNode, condition);
+            mappedParentsWithConditions.add(parentNodeBaseWithCondition);
+        }
+
+        for (final Node parent : originalNode.getParentsWithoutConditions()) {
+            mappedParentsWithConditions.add(new DagNodeWithCondition(nodeToNodeBase.get(parent), null));
+        }
+
+        return mappedParentsWithConditions;
+    }
+
+    private List<DagNodeWithCondition> findFinalNodes() {
         final List<DagNodeWithCondition> finalNodes = new ArrayList<>();
+
         for (final NodeBase maybeFinalNode : nodesByName.values()) {
-            final boolean hasNoChildrenAndIsNotEnd = maybeFinalNode.getChildren().isEmpty() && maybeFinalNode != end;
-            if (hasNoChildrenAndIsNotEnd) {
+            final boolean hasNoChildren = maybeFinalNode.getChildren().isEmpty();
+            final boolean isNotEnd = maybeFinalNode != end;
+            if (hasNoChildren && isNotEnd) {
                 finalNodes.add(new DagNodeWithCondition(maybeFinalNode, null));
             }
         }
 
-        handleNodeWithParents(finalNodes, end);
+        return finalNodes;
     }
 
     private void storeNode(final NodeBase node) {
@@ -147,7 +167,7 @@ public class Graph {
         return newParent;
     }
 
-    private void handleNodeWithParents(final List<DagNodeWithCondition> parentsWithConditions, final NodeBase node) {
+    private void handleNodeWithParents(final NodeBase node, final List<DagNodeWithCondition> parentsWithConditions) {
         // Avoiding adding children to nodes that are inside a closed fork / join pair and to original parents of decision nodes.
         final List<DagNodeWithCondition> newParentsWithConditions = new ArrayList<>();
         for (final DagNodeWithCondition parentWithCondition : parentsWithConditions) {
@@ -191,7 +211,7 @@ public class Graph {
             final List<DagNodeWithCondition> parentsWithoutRedundant = new ArrayList<>(parentsWithConditions);
             DagNodeWithCondition.removeFromCollection(parentsWithoutRedundant, toClose.getRedundantParent());
 
-            handleNodeWithParents(parentsWithoutRedundant, node);
+            handleNodeWithParents(node, parentsWithoutRedundant);
         }
         else if (toClose.isDecision()) {
             insertDecisionJoin(node, parentsWithConditions, toClose);
@@ -207,7 +227,7 @@ public class Graph {
         final Decision decision = branchingToClose.getDecision();
         final DecisionJoin decisionJoin = newDecisionJoin(decision, branchingToClose.getPaths().size());
 
-        for (DagNodeWithCondition parentWithCondition : parentsWithConditions) {
+        for (final DagNodeWithCondition parentWithCondition : parentsWithConditions) {
             addParentWithForkIfNeeded(decisionJoin, parentWithCondition);
         }
 
@@ -242,7 +262,7 @@ public class Graph {
             }
             else {
                 // Null means a part of the paths was relocated because of a decision node.
-                handleNodeWithParents(parentsWithConditions, node);
+                handleNodeWithParents(node, parentsWithConditions);
             }
         }
     }
@@ -337,7 +357,7 @@ public class Graph {
 
         final List<PathInformation> newPaths = new ArrayList<>();
         boolean shouldCloseJoinAndAddOtherDecisionsUnderIt = false;
-        for (Decision decision : decisions) {
+        for (final Decision decision : decisions) {
             final NodeBase parentOfDecision = decision.getParent();
 
             if (parentOfDecision == fork) {
@@ -353,7 +373,7 @@ public class Graph {
             closeJoinAndAddOtherDecisionsUnderIt(fork, decisions);
         }
         else {
-            for (PathInformation path : pathsToJoin) {
+            for (final PathInformation path : pathsToJoin) {
                 if (!highestDecisionNodes.containsKey(path)) {
                     newPaths.add(path);
                 }
@@ -361,7 +381,7 @@ public class Graph {
 
             final Join newJoin = joinPaths(fork, newPaths);
 
-            for (Decision decision : decisions) {
+            for (final Decision decision : decisions) {
                 addParentWithForkIfNeeded(decision, new DagNodeWithCondition(newJoin, null));
             }
         }
@@ -501,7 +521,7 @@ public class Graph {
     }
 
     private boolean isDecisionClosed(final Decision decision) {
-        Integer closedPathsOfDecisionNode = closedPathsOfDecisionNodes.get(decision);
+        final Integer closedPathsOfDecisionNode = closedPathsOfDecisionNodes.get(decision);
         return closedPathsOfDecisionNode != null && decision.getChildren().size() == closedPathsOfDecisionNode;
     }
 
@@ -633,8 +653,8 @@ public class Graph {
     private DecisionJoin newDecisionJoin(final Decision correspondingDecision, final int numberOfPathsClosed) {
         final DecisionJoin decisionJoin = new DecisionJoin("decisionJoin" + decisionJoinCounter, correspondingDecision);
 
-        Integer numberOfAlreadyClosedChildren = closedPathsOfDecisionNodes.get(correspondingDecision);
-        int newNumber = numberOfPathsClosed + (numberOfAlreadyClosedChildren == null ? 0 : numberOfAlreadyClosedChildren);
+        final Integer numberOfAlreadyClosedChildren = closedPathsOfDecisionNodes.get(correspondingDecision);
+        final int newNumber = numberOfPathsClosed + (numberOfAlreadyClosedChildren == null ? 0 : numberOfAlreadyClosedChildren);
 
         closedPathsOfDecisionNodes.put(correspondingDecision, newNumber);
 
@@ -766,9 +786,7 @@ public class Graph {
                 ++counter;
             }
 
-            if (counter != 1) {
-                throw new IllegalArgumentException("Exactly one of 'fork' and 'redundantParent' must be non-null.");
-            }
+            Preconditions.checkArgument(counter == 1, "Exactly one of 'fork' and 'redundantParent' must be non-null.");
         }
     }
 }

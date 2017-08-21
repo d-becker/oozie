@@ -35,7 +35,7 @@ public class TestDecision extends TestNodeBase<Decision> {
     public final ExpectedException expectedException = ExpectedException.none();
 
     @Override
-    protected Decision getInstance(String name) {
+    protected Decision getInstance(final String name) {
         return new Decision(name);
     }
 
@@ -118,7 +118,7 @@ public class TestDecision extends TestNodeBase<Decision> {
         child1.addParentWithCondition(decision, condition1);
         child2.addParentWithCondition(decision, condition2);
 
-        List<DagNodeWithCondition> childrenWithConditions = decision.getChildrenWithConditions();
+        final List<DagNodeWithCondition> childrenWithConditions = decision.getChildrenWithConditions();
 
         assertEquals(2, childrenWithConditions.size());
 
@@ -141,7 +141,7 @@ public class TestDecision extends TestNodeBase<Decision> {
         child1.addParentWithCondition(decision, condition1);
         defaultChild.addParentDefaultConditional(decision);
 
-        List<DagNodeWithCondition> childrenWithConditions = decision.getChildrenWithConditions();
+        final List<DagNodeWithCondition> childrenWithConditions = decision.getChildrenWithConditions();
 
         assertEquals(2, childrenWithConditions.size());
 

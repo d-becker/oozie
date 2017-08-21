@@ -20,17 +20,17 @@ package org.apache.oozie.jobs.api.oozie.dag;
 
 public class TestDecisionJoin extends TestJoiningNodeBase<Decision, DecisionJoin> {
     @Override
-    protected Decision getBranchingInstance(String name) {
+    protected Decision getBranchingInstance(final String name) {
         return new Decision(name);
     }
 
     @Override
-    protected DecisionJoin getJoiningInstance(String name, Decision branchingPair) {
+    protected DecisionJoin getJoiningInstance(final String name, final Decision branchingPair) {
         return new DecisionJoin(name, branchingPair);
     }
 
     @Override
-    protected JoiningNodeBase getInstance(String name) {
+    protected JoiningNodeBase getInstance(final String name) {
         return getJoiningInstance(name);
     }
 }

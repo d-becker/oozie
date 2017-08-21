@@ -38,7 +38,7 @@ public class TestExplicitNodeMapping {
 
         end.addParent(node);
 
-        final ACTION action = DozerMapperSingletonWrapper.getMapperInstance().map(node, ACTION.class);
+        final ACTION action = DozerMapperSingletonWrapper.instance().map(node, ACTION.class);
 
         assertEquals(mrAction.getName(), action.getName());
         assertEquals(end.getName(), action.getOk().getTo());

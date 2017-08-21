@@ -37,16 +37,17 @@ import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.dozer.DozerConverter;
 import org.dozer.Mapper;
 import org.dozer.MapperAware;
+import parquet.Preconditions;
 
 import javax.xml.bind.JAXBElement;
 import java.util.Map;
 
-public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> implements MapperAware{
-    private static final ObjectFactory workflowObjectFactory = new ObjectFactory();
+public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> implements MapperAware {
+    private static final ObjectFactory WORKFLOW_OBJECT_FACTORY = new ObjectFactory();
 
-    private static final Map<Class<? extends Node>, Class<? extends Object>> actionClassMap = initActionClassMap();
+    private static final Map<Class<? extends Node>, Class<? extends Object>> ACTION_CLASSES = initActionClasses();
 
-    private static Map<Class<? extends Node>, Class<? extends Object>> initActionClassMap() {
+    private static Map<Class<? extends Node>, Class<? extends Object>> initActionClasses() {
         final ImmutableMap.Builder<Class<? extends Node>, Class<? extends Object>> builder = new ImmutableMap.Builder<>();
 
         builder.put(MapReduceAction.class, MAPREDUCE.class)
@@ -64,25 +65,32 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
     }
 
     @Override
-    public ACTION convertTo(ExplicitNode source, ACTION destination) {
-        if (destination == null) {
-            destination = workflowObjectFactory.createACTION();
-        }
+    public ACTION convertTo(final ExplicitNode source, ACTION destination) {
+        destination = ensureDestination(destination);
 
         mapName(source, destination);
+
         mapTransitions(source, destination);
+
         mapActionContent(source, destination);
 
         return destination;
     }
 
+    private ACTION ensureDestination(ACTION destination) {
+        if (destination == null) {
+            destination = WORKFLOW_OBJECT_FACTORY.createACTION();
+        }
+        return destination;
+    }
+
     @Override
-    public ExplicitNode convertFrom(ACTION source, ExplicitNode destination) {
+    public ExplicitNode convertFrom(final ACTION source, final ExplicitNode destination) {
         throw new UnsupportedOperationException("This mapping is not bidirectional.");
     }
 
     @Override
-    public void setMapper(Mapper mapper) {
+    public void setMapper(final Mapper mapper) {
         this.mapper = mapper;
     }
 
@@ -92,7 +100,7 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
 
     private void mapTransitions(final ExplicitNode source, final ACTION destination) {
         // Error transitions are handled at the level of converting the Graph object to a WORKFLOWAPP object.
-        final ACTIONTRANSITION ok = workflowObjectFactory.createACTIONTRANSITION();
+        final ACTIONTRANSITION ok = WORKFLOW_OBJECT_FACTORY.createACTIONTRANSITION();
         final NodeBase child = source.getChild();
         ok.setTo(child == null ? "" : child.getName());
 
@@ -103,10 +111,12 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
         final Node realNode = source.getRealNode();
 
         Object actionTypeObject = null;
-        if (actionClassMap.containsKey(realNode.getClass())) {
-            final Class<? extends Object> mappedClass = actionClassMap.get(realNode.getClass());
+        if (ACTION_CLASSES.containsKey(realNode.getClass())) {
+            final Class<? extends Object> mappedClass = ACTION_CLASSES.get(realNode.getClass());
             actionTypeObject = mapper.map(realNode, mappedClass);
         }
+
+        Preconditions.checkNotNull(actionTypeObject, "actionTypeObject");
 
         if (actionTypeObject instanceof MAPREDUCE) {
             destination.setMapReduce((MAPREDUCE) actionTypeObject);
@@ -125,10 +135,15 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
         }
         else {
             // TODO: Handle all other action types, not just email actions.
-            final JAXBElement jaxbElement
-                    = new org.apache.oozie.jobs.api.generated.action.email.ObjectFactory().createEmail(
-                            (org.apache.oozie.jobs.api.generated.action.email.ACTION) actionTypeObject);
-            destination.setOther(jaxbElement);
+            setEmail(destination, (org.apache.oozie.jobs.api.generated.action.email.ACTION) actionTypeObject);
         }
+    }
+
+    private void setEmail(final ACTION destination,
+                          final org.apache.oozie.jobs.api.generated.action.email.ACTION actionTypeObject) {
+        final JAXBElement jaxbElement
+                = new org.apache.oozie.jobs.api.generated.action.email.ObjectFactory().createEmail(
+                actionTypeObject);
+        destination.setOther(jaxbElement);
     }
 }

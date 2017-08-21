@@ -31,7 +31,7 @@ public class TestDeleteMapping {
         final Boolean skipTrash = true;
         final Delete delete = new Delete(path, skipTrash);
 
-        final DELETE deleteJAXB = DozerMapperSingletonWrapper.getMapperInstance().map(delete, DELETE.class);
+        final DELETE deleteJAXB = DozerMapperSingletonWrapper.instance().map(delete, DELETE.class);
 
         assertEquals(path, deleteJAXB.getPath());
         assertEquals(skipTrash, deleteJAXB.isSkipTrash());

@@ -18,16 +18,10 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
-import org.apache.oozie.jobs.api.oozie.dag.DecisionJoin;
-import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 
-public class MappingUtils {
-    public static NodeBase getRealChild(final NodeBase originalChild) {
-        if (originalChild instanceof DecisionJoin) {
-            return getRealChild(((DecisionJoin) originalChild).getChild());
-        }
-        else {
-            return originalChild;
-        }
-    }
+public abstract class TestControlNodeMappingBase {
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
 }

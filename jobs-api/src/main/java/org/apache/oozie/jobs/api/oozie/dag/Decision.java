@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import com.google.common.base.Preconditions;
 import org.apache.oozie.jobs.api.Condition;
 
 import java.util.ArrayList;
@@ -41,9 +42,7 @@ public class Decision extends NodeBase {
 
     @Override
     public void addParent(final NodeBase parent) {
-        if (this.parent != null) {
-            throw new IllegalStateException("Decision nodes cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "Decision nodes cannot have multiple parents.");
 
         this.parent = parent;
         this.parent.addChild(this);
@@ -51,9 +50,7 @@ public class Decision extends NodeBase {
 
     @Override
     public void addParentWithCondition(final Decision parent, final Condition condition) {
-        if (this.parent != null) {
-            throw new IllegalStateException("Decision nodes cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "Decision nodes cannot have multiple parents.");
 
         this.parent = parent;
         parent.addChildWithCondition(this, condition);
@@ -61,9 +58,7 @@ public class Decision extends NodeBase {
 
     @Override
     public void addParentDefaultConditional(final Decision parent) {
-        if (this.parent != null) {
-            throw new IllegalStateException("Decision nodes cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "Decision nodes cannot have multiple parents.");
 
         this.parent = parent;
         parent.addDefaultChild(this);
@@ -71,9 +66,7 @@ public class Decision extends NodeBase {
 
     @Override
     public void removeParent(final NodeBase parent) {
-        if (this.parent != parent) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
-        }
+        Preconditions.checkArgument(this.parent == parent, "Trying to remove a nonexistent parent.");
 
         if (this.parent != null) {
             this.parent.removeChild(this);
@@ -91,7 +84,7 @@ public class Decision extends NodeBase {
     public List<NodeBase> getChildren() {
         final List<NodeBase> results = new ArrayList<>();
 
-        for (DagNodeWithCondition nodeWithCondition : getChildrenWithConditions()) {
+        for (final DagNodeWithCondition nodeWithCondition : getChildrenWithConditions()) {
             results.add(nodeWithCondition.getNode());
         }
 
@@ -99,7 +92,7 @@ public class Decision extends NodeBase {
     }
 
     public List<DagNodeWithCondition> getChildrenWithConditions() {
-        List<DagNodeWithCondition> results = new ArrayList<>(childrenWithConditions);
+        final List<DagNodeWithCondition> results = new ArrayList<>(childrenWithConditions);
 
         if (defaultChild != null) {
             results.add(new DagNodeWithCondition(defaultChild, Condition.defaultCondition()));
@@ -117,7 +110,7 @@ public class Decision extends NodeBase {
         throw new IllegalStateException("Decision nodes cannot have normal children.");
     }
 
-    protected void addChildWithCondition(final NodeBase child, final Condition condition) {
+    void addChildWithCondition(final NodeBase child, final Condition condition) {
         if (condition.isDefault()) {
             addDefaultChild(child);
         }
@@ -126,10 +119,8 @@ public class Decision extends NodeBase {
         }
     }
 
-    protected void addDefaultChild(final NodeBase child) {
-        if (defaultChild != null) {
-            throw new IllegalStateException("Trying to add a default child to a Decision node that already has one.");
-        }
+    void addDefaultChild(final NodeBase child) {
+        Preconditions.checkState(defaultChild == null, "Trying to add a default child to a Decision node that already has one.");
 
         defaultChild = child;
     }
@@ -140,11 +131,9 @@ public class Decision extends NodeBase {
             defaultChild = null;
         }
         else {
-            int index = indexOfNodeBaseInChildrenWithConditions(child);
+            final int index = indexOfNodeBaseInChildrenWithConditions(child);
 
-            if (index < 0) {
-                throw new IllegalArgumentException("Trying to remove a nonexistent child.");
-            }
+            Preconditions.checkArgument(index >= 0, "Trying to remove a nonexistent child.");
 
             this.childrenWithConditions.remove(index);
         }

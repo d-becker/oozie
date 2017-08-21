@@ -30,7 +30,7 @@ public class TestMkdirMapping {
         final String path = "path/to/location";
         final Mkdir mkdir = new Mkdir(path);
 
-        final MKDIR mkdirJAXB = DozerMapperSingletonWrapper.getMapperInstance().map(mkdir, MKDIR.class);
+        final MKDIR mkdirJAXB = DozerMapperSingletonWrapper.instance().map(mkdir, MKDIR.class);
 
         assertEquals(path, mkdirJAXB.getPath());
     }

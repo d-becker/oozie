@@ -28,36 +28,43 @@ import org.dozer.DozerConverter;
 import java.util.List;
 
 public class ForkConverter extends DozerConverter<Fork, FORK> {
+    private static final ObjectFactory WORKFLOW_OBJECT_FACTORY = new ObjectFactory();
+
     public ForkConverter() {
         super(Fork.class, FORK.class);
     }
 
     @Override
-    public FORK convertTo(Fork source, FORK destination) {
-        if (destination == null) {
-            destination = new ObjectFactory().createFORK();
-        }
+    public FORK convertTo(final Fork source, FORK destination) {
+        destination = ensureDestination(destination);
 
         destination.setName(source.getName());
 
-        List<FORKTRANSITION> transitions = destination.getPath();
-        for (NodeBase child : source.getChildren()) {
-            final NodeBase realChild = MappingUtils.getRealChild(child);
+        final List<FORKTRANSITION> transitions = destination.getPath();
+        for (final NodeBase child : source.getChildren()) {
+            final NodeBase realChild = RealChildLocator.findRealChild(child);
             transitions.add(convertToFORKTRANSITION(realChild));
         }
 
         return destination;
     }
 
+    private FORK ensureDestination(FORK destination) {
+        if (destination == null) {
+            destination = WORKFLOW_OBJECT_FACTORY.createFORK();
+        }
+        return destination;
+    }
+
     @Override
-    public Fork convertFrom(FORK source, Fork destination) {
+    public Fork convertFrom(final FORK source, final Fork destination) {
         throw new UnsupportedOperationException("This mapping is not bidirectional.");
     }
 
-    private FORKTRANSITION convertToFORKTRANSITION(NodeBase source) {
-        final FORKTRANSITION destination = new ObjectFactory().createFORKTRANSITION();
+    private FORKTRANSITION convertToFORKTRANSITION(final NodeBase source) {
+        final FORKTRANSITION destination = WORKFLOW_OBJECT_FACTORY.createFORKTRANSITION();
 
-        final NodeBase realChild = MappingUtils.getRealChild(source);
+        final NodeBase realChild = RealChildLocator.findRealChild(source);
 
         destination.setStart(realChild.getName());
 

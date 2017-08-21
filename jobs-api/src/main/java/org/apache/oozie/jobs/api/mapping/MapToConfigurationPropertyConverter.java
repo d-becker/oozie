@@ -25,25 +25,22 @@ import org.dozer.DozerConverter;
 import java.util.Map;
 
 public class MapToConfigurationPropertyConverter extends DozerConverter<Map, CONFIGURATION> {
-    private final ObjectFactory objectFactory = new ObjectFactory();
+    private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
+
     public MapToConfigurationPropertyConverter() {
         super(Map.class, CONFIGURATION.class);
     }
 
     @Override
-    public CONFIGURATION convertTo(Map source, CONFIGURATION destination) {
-        if (destination == null) {
-            destination = objectFactory.createCONFIGURATION();
-        }
+    public CONFIGURATION convertTo(final Map source, CONFIGURATION destination) {
+        destination = ensureConfiguration(destination);
 
-        for (Object entryObject : source.entrySet()) {
+        for (final Object entryObject : source.entrySet()) {
             final Map.Entry<String, String> entry = (Map.Entry<String, String>) entryObject;
             final String key = entry.getKey();
             final String value = entry.getValue();
 
-            final CONFIGURATION.Property property = objectFactory.createCONFIGURATIONProperty();
-            property.setName(key);
-            property.setValue(value);
+            final CONFIGURATION.Property property = createProperty(key, value);
 
             destination.getProperty().add(property);
         }
@@ -51,8 +48,24 @@ public class MapToConfigurationPropertyConverter extends DozerConverter<Map, CON
         return destination;
     }
 
+    private CONFIGURATION ensureConfiguration(CONFIGURATION destination) {
+        if (destination == null) {
+            destination = OBJECT_FACTORY.createCONFIGURATION();
+        }
+        return destination;
+    }
+
+    private CONFIGURATION.Property createProperty(final String key, final String value) {
+        final CONFIGURATION.Property property = OBJECT_FACTORY.createCONFIGURATIONProperty();
+
+        property.setName(key);
+        property.setValue(value);
+
+        return property;
+    }
+
     @Override
-    public Map convertFrom(CONFIGURATION source, Map destination) {
+    public Map convertFrom(final CONFIGURATION source, final Map destination) {
         throw new UnsupportedOperationException("This mapping is not bidirectional.");
     }
 }

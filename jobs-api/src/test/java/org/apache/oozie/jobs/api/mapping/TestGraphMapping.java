@@ -58,7 +58,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class TestGraphMapping {
-    private static final ObjectFactory objectFactory = new ObjectFactory();
+    private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
     @Test
     public void testMappingGraphFromWorkflow() {
@@ -84,16 +84,16 @@ public class TestGraphMapping {
 
         final Graph graph = new Graph(workflow);
 
-        final WORKFLOWAPP workflowapp = DozerMapperSingletonWrapper.getMapperInstance().map(graph, WORKFLOWAPP.class);
+        final WORKFLOWAPP workflowapp = DozerMapperSingletonWrapper.instance().map(graph, WORKFLOWAPP.class);
 
-        final WORKFLOWAPP expectedWorkflowapp = objectFactory.createWORKFLOWAPP();
+        final WORKFLOWAPP expectedWorkflowapp = OBJECT_FACTORY.createWORKFLOWAPP();
         expectedWorkflowapp.setName(workflow.getName());
 
-        final START start = objectFactory.createSTART();
+        final START start = OBJECT_FACTORY.createSTART();
         start.setTo(mrAction.getName());
         expectedWorkflowapp.setStart(start);
 
-        final END end = objectFactory.createEND();
+        final END end = OBJECT_FACTORY.createEND();
         end.setName("end");
         expectedWorkflowapp.setEnd(end);
 
@@ -111,9 +111,9 @@ public class TestGraphMapping {
                 = new ExplicitNode(emailErrorHandlerNode.getName(), emailErrorHandlerNode);
         final ACTION errorHandlerAction = convertEmailActionByHand(emailErrorHandlerExplicitNode);
 
-        final KILL kill = createKillNode();
+        final KILL kill = createKill();
 
-        final ACTIONTRANSITION okAndError = objectFactory.createACTIONTRANSITION();
+        final ACTIONTRANSITION okAndError = OBJECT_FACTORY.createACTIONTRANSITION();
         okAndError.setTo(kill.getName());
 
         errorHandlerAction.setOk(okAndError);
@@ -159,29 +159,29 @@ public class TestGraphMapping {
         fork.addParent(A);
         A.addParent(start);
 
-        final Nodes nodes = new Nodes(workflowName, start, end,
+        final GraphNodes graphNodes = new GraphNodes(workflowName, start, end,
                 Arrays.asList(A, B, C, D, E, fork, join, decision, decisionJoin));
 
 
-        final WORKFLOWAPP expectedWorkflowApp = objectFactory.createWORKFLOWAPP();
+        final WORKFLOWAPP expectedWorkflowApp = OBJECT_FACTORY.createWORKFLOWAPP();
         expectedWorkflowApp.setName(workflowName);
 
-        final START startJaxb = objectFactory.createSTART();
+        final START startJaxb = OBJECT_FACTORY.createSTART();
         startJaxb.setTo(start.getChild().getName());
         expectedWorkflowApp.setStart(startJaxb);
 
-        final END endJaxb = objectFactory.createEND();
+        final END endJaxb = OBJECT_FACTORY.createEND();
         endJaxb.setName(end.getName());
         expectedWorkflowApp.setEnd(endJaxb);
 
         final List<Object> nodesInWorkflowApp = expectedWorkflowApp.getDecisionOrForkOrJoin();
 
-        final FORK forkJaxb = objectFactory.createFORK();
+        final FORK forkJaxb = OBJECT_FACTORY.createFORK();
         forkJaxb.setName(fork.getName());
         final List<FORKTRANSITION> transitions = forkJaxb.getPath();
-        final FORKTRANSITION transitionB = objectFactory.createFORKTRANSITION();
+        final FORKTRANSITION transitionB = OBJECT_FACTORY.createFORKTRANSITION();
         transitionB.setStart(B.getName());
-        final FORKTRANSITION transitionC = objectFactory.createFORKTRANSITION();
+        final FORKTRANSITION transitionC = OBJECT_FACTORY.createFORKTRANSITION();
         transitionC.setStart(C.getName());
         transitions.add(transitionB);
         transitions.add(transitionC);
@@ -192,15 +192,15 @@ public class TestGraphMapping {
 
         final ACTION actionC = convertEmailActionByHand(C);
 
-        final DECISION decisionJaxb = objectFactory.createDECISION();
+        final DECISION decisionJaxb = OBJECT_FACTORY.createDECISION();
         decisionJaxb.setName(decision.getName());
-        final SWITCH _switch = objectFactory.createSWITCH();
+        final SWITCH _switch = OBJECT_FACTORY.createSWITCH();
         final List<CASE> cases = _switch.getCase();
-        final CASE _case = objectFactory.createCASE();
+        final CASE _case = OBJECT_FACTORY.createCASE();
         _case.setTo(D.getName());
         _case.setValue(condition);
         cases.add(_case);
-        final DEFAULT _default = objectFactory.createDEFAULT();
+        final DEFAULT _default = OBJECT_FACTORY.createDEFAULT();
         _default.setTo(E.getName());
         _switch.setDefault(_default);
         decisionJaxb.setSwitch(_switch);
@@ -209,12 +209,12 @@ public class TestGraphMapping {
 
         final ACTION actionE = convertEmailActionByHand(E);
 
-        final JOIN joinJaxb = objectFactory.createJOIN();
+        final JOIN joinJaxb = OBJECT_FACTORY.createJOIN();
         joinJaxb.setName(join.getName());
         joinJaxb.setTo(end.getName());
 
         // TODO: Unfortunately the order of the elements counts.
-        nodesInWorkflowApp.add(createKillNode());
+        nodesInWorkflowApp.add(createKill());
         nodesInWorkflowApp.add(actionA);
         nodesInWorkflowApp.add(actionB);
         nodesInWorkflowApp.add(actionC);
@@ -224,22 +224,24 @@ public class TestGraphMapping {
         nodesInWorkflowApp.add(joinJaxb);
         nodesInWorkflowApp.add(decisionJaxb);
 
-        final WORKFLOWAPP workflowapp = DozerMapperSingletonWrapper.getMapperInstance().map(nodes, WORKFLOWAPP.class);
+        final WORKFLOWAPP workflowapp = DozerMapperSingletonWrapper.instance().map(graphNodes, WORKFLOWAPP.class);
+
         assertEquals(expectedWorkflowApp, workflowapp);
     }
 
     private ACTION convertEmailActionByHand(final ExplicitNode node) {
-        final ACTION action = DozerMapperSingletonWrapper.getMapperInstance().map(node, ACTION.class);
+        final ACTION action = DozerMapperSingletonWrapper.instance().map(node, ACTION.class);
 
-        final ACTIONTRANSITION error = objectFactory.createACTIONTRANSITION();
-        error.setTo(createKillNode().getName());
+        final ACTIONTRANSITION error = OBJECT_FACTORY.createACTIONTRANSITION();
+        error.setTo(createKill().getName());
         action.setError(error);
 
         return action;
     }
 
-    private KILL createKillNode() {
-        final KILL kill = objectFactory.createKILL();
+    private KILL createKill() {
+        final KILL kill = OBJECT_FACTORY.createKILL();
+
         kill.setName("kill");
         kill.setMessage("Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]");
 

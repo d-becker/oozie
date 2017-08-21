@@ -28,7 +28,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestStartMapping extends TestControllNodesMapping {
+public class TestStartMapping extends TestControlNodeMappingBase {
     @Test
     public void testMappingStart() {
         final String childName = "child";
@@ -37,7 +37,7 @@ public class TestStartMapping extends TestControllNodesMapping {
 
         child.addParent(start);
 
-        final START mappedStart = DozerMapperSingletonWrapper.getMapperInstance().map(start, START.class);
+        final START mappedStart = DozerMapperSingletonWrapper.instance().map(start, START.class);
 
         assertEquals(childName, mappedStart.getTo());
     }
@@ -53,7 +53,7 @@ public class TestStartMapping extends TestControllNodesMapping {
         final NodeBase child = new ExplicitNode(childName, null);
         child.addParent(decisionJoin);
 
-        final START mappedStart = DozerMapperSingletonWrapper.getMapperInstance().map(start, START.class);
+        final START mappedStart = DozerMapperSingletonWrapper.instance().map(start, START.class);
 
         assertEquals(childName, mappedStart.getTo());
     }

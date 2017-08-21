@@ -23,13 +23,14 @@ import org.dozer.DozerBeanMapper;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: Guice-ify
 public class DozerMapperSingletonWrapper {
     private static DozerBeanMapper mapper;
 
     private static void init() {
         mapper = new DozerBeanMapper();
 
-        List<String> mappingFiles = new ArrayList<>();
+        final List<String> mappingFiles = new ArrayList<>();
         mappingFiles.add("dozer_config.xml");
         mappingFiles.add("mappingGraphToWORKFLOWAPP.xml");
         mappingFiles.add("action_mappings.xml");
@@ -37,7 +38,7 @@ public class DozerMapperSingletonWrapper {
         mapper.setMappingFiles(mappingFiles);
     }
 
-    public static DozerBeanMapper getMapperInstance() {
+    public static DozerBeanMapper instance() {
         if (mapper == null) {
             init();
         }

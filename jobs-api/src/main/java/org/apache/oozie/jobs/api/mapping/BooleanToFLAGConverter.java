@@ -28,8 +28,8 @@ public class BooleanToFLAGConverter extends DozerConverter<Boolean, FLAG> {
     }
 
     @Override
-    public FLAG convertTo(Boolean source, FLAG destination) {
-        if (source == true) {
+    public FLAG convertTo(final Boolean source, final FLAG destination) {
+        if (source) {
             return new ObjectFactory().createFLAG();
         }
 
@@ -37,7 +37,7 @@ public class BooleanToFLAGConverter extends DozerConverter<Boolean, FLAG> {
     }
 
     @Override
-    public Boolean convertFrom(FLAG source, Boolean destination) {
+    public Boolean convertFrom(final FLAG source, final Boolean destination) {
         throw new UnsupportedOperationException("This mapping is not bidirectional.");
     }
 }

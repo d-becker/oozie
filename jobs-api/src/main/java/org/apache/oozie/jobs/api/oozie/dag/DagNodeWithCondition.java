@@ -28,7 +28,7 @@ public class DagNodeWithCondition {
 
     public static boolean removeFromCollection(final Collection<DagNodeWithCondition> collection, final NodeBase node) {
         DagNodeWithCondition element = null;
-        for (DagNodeWithCondition nodeWithCondition : collection) {
+        for (final DagNodeWithCondition nodeWithCondition : collection) {
             if (node.equals(nodeWithCondition.getNode())) {
                 element = nodeWithCondition;
             }
@@ -56,13 +56,21 @@ public class DagNodeWithCondition {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
 
-        DagNodeWithCondition that = (DagNodeWithCondition) o;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        if (node != null ? !node.equals(that.node) : that.node != null) return false;
+        final DagNodeWithCondition that = (DagNodeWithCondition) o;
+
+        if (node != null ? !node.equals(that.node) : that.node != null) {
+            return false;
+        }
+
         return condition != null ? condition.equals(that.condition) : that.condition == null;
     }
 
@@ -70,6 +78,7 @@ public class DagNodeWithCondition {
     public int hashCode() {
         int result = node != null ? node.hashCode() : 0;
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
+
         return result;
     }
 }

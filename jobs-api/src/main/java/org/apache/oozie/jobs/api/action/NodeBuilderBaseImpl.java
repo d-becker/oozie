@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.ModifyOnce;
@@ -89,7 +90,7 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
         if (parents.contains(parent)) {
             parents.remove(parent);
         } else {
-            int index = indexOfParent(parent);
+            int index = indexOfParentAmongParentsWithConditions(parent);
             parentsWithConditions.remove(index);
         }
 
@@ -103,22 +104,22 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
     }
 
     final B ensureRuntimeSelfReference() {
-        final B concrete = getRuntimeSelfReference();
-        if (concrete != this) {
-            throw new IllegalStateException(
-                    "The builder type B doesn't extend NodeBuilderBaseImpl<B>.");
-        }
+        final B runtimeSelfReference = getRuntimeSelfReference();
 
-        return concrete;
+        Preconditions.checkState(runtimeSelfReference == this, "The builder type B doesn't extend NodeBuilderBaseImpl<B>.");
+
+        return runtimeSelfReference;
     }
 
     private void checkNoDuplicateParent(final Node parent) {
-        if (parents.contains(parent) || indexOfParent(parent) != -1) {
-            throw new IllegalArgumentException("Trying to add a parent that is already a parent of this node.");
-        }
+        boolean parentsContains = parents.contains(parent);
+        boolean parentsWithConditionsContains = indexOfParentAmongParentsWithConditions(parent) != -1;
+
+        Preconditions.checkArgument(!parentsContains && !parentsWithConditionsContains,
+                "Trying to add a parent that is already a parent of this node.");
     }
 
-    private int indexOfParent(final Node parent) {
+    private int indexOfParentAmongParentsWithConditions(final Node parent) {
         for (int i = 0; i < parentsWithConditions.size(); ++i) {
             if (parent == parentsWithConditions.get(i).getNode()) {
                 return i;

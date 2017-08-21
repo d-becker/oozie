@@ -36,11 +36,11 @@ public class TestPrepareMapping {
     @Test
     public void testMappingPrepare() {
         final String deletePath1 = "path/to/delete/location1";
-        final Boolean skipTrash1 = true;
+        final Boolean skipTrash1 = Boolean.TRUE;
         final Delete delete1 = new Delete(deletePath1, skipTrash1);
 
         final String deletePath2 = "path/to/delete/location2";
-        final Boolean skipTrash2 = false;
+        final Boolean skipTrash2 = Boolean.FALSE;
         final Delete delete2 = new Delete(deletePath2, skipTrash2);
 
         final String mkdirPath1 = "path/to/mkdir/location1";
@@ -54,7 +54,7 @@ public class TestPrepareMapping {
 
         final Prepare prepare = new Prepare(deletes, mkdirs);
 
-        final PREPARE prepareJAXB = DozerMapperSingletonWrapper.getMapperInstance().map(prepare, PREPARE.class);
+        final PREPARE prepareJAXB = DozerMapperSingletonWrapper.instance().map(prepare, PREPARE.class);
 
         final List<DELETE> deletesJAXB = prepareJAXB.getDelete();
         final DELETE delete1JAXB = deletesJAXB.get(0);

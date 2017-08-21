@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import com.google.common.base.Preconditions;
 import org.apache.oozie.jobs.api.Condition;
 
 import java.util.Arrays;
@@ -63,25 +64,21 @@ public class Start extends NodeBase {
     public List<NodeBase> getChildren() {
         if (child == null) {
             return Arrays.asList();
-        } else {
-            return Arrays.asList(child);
         }
+
+        return Arrays.asList(child);
     }
 
     @Override
     protected void addChild(final NodeBase child) {
-        if (this.child != null) {
-            throw new IllegalStateException("Start nodes cannot have multiple children.");
-        }
+        Preconditions.checkState(this.child == null, "Start nodes cannot have multiple children.");
 
         this.child =  child;
     }
 
     @Override
     protected void removeChild(final NodeBase child) {
-        if (this.child != child) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent child.");
-        }
+        Preconditions.checkArgument(this.child == child, "Trying to remove a nonexistent child.");
 
         this.child = null;
     }

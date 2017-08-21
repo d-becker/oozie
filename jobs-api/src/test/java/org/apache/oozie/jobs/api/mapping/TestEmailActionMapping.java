@@ -47,7 +47,7 @@ public class TestEmailActionMapping {
                 .withAttachment(attachment)
                 .build();
 
-        final ACTION emailAction = DozerMapperSingletonWrapper.getMapperInstance().map(action, ACTION.class);
+        final ACTION emailAction = DozerMapperSingletonWrapper.instance().map(action, ACTION.class);
 
         assertEquals(to, emailAction.getTo());
         assertEquals(cc, emailAction.getCc());

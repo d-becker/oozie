@@ -18,6 +18,8 @@
 
 package org.apache.oozie.jobs.api;
 
+import com.google.common.base.Preconditions;
+
 public class ModifyOnce<T> {
     private T data;
     private boolean modified;
@@ -36,9 +38,7 @@ public class ModifyOnce<T> {
     }
 
     public void set(final T data) {
-        if (modified) {
-            throw new IllegalStateException("Has already been modified once.");
-        }
+        Preconditions.checkState(!modified, "Has already been modified once.");
 
         this.data = data;
         this.modified = true;

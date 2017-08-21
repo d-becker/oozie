@@ -31,7 +31,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestForkMapping extends TestControllNodesMapping {
+public class TestForkMapping extends TestControlNodeMappingBase {
     @Test
     public void testMappingFork() {
         final String name = "fork";
@@ -43,11 +43,11 @@ public class TestForkMapping extends TestControllNodesMapping {
         child1.addParent(fork);
         child2.addParent(fork);
 
-        final FORK mappedFork = DozerMapperSingletonWrapper.getMapperInstance().map(fork, FORK.class);
+        final FORK mappedFork = DozerMapperSingletonWrapper.instance().map(fork, FORK.class);
 
         assertEquals(name, mappedFork.getName());
 
-        List<FORKTRANSITION> transitions = mappedFork.getPath();
+        final List<FORKTRANSITION> transitions = mappedFork.getPath();
         assertEquals(child1.getName(), transitions.get(0).getStart());
         assertEquals(child2.getName(), transitions.get(1).getStart());
     }
@@ -63,7 +63,7 @@ public class TestForkMapping extends TestControllNodesMapping {
         final NodeBase child = new ExplicitNode(childName, null);
         child.addParent(decisionJoin);
 
-        final FORK mappedFork = DozerMapperSingletonWrapper.getMapperInstance().map(fork, FORK.class);
+        final FORK mappedFork = DozerMapperSingletonWrapper.instance().map(fork, FORK.class);
 
         assertEquals(childName, mappedFork.getPath().get(0).getStart());
     }

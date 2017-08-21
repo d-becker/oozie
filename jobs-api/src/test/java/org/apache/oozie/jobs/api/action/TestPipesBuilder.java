@@ -37,7 +37,6 @@ public class TestPipesBuilder {
 
         final Pipes pipes = builder.build();
         assertEquals(map, pipes.getMap());
-
     }
 
     @Test
@@ -61,7 +60,6 @@ public class TestPipesBuilder {
 
         final Pipes pipes = builder.build();
         assertEquals(reduce, pipes.getReduce());
-
     }
 
     @Test
@@ -85,7 +83,6 @@ public class TestPipesBuilder {
 
         final Pipes pipes = builder.build();
         assertEquals(inputformat, pipes.getInputformat());
-
     }
 
     @Test
@@ -109,7 +106,6 @@ public class TestPipesBuilder {
 
         final Pipes pipes = builder.build();
         assertEquals(partitioner, pipes.getPartitioner());
-
     }
 
     @Test
@@ -133,7 +129,6 @@ public class TestPipesBuilder {
 
         final Pipes pipes = builder.build();
         assertEquals(writer, pipes.getWriter());
-
     }
 
     @Test
@@ -157,7 +152,6 @@ public class TestPipesBuilder {
 
         final Pipes pipes = builder.build();
         assertEquals(program, pipes.getProgram());
-
     }
 
     @Test

@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import com.google.common.base.Preconditions;
 import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.ModifyOnce;
 
@@ -33,9 +34,10 @@ public class Fork extends NodeBase {
 
     public Fork(final String name) {
         super(name);
-        parent = null;
-        children = new ArrayList<>();
-        closingJoin = new ModifyOnce<>();
+
+        this.parent = null;
+        this.children = new ArrayList<>();
+        this.closingJoin = new ModifyOnce<>();
     }
 
     public NodeBase getParent() {
@@ -44,9 +46,7 @@ public class Fork extends NodeBase {
 
     @Override
     public void addParent(final NodeBase parent) {
-        if (this.parent != null) {
-            throw new IllegalStateException("Fork nodes cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "Fork nodes cannot have multiple parents.");
 
         this.parent = parent;
         parent.addChild(this);
@@ -54,9 +54,7 @@ public class Fork extends NodeBase {
 
     @Override
     public void addParentWithCondition(final Decision parent, final Condition condition) {
-        if (this.parent != null) {
-            throw new IllegalStateException("Fork nodes cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "Fork nodes cannot have multiple parents.");
 
         this.parent = parent;
         parent.addChildWithCondition(this, condition);
@@ -64,9 +62,7 @@ public class Fork extends NodeBase {
 
     @Override
     public void addParentDefaultConditional(Decision parent) {
-        if (this.parent != null) {
-            throw new IllegalStateException("Fork nodes cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "Fork nodes cannot have multiple parents.");
 
         this.parent = parent;
         parent.addDefaultChild(this);
@@ -74,9 +70,7 @@ public class Fork extends NodeBase {
 
     @Override
     public void removeParent(final NodeBase parent) {
-        if (this.parent != parent) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
-        }
+        Preconditions.checkArgument(this.parent == parent, "Trying to remove a nonexistent parent.");
 
         if (this.parent != null) {
             this.parent.removeChild(this);
@@ -114,8 +108,6 @@ public class Fork extends NodeBase {
 
     @Override
     protected void removeChild(final NodeBase child) {
-        if (!this.children.remove(child)) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent child.");
-        }
+        Preconditions.checkArgument(this.children.remove(child),"Trying to remove a nonexistent child.");
     }
 }

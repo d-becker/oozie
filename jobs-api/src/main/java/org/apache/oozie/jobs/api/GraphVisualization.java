@@ -91,6 +91,7 @@ public class GraphVisualization {
         Graphviz.fromGraph(mg).width(PNG_WIDTH).render(Format.PNG).toFile(new File(PARENT_FOLDER_NAME, fileName));
     }
 
+    // TODO: put it to a JUnit test
     public static void main(final String[] args) throws IOException {
         final Node a = MapReduceActionBuilder.create().withName("A").build();
 

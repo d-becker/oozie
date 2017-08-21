@@ -42,17 +42,17 @@ public class TestStreamingMapping {
                 .withReducer(reducer)
                 .withRecordReader(recordReader);
 
-        for (String recordReaderMapping : recordReaderMappings) {
+        for (final String recordReaderMapping : recordReaderMappings) {
             builder.withRecordReaderMapping(recordReaderMapping);
         }
 
-        for (String env : envs) {
+        for (final String env : envs) {
             builder.withEnv(env);
         }
 
         final Streaming streaming = builder.build();
 
-        final STREAMING streamingJAXB = DozerMapperSingletonWrapper.getMapperInstance().map(streaming, STREAMING.class);
+        final STREAMING streamingJAXB = DozerMapperSingletonWrapper.instance().map(streaming, STREAMING.class);
 
         assertEquals(mapper, streamingJAXB.getMapper());
         assertEquals(reducer, streamingJAXB.getReducer());

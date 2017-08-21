@@ -18,44 +18,42 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
-import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.action.MapReduceAction;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP;
-import org.apache.oozie.jobs.api.oozie.dag.DagNodeWithCondition;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
 import org.dozer.DozerBeanMapper;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: this class is just for playing around and testing things, this should be removed.
-public class Mappings {
-    public static void main(String[] args) {
-        final MapReduceAction mr1 = MapReduceActionBuilder.create().withName("mr1").build();
-        final MapReduceAction mr2 = MapReduceActionBuilder.create().withName("mr2").withParent(mr1).build();
-        final MapReduceAction mr3 = MapReduceActionBuilder.create().withName("mr3").withParent(mr1).build();
+import static org.junit.Assert.assertEquals;
 
-        Workflow workflow = new WorkflowBuilder()
+public class TestMappings {
+
+    @Test
+    public void whenWorkflowWithOneMRActionIsCreatedWORKFLOWAPPIsMappedCorrectly() {
+        final MapReduceAction mr1 = MapReduceActionBuilder.create().withName("mr1").build();
+
+        final Workflow workflow = new WorkflowBuilder()
                 .withName("Workflow_to_map")
                 .withDagContainingNode(mr1)
                 .build();
-        Graph graph = new Graph(workflow);
+        final Graph graph = new Graph(workflow);
 
-        List<String> mappingFiles = new ArrayList<>();
+        final List<String> mappingFiles = new ArrayList<>();
         mappingFiles.add("dozer_config.xml");
         mappingFiles.add("mappingGraphToWORKFLOWAPP.xml");
         mappingFiles.add("action_mappings.xml");
 
-        DozerBeanMapper mapper = new DozerBeanMapper();
+        final DozerBeanMapper mapper = new DozerBeanMapper();
         mapper.setMappingFiles(mappingFiles);
-
-        DagNodeWithCondition dagNodeWithCondition = new DagNodeWithCondition(graph.getNodeByName("end"), Condition.actualCondition("condition"));
 
         final WORKFLOWAPP workflowapp = mapper.map(graph, WORKFLOWAPP.class);
 
-        System.out.println(workflowapp.getName());
+        assertEquals("API and JAXB workflows should have the same names", workflow.getName(), workflowapp.getName());
     }
 }

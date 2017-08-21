@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.workflow;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.apache.oozie.jobs.api.action.Node;
 
@@ -31,18 +32,12 @@ public class Workflow {
     private final ImmutableSet<Node> roots;
 
     Workflow(final String name, final ImmutableSet<Node> nodes) {
-        this.name = name;
-
         checkUniqueNames(nodes);
 
+        this.name = name;
         this.nodes = nodes;
 
-        final Set<Node> mutableRoots = new LinkedHashSet<>();
-        for (final Node node : nodes) {
-            if (node.getAllParents().isEmpty()) {
-                mutableRoots.add(node);
-            }
-        }
+        final Set<Node> mutableRoots = findMutableRoots(nodes);
 
         this.roots = ImmutableSet.copyOf(mutableRoots);
     }
@@ -63,13 +58,22 @@ public class Workflow {
         final Set<String> names = new HashSet<>();
 
         for (final Node node : nodes) {
-            if (names.contains(node.getName())) {
-                final String errorMessage = String.format("Duplicate name '%s' found in workflow '%s'", node.getName(), getName());
-                throw new IllegalArgumentException(errorMessage);
-            }
+            Preconditions.checkArgument(!names.contains(node.getName()),
+                    String.format("Duplicate name '%s' found in workflow '%s'", node.getName(), getName()));
 
             names.add(node.getName());
         }
     }
 
+    private Set<Node> findMutableRoots(ImmutableSet<Node> nodes) {
+        final Set<Node> mutableRoots = new LinkedHashSet<>();
+
+        for (final Node node : nodes) {
+            if (node.getAllParents().isEmpty()) {
+                mutableRoots.add(node);
+            }
+        }
+
+        return mutableRoots;
+    }
 }

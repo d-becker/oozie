@@ -328,7 +328,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
                 .withParentWithCondition(parent, "any_condition");
 
         expectedException.expect(IllegalStateException.class);
-        final N child2 = child2builder.build();
+        child2builder.build();
     }
 
     @Test
@@ -342,7 +342,7 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
                 .withParent(parent);
 
         expectedException.expect(IllegalStateException.class);
-        final N child2 = child2builder.build();
+        child2builder.build();
     }
 
     @Test

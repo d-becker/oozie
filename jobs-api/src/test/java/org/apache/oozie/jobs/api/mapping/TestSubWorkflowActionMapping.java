@@ -37,7 +37,7 @@ public class TestSubWorkflowActionMapping {
                 .withConfigProperty("propertyName", "propertyValue")
                 .build();
 
-        final SUBWORKFLOW subWorkflowAction = DozerMapperSingletonWrapper.getMapperInstance().map(action, SUBWORKFLOW.class);
+        final SUBWORKFLOW subWorkflowAction = DozerMapperSingletonWrapper.instance().map(action, SUBWORKFLOW.class);
 
         assertEquals(appPath, subWorkflowAction.getAppPath());
         assertNotNull(subWorkflowAction.getPropagateConfiguration());

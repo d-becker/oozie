@@ -44,7 +44,7 @@ public class TestPipesMapping {
                 .withProgram(program)
                 .build();
 
-        final PIPES pipesJAXB = DozerMapperSingletonWrapper.getMapperInstance().map(pipes, PIPES.class);
+        final PIPES pipesJAXB = DozerMapperSingletonWrapper.instance().map(pipes, PIPES.class);
 
         assertEquals(map, pipesJAXB.getMap());
         assertEquals(reduce, pipesJAXB.getReduce());

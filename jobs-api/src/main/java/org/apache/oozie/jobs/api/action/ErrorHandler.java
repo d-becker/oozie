@@ -18,18 +18,20 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import com.google.common.base.Preconditions;
+
 public class ErrorHandler {
     private final Node handlerNode;
 
     public static ErrorHandler buildAsErrorHandler(final Builder<? extends Node> builder) {
-        Node handlerNode = builder.build();
+        final Node handlerNode = builder.build();
         return new ErrorHandler(handlerNode);
     }
 
     private ErrorHandler(final Node handlerNode) {
-        if (!handlerNode.getAllParents().isEmpty() || !handlerNode.getAllChildren().isEmpty()) {
-            throw new IllegalStateException("Error handler nodes cannot have parents or children.");
-        }
+        final boolean hasParents = !handlerNode.getAllParents().isEmpty();
+        final boolean hasChildren = !handlerNode.getAllChildren().isEmpty();
+        Preconditions.checkState(!hasParents && !hasChildren, "Error handler nodes cannot have parents or children.");
 
         this.handlerNode = handlerNode;
     }

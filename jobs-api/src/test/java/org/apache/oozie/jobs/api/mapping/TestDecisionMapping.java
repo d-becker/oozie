@@ -33,7 +33,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestDecisionMapping extends TestControllNodesMapping {
+public class TestDecisionMapping extends TestControlNodeMappingBase {
     @Test
     public void testMappingDecision() {
         final String name = "decision";
@@ -50,7 +50,7 @@ public class TestDecisionMapping extends TestControllNodesMapping {
         child2.addParentWithCondition(decision, Condition.actualCondition(condition2String));
         defaultChild.addParentDefaultConditional(decision);
 
-        final DECISION mappedDecision = DozerMapperSingletonWrapper.getMapperInstance().map(decision, DECISION.class);
+        final DECISION mappedDecision = DozerMapperSingletonWrapper.instance().map(decision, DECISION.class);
 
         assertEquals(name, mappedDecision.getName());
 
@@ -84,7 +84,7 @@ public class TestDecisionMapping extends TestControllNodesMapping {
         child2.addParentWithCondition(decision, condition2);
 
         expectedException.expect(IllegalStateException.class);
-        final DECISION mappedDecision = DozerMapperSingletonWrapper.getMapperInstance().map(decision, DECISION.class);
+        DozerMapperSingletonWrapper.instance().map(decision, DECISION.class);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class TestDecisionMapping extends TestControllNodesMapping {
         final NodeBase child2 = new ExplicitNode(child2Name, null);
         child2.addParent(decisionJoin2);
 
-        final DECISION mappedDecision = DozerMapperSingletonWrapper.getMapperInstance().map(decision, DECISION.class);
+        final DECISION mappedDecision = DozerMapperSingletonWrapper.instance().map(decision, DECISION.class);
 
         assertEquals(child1Name, mappedDecision.getSwitch().getCase().get(0).getTo());
         assertEquals(child2Name, mappedDecision.getSwitch().getDefault().getTo());

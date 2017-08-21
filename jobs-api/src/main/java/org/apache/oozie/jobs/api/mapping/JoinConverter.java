@@ -25,23 +25,31 @@ import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.dozer.DozerConverter;
 
 public class JoinConverter extends DozerConverter<Join, JOIN> {
+
+    private static final ObjectFactory WORKFLOW_OBJECT_FACTORY = new ObjectFactory();
+
     public JoinConverter() {
         super(Join.class, JOIN.class);
     }
 
     @Override
-    public JOIN convertTo(Join source, JOIN destination) {
-        if (destination == null) {
-            destination = new ObjectFactory().createJOIN();
-        }
+    public JOIN convertTo(final Join source, JOIN destination) {
+        destination = ensureDestination(destination);
 
         destination.setName(source.getName());
 
         final NodeBase child  = source.getChild();
-        final NodeBase realChild = MappingUtils.getRealChild(child);
+        final NodeBase realChild = RealChildLocator.findRealChild(child);
 
         destination.setTo(realChild.getName());
 
+        return destination;
+    }
+
+    private JOIN ensureDestination(JOIN destination) {
+        if (destination == null) {
+            destination = WORKFLOW_OBJECT_FACTORY.createJOIN();
+        }
         return destination;
     }
 

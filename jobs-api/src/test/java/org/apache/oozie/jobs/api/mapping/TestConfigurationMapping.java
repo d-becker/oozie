@@ -34,10 +34,11 @@ public class TestConfigurationMapping {
         final ImmutableMap<String, String> map = new ImmutableMap.Builder<String, String>().put(key, value).build();
 
         final CONFIGURATION configuration
-                = DozerMapperSingletonWrapper.getMapperInstance().map(map, CONFIGURATION.class);
+                = DozerMapperSingletonWrapper.instance().map(map, CONFIGURATION.class);
 
         final List<CONFIGURATION.Property> properties = configuration.getProperty();
         final CONFIGURATION.Property property = properties.get(0);
+
         assertEquals(key, property.getName());
         assertEquals(value, property.getValue());
     }

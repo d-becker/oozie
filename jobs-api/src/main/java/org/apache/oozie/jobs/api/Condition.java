@@ -18,24 +18,24 @@
 
 package org.apache.oozie.jobs.api;
 
+import com.google.common.base.Preconditions;
+
 public class Condition {
     private final String condition;
     private final boolean isDefault;
 
     private Condition(final String condition, final boolean isDefault) {
-        if ((condition == null && !isDefault) || (condition != null && isDefault)) {
-            throw new IllegalArgumentException(
-                    "Exactly one of 'condition' and 'isDefault' must be non-null or true (respectively).");
-        }
+        final boolean bothFieldsSet = condition == null && !isDefault;
+        final boolean bothFieldsUnset = condition != null && isDefault;
+        Preconditions.checkArgument(!bothFieldsSet && !bothFieldsUnset,
+                "Exactly one of 'condition' and 'isDefault' must be non-null or true (respectively).");
 
         this.condition = condition;
         this.isDefault = isDefault;
     }
 
     public static Condition actualCondition(final String condition) {
-        if (condition == null) {
-            throw new IllegalArgumentException("The argument 'condition' must not be null.");
-        }
+        Preconditions.checkArgument(condition != null, "The argument 'condition' must not be null.");
 
         return new Condition(condition, false);
     }
@@ -53,20 +53,29 @@ public class Condition {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
 
-        Condition condition1 = (Condition) o;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        if (isDefault != condition1.isDefault) return false;
-        return condition != null ? condition.equals(condition1.condition) : condition1.condition == null;
+        final Condition other = (Condition) o;
+
+        if (isDefault != other.isDefault) {
+            return false;
+        }
+
+        return condition != null ? condition.equals(other.condition) : other.condition == null;
     }
 
     @Override
     public int hashCode() {
         int result = condition != null ? condition.hashCode() : 0;
         result = 31 * result + (isDefault ? 1 : 0);
+
         return result;
     }
 }

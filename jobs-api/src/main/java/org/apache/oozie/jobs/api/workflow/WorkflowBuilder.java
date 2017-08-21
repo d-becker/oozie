@@ -34,8 +34,8 @@ public class WorkflowBuilder {
     private final List<Node> addedActions;
 
     public WorkflowBuilder() {
-        name = new ModifyOnce<>();
-        addedActions = new ArrayList<>();
+        this.name = new ModifyOnce<>();
+        this.addedActions = new ArrayList<>();
     }
 
     public WorkflowBuilder withName(final String name) {
@@ -44,7 +44,7 @@ public class WorkflowBuilder {
     }
 
     public WorkflowBuilder withDagContainingNode(final Node node) {
-        addedActions.add(node);
+        this.addedActions.add(node);
         return this;
     }
 
@@ -77,6 +77,7 @@ public class WorkflowBuilder {
         return visited;
     }
 
+    // TODO: encapsulate into a more specific nested class, e.g. DagWalker#walk
     private static void visit(final List<Node> toVisit, final Set<Node> visited, final Queue<Node> queue) {
         for (final Node node : toVisit) {
             if (!visited.contains(node)) {

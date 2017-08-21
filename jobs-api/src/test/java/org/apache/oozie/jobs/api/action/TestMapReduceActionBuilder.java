@@ -18,7 +18,6 @@
 
 package org.apache.oozie.jobs.api.action;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -40,21 +39,6 @@ public class TestMapReduceActionBuilder extends TestNodeBuilderBaseImpl<MapReduc
 
     private static final String MAPRED_JOB_QUEUE_NAME = "mapred.job.queue.name";
     private static final String DEFAULT = "default";
-
-    private static final ImmutableMap<String, String> CONFIG_EXAMPLE = getConfigExample();
-
-    private static ImmutableMap<String, String> getConfigExample() {
-        final ImmutableMap.Builder<String, String> configExampleBuilder = new ImmutableMap.Builder<>();
-
-        final String[] keys = {"mapred.map.tasks", "mapred.input.dir", "mapred.output.dir"};
-        final String[] values = {"1", "${inputDir}", "${outputDir}"};
-
-        for (int i = 0; i < keys.length; ++i) {
-            configExampleBuilder.put(keys[i], values[i]);
-        }
-
-        return configExampleBuilder.build();
-    }
 
     @Override
     protected MapReduceActionBuilder getBuilderInstance() {

@@ -35,7 +35,7 @@ public class StartConverter extends DozerConverter<Start, START> {
             destination = new ObjectFactory().createSTART();
         }
 
-        final NodeBase realChild = MappingUtils.getRealChild(source.getChild());
+        final NodeBase realChild = RealChildLocator.findRealChild(source.getChild());
         destination.setTo(realChild.getName());
         return destination;
     }

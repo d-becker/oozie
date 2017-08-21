@@ -26,16 +26,16 @@ import java.util.Collection;
 
 // We use this class for better testability of the conversion from a Graph to WORKFLOWAPP - we don't have to build
 // a Workflow to turn it into a Graph, we can generate the NodeBase's directly in the tests.
-public class Nodes {
+public class GraphNodes {
     private final String name;
     private final Start start;
     private final End end;
     private final Collection<NodeBase> nodes;
 
-    public Nodes(final String name,
-                 final Start start,
-                 final End end,
-                 final Collection<NodeBase> nodes) {
+    GraphNodes(final String name,
+               final Start start,
+               final End end,
+               final Collection<NodeBase> nodes) {
         this.name = name;
         this.start = start;
         this.end = end;

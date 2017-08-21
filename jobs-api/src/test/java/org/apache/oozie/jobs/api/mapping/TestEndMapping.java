@@ -24,13 +24,13 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestEndMapping extends TestControllNodesMapping {
+public class TestEndMapping extends TestControlNodeMappingBase {
     @Test
     public void testMappingEnd() {
         final String name = "end";
         final End end = new End(name);
 
-        final END mappedEnd = DozerMapperSingletonWrapper.getMapperInstance().map(end, END.class);
+        final END mappedEnd = DozerMapperSingletonWrapper.instance().map(end, END.class);
 
         assertEquals(name, mappedEnd.getName());
     }

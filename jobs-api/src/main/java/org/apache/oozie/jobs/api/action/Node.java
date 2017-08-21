@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.apache.oozie.jobs.api.Condition;
 
@@ -64,7 +65,7 @@ public abstract class Node {
     public List<Node> getAllParents() {
         final List<Node> allParents = new ArrayList<>(parentsWithoutConditions);
 
-        for (NodeWithCondition parentWithCondition : parentsWithConditions) {
+        for (final NodeWithCondition parentWithCondition : parentsWithConditions) {
             allParents.add(parentWithCondition.getNode());
         }
 
@@ -84,33 +85,25 @@ public abstract class Node {
     }
 
     void addChild(final Node child) {
-        if (!childrenWithConditions.isEmpty()) {
-            throw new IllegalStateException(
-                    "Trying to add a child without condition to a node that already has at least one child with a condition.");
-        }
+        Preconditions.checkState(childrenWithConditions.isEmpty(),
+                "Trying to add a child without condition to a node that already has at least one child with a condition.");
 
         this.childrenWithoutConditions.add(child);
     }
 
     void addChildWithCondition(final Node child, final String condition) {
-        if (!childrenWithoutConditions.isEmpty()) {
-            throw new IllegalStateException(
-                    "Trying to add a child with condition to a node that already has at least one child without a condition.");
-        }
+        Preconditions.checkState(childrenWithoutConditions.isEmpty(),
+                "Trying to add a child with condition to a node that already has at least one child without a condition.");
 
         this.childrenWithConditions.add(new NodeWithCondition(child, Condition.actualCondition(condition)));
     }
 
     void addChildAsDefaultConditional(final Node child) {
-        if (!childrenWithoutConditions.isEmpty()) {
-            throw new IllegalStateException(
-                    "Trying to add a default conditional child to a node that already has at least one child without a condition.");
-        }
+        Preconditions.checkState(childrenWithoutConditions.isEmpty(),
+                "Trying to add a default conditional child to a node that already has at least one child without a condition.");
 
-        if (defaultConditionalChild != null) {
-            throw new IllegalStateException(
-                    "Trying to add a default conditional child to a node that already has one.");
-        }
+        Preconditions.checkState(defaultConditionalChild == null,
+                "Trying to add a default conditional child to a node that already has one.");
 
         this.defaultConditionalChild = child;
     }
@@ -122,7 +115,7 @@ public abstract class Node {
     public List<Node> getAllChildren() {
         final List<Node> allChildren = new ArrayList<>(childrenWithoutConditions);
 
-        for (NodeWithCondition nodeWithCondition : getChildrenWithConditions()) {
+        for (final NodeWithCondition nodeWithCondition : getChildrenWithConditions()) {
             allChildren.add(nodeWithCondition.getNode());
         }
 
@@ -145,12 +138,11 @@ public abstract class Node {
         if (defaultConditionalChild == null) {
             return Collections.unmodifiableList(childrenWithConditions);
         }
-        else {
-            final List<NodeWithCondition> results = new ArrayList<>(childrenWithConditions);
-            results.add(new NodeWithCondition(defaultConditionalChild, Condition.defaultCondition()));
 
-            return Collections.unmodifiableList(results);
-        }
+        final List<NodeWithCondition> results = new ArrayList<>(childrenWithConditions);
+        results.add(new NodeWithCondition(defaultConditionalChild, Condition.defaultCondition()));
+
+        return Collections.unmodifiableList(results);
     }
 
     public Node getDefaultConditionalChild() {

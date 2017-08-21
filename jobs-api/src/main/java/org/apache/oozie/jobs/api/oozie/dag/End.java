@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import com.google.common.base.Preconditions;
 import org.apache.oozie.jobs.api.Condition;
 
 import java.util.Arrays;
@@ -36,9 +37,7 @@ public class End extends NodeBase {
 
     @Override
     public void addParent(final NodeBase parent) {
-        if (this.parent != null) {
-            throw new IllegalStateException("End nodes cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "End nodes cannot have multiple parents.");
 
         this.parent = parent;
         parent.addChild(this);
@@ -46,9 +45,7 @@ public class End extends NodeBase {
 
     @Override
     public void addParentWithCondition(final Decision parent, final Condition condition) {
-        if (this.parent != null) {
-            throw new IllegalStateException("End nodes cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "End nodes cannot have multiple parents.");
 
         this.parent = parent;
         parent.addChildWithCondition(this, condition);
@@ -56,9 +53,7 @@ public class End extends NodeBase {
 
     @Override
     public void addParentDefaultConditional(Decision parent) {
-        if (this.parent != null) {
-            throw new IllegalStateException("End nodes cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "End nodes cannot have multiple parents.");
 
         this.parent = parent;
         parent.addDefaultChild(this);
@@ -66,9 +61,7 @@ public class End extends NodeBase {
 
     @Override
     public void removeParent(final NodeBase parent) {
-        if (this.parent != parent) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
-        }
+        Preconditions.checkArgument(this.parent == parent, "Trying to remove a nonexistent parent.");
 
         if (this.parent != null) {
             this.parent.removeChild(this);

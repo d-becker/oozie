@@ -33,8 +33,8 @@
                 <class-b>org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP</class-b>
             </converter>
 
-            <converter type="org.apache.oozie.jobs.api.mapping.NodesToWORKFLOWAPPConverter" >
-                <class-a>org.apache.oozie.jobs.api.mapping.Nodes</class-a>
+            <converter type="org.apache.oozie.jobs.api.mapping.GraphNodesToWORKFLOWAPPConverter" >
+                <class-a>org.apache.oozie.jobs.api.mapping.GraphNodes</class-a>
                 <class-b>org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP</class-b>
             </converter>
 

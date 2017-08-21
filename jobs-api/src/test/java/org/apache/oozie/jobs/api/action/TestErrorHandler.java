@@ -46,6 +46,6 @@ public class TestErrorHandler {
                 .withParent(parent);
 
         expectedException.expect(IllegalStateException.class);
-        final ErrorHandler errorHandler = ErrorHandler.buildAsErrorHandler(handlerBuilder);
+        ErrorHandler.buildAsErrorHandler(handlerBuilder);
     }
 }

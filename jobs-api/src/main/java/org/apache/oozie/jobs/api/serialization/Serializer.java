@@ -18,7 +18,6 @@
 
 package org.apache.oozie.jobs.api.serialization;
 
-import org.apache.oozie.jobs.api.action.EmailAction;
 import org.apache.oozie.jobs.api.action.EmailActionBuilder;
 import org.apache.oozie.jobs.api.action.ErrorHandler;
 import org.apache.oozie.jobs.api.action.MapReduceAction;
@@ -53,7 +52,7 @@ public class Serializer {
 
     public static String serialize(final Workflow workflow) throws JAXBException, UnsupportedEncodingException {
         final Graph graph = new Graph(workflow);
-        final WORKFLOWAPP workflowapp = DozerMapperSingletonWrapper.getMapperInstance().map(graph, WORKFLOWAPP.class);
+        final WORKFLOWAPP workflowapp = DozerMapperSingletonWrapper.instance().map(graph, WORKFLOWAPP.class);
         final String xml = marshal(workflowapp);
         return xml;
     }

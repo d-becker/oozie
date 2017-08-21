@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.oozie.dag;
 
+import com.google.common.base.Preconditions;
 import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.action.Node;
 
@@ -48,9 +49,7 @@ public class ExplicitNode extends NodeBase {
 
     @Override
     public void addParent(final NodeBase parent) {
-        if (this.parent != null) {
-            throw new IllegalStateException("A normal node cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "A normal node cannot have multiple parents.");
 
         this.parent = parent;
         parent.addChild(this);
@@ -58,9 +57,7 @@ public class ExplicitNode extends NodeBase {
 
     @Override
     public void addParentWithCondition(final Decision parent, final Condition condition) {
-        if (this.parent != null) {
-            throw new IllegalStateException("A normal node cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "A normal node cannot have multiple parents.");
 
         this.parent = parent;
         parent.addChildWithCondition(this, condition);
@@ -68,9 +65,7 @@ public class ExplicitNode extends NodeBase {
 
     @Override
     public void addParentDefaultConditional(Decision parent) {
-        if (this.parent != null) {
-            throw new IllegalStateException("A normal node cannot have multiple parents.");
-        }
+        Preconditions.checkState(this.parent == null, "A normal node cannot have multiple parents.");
 
         this.parent = parent;
         parent.addDefaultChild(this);
@@ -78,9 +73,7 @@ public class ExplicitNode extends NodeBase {
 
     @Override
     public void removeParent(final NodeBase parent) {
-        if (this.parent != parent) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent parent.");
-        }
+        Preconditions.checkArgument(this.parent == parent, "Trying to remove a nonexistent parent.");
 
         if (this.parent != null) {
             this.parent.removeChild(this);
@@ -105,18 +98,14 @@ public class ExplicitNode extends NodeBase {
 
     @Override
     protected void addChild(final NodeBase child) {
-        if (this.child != null) {
-            throw new IllegalStateException("Normal nodes cannot have multiple children.");
-        }
+        Preconditions.checkState(this.child == null, "Normal nodes cannot have multiple children.");
 
         this.child = child;
     }
 
     @Override
     protected void removeChild(final NodeBase child) {
-        if (this.child != child) {
-            throw new IllegalArgumentException("Trying to remove a nonexistent child.");
-        }
+        Preconditions.checkArgument(this.child == child, "Trying to remove a nonexistent child.");
 
         this.child = null;
     }

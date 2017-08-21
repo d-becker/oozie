@@ -88,14 +88,14 @@ public class ActionAttributesBuilder {
                 setreps);
     }
 
-    public static ActionAttributesBuilder createFromExisting(final ActionAttributes attributes) {
+    static ActionAttributesBuilder createFromExisting(final ActionAttributes attributes) {
         final ModifyOnce<String> jobTracker = new ModifyOnce<>(attributes.getJobTracker());
         final ModifyOnce<String> nameNode = new ModifyOnce<>(attributes.getNameNode());
         final ModifyOnce<Prepare> prepare = new ModifyOnce<>(attributes.getPrepare());
         final ModifyOnce<Streaming> streaming = new ModifyOnce<>(attributes.getStreaming());
         final ModifyOnce<Pipes> pipes = new ModifyOnce<>(attributes.getPipes());
         final List<String> jobXmls = new ArrayList<>(attributes.getJobXmls());
-        final Map<String, ModifyOnce<String>> configuration = getModifiedOnceMap(attributes.getConfiguration());
+        final Map<String, ModifyOnce<String>> configuration = convertToModifyOnceMap(attributes.getConfiguration());
         final ModifyOnce<String> configClass = new ModifyOnce<>(attributes.getConfigClass());
         final List<String> files = new ArrayList<>(attributes.getFiles());
         final List<String> archives = new ArrayList<>(attributes.getArchives());
@@ -129,24 +129,24 @@ public class ActionAttributesBuilder {
                 setreps);
     }
 
-    ActionAttributesBuilder(final ModifyOnce<String> jobTracker,
-                            final ModifyOnce<String> nameNode,
-                            final ModifyOnce<Prepare> prepare,
-                            final ModifyOnce<Streaming> streaming,
-                            final ModifyOnce<Pipes> pipes,
-                            final List<String> jobXmls,
-                            final Map<String, ModifyOnce<String>> configuration,
-                            final ModifyOnce<String> configClass,
-                            final List<String> files,
-                            final List<String> archives,
+    private ActionAttributesBuilder(final ModifyOnce<String> jobTracker,
+                                    final ModifyOnce<String> nameNode,
+                                    final ModifyOnce<Prepare> prepare,
+                                    final ModifyOnce<Streaming> streaming,
+                                    final ModifyOnce<Pipes> pipes,
+                                    final List<String> jobXmls,
+                                    final Map<String, ModifyOnce<String>> configuration,
+                                    final ModifyOnce<String> configClass,
+                                    final List<String> files,
+                                    final List<String> archives,
 
-                            final List<Delete> deletes,
-                            final List<Mkdir> mkdirs,
-                            final List<Move> moves,
-                            final List<Chmod> chmods,
-                            final List<Touchz> touchzs,
-                            final List<Chgrp> chgrps,
-                            final List<Setrep> setreps) {
+                                    final List<Delete> deletes,
+                                    final List<Mkdir> mkdirs,
+                                    final List<Move> moves,
+                                    final List<Chmod> chmods,
+                                    final List<Touchz> touchzs,
+                                    final List<Chgrp> chgrps,
+                                    final List<Setrep> setreps) {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
         this.prepare = prepare;
@@ -167,7 +167,7 @@ public class ActionAttributesBuilder {
         this.setreps = setreps;
     }
 
-    public void withJobTracker(final String jobTracker) {
+    void withJobTracker(final String jobTracker) {
         this.jobTracker.set(jobTracker);
     }
 
@@ -175,27 +175,27 @@ public class ActionAttributesBuilder {
         this.nameNode.set(nameNode);
     }
 
-    public void withPrepare(final Prepare prepare) {
+    void withPrepare(final Prepare prepare) {
         this.prepare.set(prepare);
     }
 
-    public void withStreaming(final Streaming streaming) {
+    void withStreaming(final Streaming streaming) {
         this.streaming.set(streaming);
     }
 
-    public void withPipes(final Pipes pipes) {
+    void withPipes(final Pipes pipes) {
         this.pipes.set(pipes);
     }
 
-    public void withJobXml(final String jobXml) {
+    void withJobXml(final String jobXml) {
         this.jobXmls.add(jobXml);
     }
 
-    public void withoutJobXml(final String jobXml) {
+    void withoutJobXml(final String jobXml) {
         jobXmls.remove(jobXml);
     }
 
-    public void clearJobXmls() {
+    void clearJobXmls() {
         jobXmls.clear();
     }
 
@@ -216,115 +216,115 @@ public class ActionAttributesBuilder {
         mappedValue.set(value);
     }
 
-    public void withConfigClass(final String configClass) {
+    void withConfigClass(final String configClass) {
         this.configClass.set(configClass);
     }
 
-    public void withFile(final String file) {
+    void withFile(final String file) {
         this.files.add(file);
     }
 
-    public void withoutFile(final String file) {
+    void withoutFile(final String file) {
         files.remove(file);
     }
 
-    public void clearFiles() {
+    void clearFiles() {
         files.clear();
     }
 
-    public void withArchive(final String archive) {
+    void withArchive(final String archive) {
         this.archives.add(archive);
     }
 
-    public void withoutArchive(final String archive) {
+    void withoutArchive(final String archive) {
         archives.remove(archive);
     }
 
-    public void clearArchives() {
+    void clearArchives() {
         archives.clear();
     }
 
-    public void withDelete(final Delete delete) {
+    void withDelete(final Delete delete) {
         this.deletes.add(delete);
     }
 
-    public void withoutDelete(final Delete delete) {
+    void withoutDelete(final Delete delete) {
         deletes.remove(delete);
     }
 
-    public void clearDeletes() {
+    void clearDeletes() {
         deletes.clear();
     }
 
-    public void withMkdir(final Mkdir mkdir) {
+    void withMkdir(final Mkdir mkdir) {
         this.mkdirs.add(mkdir);
     }
 
-    public void withoutMkdir(final Mkdir mkdir) {
+    void withoutMkdir(final Mkdir mkdir) {
         mkdirs.remove(mkdir);
     }
 
-    public void clearMkdirs() {
+    void clearMkdirs() {
         mkdirs.clear();
     }
 
-    public void withMove(final Move move) {
+    void withMove(final Move move) {
         this.moves.add(move);
     }
 
-    public void withoutMove(final Move move) {
+    void withoutMove(final Move move) {
         moves.remove(move);
     }
 
-    public void clearMoves() {
+    void clearMoves() {
         moves.clear();
     }
 
-    public void withChmod(final Chmod chmod) {
+    void withChmod(final Chmod chmod) {
         this.chmods.add(chmod);
     }
 
-    public void withoutChmod(final Chmod chmod) {
+    void withoutChmod(final Chmod chmod) {
         chmods.remove(chmod);
     }
 
-    public void clearChmods() {
+    void clearChmods() {
         chmods.clear();
     }
 
-    public void withTouchz(final Touchz touchz) {
+    void withTouchz(final Touchz touchz) {
         this.touchzs.add(touchz);
     }
 
-    public void withoutTouchz(final Touchz touchz) {
+    void withoutTouchz(final Touchz touchz) {
         touchzs.remove(touchz);
     }
 
-    public void clearTouchzs() {
+    void clearTouchzs() {
         touchzs.clear();
     }
 
-    public void withChgrp(final Chgrp chgrp) {
+    void withChgrp(final Chgrp chgrp) {
         this.chgrps.add(chgrp);
     }
 
-    public void withoutChgrp(final Chgrp chgrp) {
+    void withoutChgrp(final Chgrp chgrp) {
         chgrps.remove(chgrp);
     }
 
-    public void clearChgrps() {
+    void clearChgrps() {
         chgrps.clear();
     }
 
-    public void withSetrep(final Setrep setrep) {
+    void withSetrep(final Setrep setrep) {
         this.setreps.add(setrep);
     }
 
-    public void withoutSetrep(final Setrep setrep) {
+    void withoutSetrep(final Setrep setrep) {
         setreps.remove(setrep);
     }
 
-    public void clearSetreps() {
+    void clearSetreps() {
         setreps.clear();
     }
 
@@ -336,7 +336,7 @@ public class ActionAttributesBuilder {
                 streaming.get(),
                 pipes.get(),
                 ImmutableList.copyOf(jobXmls),
-                getConfigurationMap(configuration),
+                convertToConfigurationMap(configuration),
                 configClass.get(),
                 ImmutableList.copyOf(files),
                 ImmutableList.copyOf(archives),
@@ -351,8 +351,9 @@ public class ActionAttributesBuilder {
         );
     }
 
-    public static Map<String, ModifyOnce<String>> getModifiedOnceMap(final Map<String, String> configurationMap) {
+    static Map<String, ModifyOnce<String>> convertToModifyOnceMap(final Map<String, String> configurationMap) {
         final Map<String, ModifyOnce<String>> modifyOnceEntries = new LinkedHashMap<>();
+
         for (final Map.Entry<String, String> keyAndValue : configurationMap.entrySet()) {
             modifyOnceEntries.put(keyAndValue.getKey(), new ModifyOnce<>(keyAndValue.getValue()));
         }
@@ -360,8 +361,9 @@ public class ActionAttributesBuilder {
         return modifyOnceEntries;
     }
 
-    public static ImmutableMap<String, String> getConfigurationMap(final Map<String, ModifyOnce<String>> map) {
+    static ImmutableMap<String, String> convertToConfigurationMap(final Map<String, ModifyOnce<String>> map) {
         final Map<String, String> mutableConfiguration = new LinkedHashMap<>();
+
         for (final Map.Entry<String, ModifyOnce<String>> modifyOnceEntry : map.entrySet()) {
             if (modifyOnceEntry.getValue().get() != null) {
                 mutableConfiguration.put(modifyOnceEntry.getKey(), modifyOnceEntry.getValue().get());

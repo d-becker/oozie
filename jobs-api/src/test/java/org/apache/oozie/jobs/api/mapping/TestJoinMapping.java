@@ -29,7 +29,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestJoinMapping extends TestControllNodesMapping {
+public class TestJoinMapping extends TestControlNodeMappingBase {
     @Test
     public void testMappingJoin() {
         final String joinName = "join";
@@ -40,7 +40,7 @@ public class TestJoinMapping extends TestControllNodesMapping {
 
         child.addParent(join);
 
-        final JOIN mappedJoin = DozerMapperSingletonWrapper.getMapperInstance().map(join, JOIN.class);
+        final JOIN mappedJoin = DozerMapperSingletonWrapper.instance().map(join, JOIN.class);
 
         assertEquals(joinName, mappedJoin.getName());
         assertEquals(childName, mappedJoin.getTo());
@@ -57,7 +57,7 @@ public class TestJoinMapping extends TestControllNodesMapping {
         final NodeBase child = new ExplicitNode(childName, null);
         child.addParent(decisionJoin);
 
-        final JOIN mappedJoin = DozerMapperSingletonWrapper.getMapperInstance().map(join, JOIN.class);
+        final JOIN mappedJoin = DozerMapperSingletonWrapper.instance().map(join, JOIN.class);
 
         assertEquals(childName, mappedJoin.getTo());
     }

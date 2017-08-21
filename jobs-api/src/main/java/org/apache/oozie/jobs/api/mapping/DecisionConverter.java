@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
+import com.google.common.base.Preconditions;
 import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.generated.workflow.CASE;
 import org.apache.oozie.jobs.api.generated.workflow.DECISION;
@@ -34,7 +35,7 @@ import org.dozer.MapperAware;
 import java.util.List;
 
 public class DecisionConverter extends DozerConverter<Decision, DECISION> implements MapperAware {
-    private static final ObjectFactory objectFactory = new ObjectFactory();
+    private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     private Mapper mapper;
 
     public DecisionConverter() {
@@ -42,8 +43,8 @@ public class DecisionConverter extends DozerConverter<Decision, DECISION> implem
     }
 
     @Override
-    public DECISION convertTo(Decision source, DECISION destination) {
-        destination = assureNonNull(destination);
+    public DECISION convertTo(final Decision source, DECISION destination) {
+        destination = ensureDestination(destination);
 
         mapName(source, destination);
 
@@ -53,12 +54,12 @@ public class DecisionConverter extends DozerConverter<Decision, DECISION> implem
     }
 
     @Override
-    public Decision convertFrom(DECISION source, Decision destination) {
+    public Decision convertFrom(final DECISION source, final Decision destination) {
         throw new UnsupportedOperationException("This mapping is not bidirectional.");
     }
 
     @Override
-    public void setMapper(Mapper mapper) {
+    public void setMapper(final Mapper mapper) {
         this.mapper = mapper;
     }
 
@@ -70,13 +71,11 @@ public class DecisionConverter extends DozerConverter<Decision, DECISION> implem
     private void mapTransitions(final Decision source, final DECISION destination) {
         final NodeBase defaultNode = source.getDefaultChild();
 
-        if (defaultNode == null) {
-            throw new IllegalStateException("No default transition found.");
-        }
+        Preconditions.checkState(defaultNode != null, "No default transition found.");
 
-        final NodeBase realDefaultNode = MappingUtils.getRealChild(defaultNode);
+        final NodeBase realDefaultNode = RealChildLocator.findRealChild(defaultNode);
 
-        final DEFAULT defaultCase = objectFactory.createDEFAULT();
+        final DEFAULT defaultCase = OBJECT_FACTORY.createDEFAULT();
         defaultCase.setTo(realDefaultNode.getName());
         destination.getSwitch().setDefault(defaultCase);
 
@@ -86,9 +85,9 @@ public class DecisionConverter extends DozerConverter<Decision, DECISION> implem
         final List<DagNodeWithCondition> children = childrenIncludingDefault.subList(0, childrenIncludingDefault.size() - 1);
         final List<CASE> cases = destination.getSwitch().getCase();
 
-        for (DagNodeWithCondition childWithCondition : children) {
+        for (final DagNodeWithCondition childWithCondition : children) {
             final NodeBase child = childWithCondition.getNode();
-            final NodeBase realChild = MappingUtils.getRealChild(child);
+            final NodeBase realChild = RealChildLocator.findRealChild(child);
 
             final Condition condition = childWithCondition.getCondition();
 
@@ -99,14 +98,14 @@ public class DecisionConverter extends DozerConverter<Decision, DECISION> implem
         }
     }
 
-    private DECISION assureNonNull(final DECISION destination) {
+    private DECISION ensureDestination(final DECISION destination) {
         DECISION result = destination;
         if (result == null) {
-            result = objectFactory.createDECISION();
+            result = OBJECT_FACTORY.createDECISION();
         }
 
         if (result.getSwitch() == null) {
-            final SWITCH _switch = objectFactory.createSWITCH();
+            final SWITCH _switch = OBJECT_FACTORY.createSWITCH();
             result.setSwitch(_switch);
         }
 
