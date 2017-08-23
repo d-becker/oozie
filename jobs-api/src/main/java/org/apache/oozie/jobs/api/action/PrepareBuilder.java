@@ -20,7 +20,13 @@ package org.apache.oozie.jobs.api.action;
 
 import com.google.common.collect.ImmutableList;
 
-public class PrepareBuilder {
+/**
+ * A builder class for {@link Prepare}.
+ *
+ * Builder instances can be used to build several elements, although properties already set cannot be changed after
+ * a call to {@link FSActionBuilder#build} either.
+ */
+public class PrepareBuilder implements Builder<Prepare> {
     private final ImmutableList.Builder<Delete> deletes;
     private final ImmutableList.Builder<Mkdir> mkdirs;
 
@@ -29,20 +35,43 @@ public class PrepareBuilder {
         mkdirs = new ImmutableList.Builder<>();
     }
 
+    /**
+     * Registers a {@link Delete} object with this builder. The {@link Delete} object will have the provided path as
+     * its target and the default value (true) for skip-trash.
+     * @param path The target of the {@link Delete} object.
+     */
     public PrepareBuilder withDelete(final String path) {
         return withDelete(path, null);
     }
 
+    /**
+     * Registers a {@link Delete} object with this builder. The {@link Delete} object will have the provided path as
+     * its target and the given boolean value for skip-trash.
+     * @param path The target of the {@link Delete} object.
+     * @param skipTrash Whether to skip trash when deleting the items.
+     */
     public PrepareBuilder withDelete(final String path, final Boolean skipTrash) {
         deletes.add(new Delete(path, skipTrash));
         return this;
     }
 
+    /**
+     * Registers a {@link Mkdir} object with this builder The {@link Mkdir} object will have the provided path as
+     * its target.
+     * @param path The target of the {@link Mkdir}.
+     */
     public PrepareBuilder withMkdir(final String path) {
         mkdirs.add(new Mkdir(path));
         return this;
     }
 
+    /**
+     * Creates a new {@link Prepare} object with the properties stores in this builder.
+     * The new {@link Prepare} object is independent of this builder and the builder can be used to build
+     * new instances.
+     * @return A new {@link Prepare} object with the properties stored in this builder.
+     */
+    @Override
     public Prepare build() {
         return new Prepare(deletes.build(), mkdirs.build());
     }

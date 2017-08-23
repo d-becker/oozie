@@ -19,7 +19,14 @@
 package org.apache.oozie.jobs.api.action;
 
 /**
- * A class representing the chmod operation of {@link FSAction}.
+ * A class representing the chmod command of {@link FSAction}.
+ * Instances of this class should be built using the builder {@link ChmodBuilder}.
+ *
+ * The properties of the builder can only be set once, an attempt to set them a second time will trigger
+ * an {@link IllegalStateException}.
+ *
+ * Builder instances can be used to build several elements, although properties already set cannot be changed after
+ * a call to {@link ChmodBuilder#build} either.
  */
 public class Chmod extends ChFSBase {
     private final String permissions;
@@ -31,8 +38,8 @@ public class Chmod extends ChFSBase {
     }
 
     /**
-     * Returns the new permissions that will be set by the operation.
-     * @return The new permissions that will be set by the operation.
+     * Returns the new permissions that will be set by the command.
+     * @return The new permissions that will be set by the command.
      */
     public String getPermissions() {
         return permissions;

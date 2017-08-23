@@ -68,7 +68,7 @@ public class EmailActionBuilder extends NodeBuilderBaseImpl<EmailActionBuilder> 
      * {@link EmailAction} object. The properties of the builder will initially be the same as those of the
      * provided {@link EmailAction} object, but it is possible to modify them once.
      * @param action The {@link EmailAction} object on which this {@link EmailActionBuilder} will be based.
-     * @return A new {@link EmailActionBuilder} that is based on a previously built {@link ActionAttributes} object.
+     * @return A new {@link EmailActionBuilder} that is based on a previously built {@link EmailAction} object.
      */
     public static EmailActionBuilder createFromExistingAction(final EmailAction action) {
         final ModifyOnce<String> to = new ModifyOnce<>(action.getRecipient());

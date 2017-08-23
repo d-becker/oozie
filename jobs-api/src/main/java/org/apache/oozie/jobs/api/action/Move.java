@@ -18,19 +18,35 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A class representing the move command of {@link FSAction}.
+ */
 public class Move {
     private final String source;
     private final String target;
 
+    /**
+     * Creates a new {@link Move} object with the provided path.
+     * @param source
+     * @param target
+     */
     public Move(final String source, final String target) {
         this.source = source;
         this.target = target;
     }
 
+    /**
+     * Returns the source path of this {@link Move} operation.
+     * @return The source path of this {@link Move} operation.
+     */
     public String getSource() {
         return source;
     }
 
+    /**
+     * Returns the target path of this {@link Move} operation.
+     * @return The target path of this {@link Move} operation.
+     */
     public String getTarget() {
         return target;
     }

@@ -19,7 +19,14 @@
 package org.apache.oozie.jobs.api.action;
 
 /**
- * A class representing the chgrp operation of {@link FSAction}.
+ * A class representing the chgrp command of {@link FSAction}.
+ * Instances of this class should be built using the builder {@link ChgrpBuilder}.
+ *
+ * The properties of the builder can only be set once, an attempt to set them a second time will trigger
+ * an {@link IllegalStateException}.
+ *
+ * Builder instances can be used to build several elements, although properties already set cannot be changed after
+ * a call to {@link ChgrpBuilder#build} either.
  */
 public class Chgrp extends ChFSBase {
     private String group;
@@ -32,8 +39,8 @@ public class Chgrp extends ChFSBase {
 
 
     /**
-     * Returns the new group that will be set by the operation.
-     * @return The new group that will be set by the operation.
+     * Returns the new group that will be set by the command.
+     * @return The new group that will be set by the command.
      */
     public String getGroup() {
         return group;

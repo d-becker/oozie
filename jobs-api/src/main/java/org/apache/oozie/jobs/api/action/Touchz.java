@@ -18,13 +18,24 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A class representing the touchz command of {@link FSAction}.
+ */
 public class Touchz {
     private final String path;
 
+    /**
+     * Creates a new {@link Touchz} object.
+     * @param path The path of the file that the touch operation will be executed on.
+     */
     public Touchz(final String path) {
         this.path = path;
     }
 
+    /**
+     * Returns the path of the file that the touch operation will be executed on.
+     * @return The path of the file that the touch operation will be executed on.
+     */
     public String getPath() {
         return path;
     }

@@ -18,6 +18,8 @@
 
 package org.apache.oozie.jobs.api.action;
 
+import org.apache.oozie.jobs.api.Condition;
+import org.apache.oozie.jobs.api.oozie.dag.DagNodeWithCondition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,6 +30,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public abstract class TestNodeBuilderBaseImpl <N extends Node,
         B extends NodeBuilderBaseImpl<B> & Builder<N>> {
@@ -142,7 +145,31 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
 
     @Test
     public void testWithConditionalParents() {
+        final String condition1 = "condition1";
+        final String condition2 = "condition2";
 
+        final N parent1 = Mockito.spy(getBuilderInstance().build());
+        final N parent2 = Mockito.spy(getBuilderInstance().build());
+
+        final B builder = getBuilderInstance();
+        builder.withParentWithCondition(parent1, condition1)
+                .withParentWithCondition(parent2, condition2);
+
+        final N child = builder.build();
+
+        final List<Node.NodeWithCondition> nodesWithConditions = child.getParentsWithConditions();
+
+        assertEquals(parent1, nodesWithConditions.get(0).getNode());
+        assertEquals(Condition.actualCondition(condition1), nodesWithConditions.get(0).getCondition());
+
+        assertEquals(parent2, nodesWithConditions.get(1).getNode());
+        assertEquals(Condition.actualCondition(condition2), nodesWithConditions.get(1).getCondition());
+
+        Mockito.verify(parent1).addChildWithCondition(child, condition1);
+        Mockito.verify(parent2).addChildWithCondition(child, condition2);
+
+        Mockito.verifyNoMoreInteractions(parent1);
+        Mockito.verifyNoMoreInteractions(parent2);
     }
 
     @Test
@@ -232,6 +259,28 @@ public abstract class TestNodeBuilderBaseImpl <N extends Node,
         final List<Node.NodeWithCondition> parentsWithConditions = child.getParentsWithConditions();
         assertEquals(parent2, parentsWithConditions.get(0).getNode());
         assertEquals(condition, parentsWithConditions.get(0).getCondition().getCondition());
+    }
+
+    @Test
+    public void testAddDuplicateDefaultParentTwiceAsDefaultThrows() {
+        final Node parent = getBuilderInstance().build();
+
+        final NodeBuilderBaseImpl builder = getBuilderInstance()
+                .withParentDefaultConditional(parent);
+
+        expectedException.expect(IllegalArgumentException.class);
+        builder.withParentDefaultConditional(parent);
+    }
+
+    @Test
+    public void testAddDuplicateDefaultParentFirstAsNormalConditionalThrows() {
+        final Node parent = getBuilderInstance().build();
+
+        final NodeBuilderBaseImpl builder = getBuilderInstance()
+                .withParentWithCondition(parent, "any_condition");
+
+        expectedException.expect(IllegalArgumentException.class);
+        builder.withParentDefaultConditional(parent);
     }
 
     @Test

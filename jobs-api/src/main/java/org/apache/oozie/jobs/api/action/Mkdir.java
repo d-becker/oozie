@@ -18,13 +18,24 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A class representing the mkdir command of {@link FSAction} and the prepare section of other actions.
+ */
 public class Mkdir {
     private final String path;
 
+    /**
+     * Creates a new {@link Mkdir} object with the provided path.
+     * @param path The path of the directory that will be created when this operation is run.
+     */
     public Mkdir(final String path) {
         this.path = path;
     }
 
+    /**
+     * Returns the path of the directory that will be created.
+     * @return The path of the directory that will be created.
+     */
     public String getPath() {
         return path;
     }

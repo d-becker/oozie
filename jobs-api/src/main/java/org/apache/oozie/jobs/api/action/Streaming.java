@@ -20,6 +20,17 @@ package org.apache.oozie.jobs.api.action;
 
 import com.google.common.collect.ImmutableList;
 
+/**
+ * A class representing the streaming information within a {@link MapReduceAction}.
+ *
+ * Instances of this class should be built using the builder {@link StreamingBuilder}.
+ *
+ * The properties of the builder can only be set once, an attempt to set them a second time will trigger
+ * an {@link IllegalStateException}.
+ *
+ * Builder instances can be used to build several elements, although properties already set cannot be changed after
+ * a call to {@link StreamingBuilder#build} either.
+ */
 public class Streaming {
     private final String mapper;
     private final String reducer;
@@ -39,22 +50,42 @@ public class Streaming {
         this.envs = envs;
     }
 
+    /**
+     * Returns the mapper of this {@link Streaming} object.
+     * @return The mapper of this {@link Streaming} object.
+     */
     public String getMapper() {
         return mapper;
     }
 
+    /**
+     * Returns the reducer of this {@link Streaming} object.
+     * @return The reducer of this {@link Streaming} object.
+     */
     public String getReducer() {
         return reducer;
     }
 
+    /**
+     * Returns the record reader of this {@link Streaming} object.
+     * @return The record reader of this {@link Streaming} object.
+     */
     public String getRecordReader() {
         return recordReader;
     }
 
+    /**
+     * Returns the record reader mappings of this {@link Streaming} object as a map.
+     * @return The record reader mappings of this {@link Streaming} object as a map.
+     */
     public ImmutableList<String> getRecordReaderMappings() {
         return recordReaderMappings;
     }
 
+    /**
+     * Returns the environment variables of this {@link Streaming} object as a map.
+     * @return The environment variables of this {@link Streaming} object as a map.
+     */
     public ImmutableList<String> getEnvs() {
         return envs;
     }

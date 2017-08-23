@@ -18,20 +18,38 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A class representing the delete operation of {@link FSAction} and the prepare section of other actions.
+ */
 public class Delete {
     private final String path;
     private final Boolean skipTrash;
 
+    /**
+     * Creates a new {@link Delete} object.
+     * @param path The path of the file or directory to be deleted.
+     * @param skipTrash {@code true} if the deleted items should NOT be moved to the trash but deleted completely;
+     *                  {@code false} if the items should be moved to trash instead of deleting them conpletely.
+     */
     public Delete(final String path, final Boolean skipTrash) {
         this.path = path;
         this.skipTrash = skipTrash;
     }
 
+    /**
+     * Returns the path of the item to be deleted.
+     * @return The path of the item to be deleted.
+     */
     public String getPath() {
         return path;
     }
 
-    Boolean getSkipTrash() {
+    /**
+     * Returns whether the trash should be skipped when deleting the items.
+     * @return {@code true} if the deleted items should NOT be moved to the trash but deleted completely;
+     *         {@code false} if the items should be moved to trash instead of deleting them conpletely.
+     */
+    public Boolean getSkipTrash() {
         return skipTrash;
     }
 }

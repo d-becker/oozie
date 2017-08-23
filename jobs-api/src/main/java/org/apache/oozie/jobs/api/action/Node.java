@@ -26,6 +26,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * An abstract base class for API level action nodes. Concrete instances of the actions should be created using their
+ * respective builders that inherit from {@link NodeBuilderBaseImpl} and implement the {@link Builder} interface.
+ *
+ * The public interface of {@link Node} objects is immutable. This way we can ensure at compile time that there are no
+ * cycles in the graph: once a node is built, it cannot get new parents. On the other hand, {@link Node} objects still
+ * keep track of their children, which are necessarily added after the parent node is built, so  these objects are not
+ * really immutable and should not be used in a multithreaded environment without external synchronization.
+ */
 public abstract class Node {
     private final String name;
     private final ImmutableList<Node> parentsWithoutConditions;
@@ -58,10 +67,18 @@ public abstract class Node {
         this.defaultConditionalChild = null;
     }
 
+    /**
+     * Returns the name of the node.
+     * @return The name of the node.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns a list of all the parents of this node, including unconditional and conditional parents.
+     * @return A list of all the parents of this node object.
+     */
     public List<Node> getAllParents() {
         final List<Node> allParents = new ArrayList<>(parentsWithoutConditions);
 
@@ -72,14 +89,26 @@ public abstract class Node {
         return Collections.unmodifiableList(allParents);
     }
 
+    /**
+     * Returns a list of the unconditional parents of this node.
+     * @return A list of the unconditional parents of this node.
+     */
     public List<Node> getParentsWithoutConditions() {
         return parentsWithoutConditions;
     }
 
+    /**
+     * Returns a list of the conditional parents of this node together with their conditions.
+     * @return A list of the conditional parents of this node together with their conditions.
+     */
     public List<Node.NodeWithCondition> getParentsWithConditions() {
         return parentsWithConditions;
     }
 
+    /**
+     * Returns the error handler of this node.
+     * @return The error handler of this node.
+     */
     public ErrorHandler getErrorHandler() {
         return errorHandler;
     }
@@ -109,8 +138,8 @@ public abstract class Node {
     }
 
     /**
-     * Returns an unmodifiable view of list of the children of this <code>Node</code>.
-     * @return An unmodifiable view of list of the children of this <code>Node</code>.
+     * Returns an unmodifiable view of list of all the children of this {@link Node}.
+     * @return An unmodifiable view of list of all the children of this {@link Node}.
      */
     public List<Node> getAllChildren() {
         final List<Node> allChildren = new ArrayList<>(childrenWithoutConditions);
@@ -123,16 +152,16 @@ public abstract class Node {
     }
 
     /**
-     * Returns an unmodifiable view of list of the children without condition of this <code>Node</code>.
-     * @return An unmodifiable view of list of the children without condition of this <code>Node</code>.
+     * Returns an unmodifiable view of list of the children without condition of this {@link Node}.
+     * @return An unmodifiable view of list of the children without condition of this {@link Node}.
      */
     public List<Node> getChildrenWithoutConditions() {
         return Collections.unmodifiableList(childrenWithoutConditions);
     }
 
     /**
-     * Returns an unmodifiable view of list of the children with condition (including the default) of this <code>Node</code>.
-     * @return An unmodifiable view of list of the children with condition (including the default) of this <code>Node</code>.
+     * Returns an unmodifiable view of list of the children with condition (including the default) of this {@link Node}.
+     * @return An unmodifiable view of list of the children with condition (including the default) of this {@link Node}.
      */
     public List<NodeWithCondition> getChildrenWithConditions() {
         if (defaultConditionalChild == null) {
@@ -145,6 +174,10 @@ public abstract class Node {
         return Collections.unmodifiableList(results);
     }
 
+    /**
+     * Returns the default conditional child of this {@link Node}.
+     * @return The default conditional child of this {@link Node}.
+     */
     public Node getDefaultConditionalChild() {
         return defaultConditionalChild;
     }

@@ -21,6 +21,16 @@ package org.apache.oozie.jobs.api.action;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A class representing the Oozie map-reduce action.
+ * Instances of this class should be built using the builder {@link MapReduceActionBuilder}.
+ *
+ * The properties of the builder can only be set once, an attempt to set them a second time will trigger
+ * an {@link IllegalStateException}.
+ *
+ * Builder instances can be used to build several elements, although properties already set cannot be changed after
+ * a call to {@link MapReduceActionBuilder#build} either.
+ */
 public class MapReduceAction extends Node {
     private final ActionAttributes attributes;
 
@@ -31,46 +41,92 @@ public class MapReduceAction extends Node {
         this.attributes = attributes;
     }
 
+    /**
+     * Returns the job tracker name.
+     * @return The job tracker name.
+     */
     public String getJobTracker() {
         return attributes.getJobTracker();
     }
 
+    /**
+     * Returns the name node stored in this {@link MapReduceAction} object.
+     * @return The name node stored in this {@link MapReduceAction} object.
+     */
     public String getNameNode() {
         return attributes.getNameNode();
     }
 
+    /**
+     * Returns the {@link Prepare} object stored in this {@link MapReduceAction} object.
+     * @return The {@link Prepare} object stored in this {@link MapReduceAction} object.
+     */
     public Prepare getPrepare() {
         return attributes.getPrepare();
     }
 
+    /**
+     * Returns the {@link Streaming} object stored in this {@link MapReduceAction} object.
+     * @return The {@link Streaming} object stored in this {@link MapReduceAction} object.
+     */
     public Streaming getStreaming() {
         return attributes.getStreaming();
     }
 
+    /**
+     * Returns the {@link Pipes} object stored in this {@link MapReduceAction} object.
+     * @return The {@link Pipes} object stored in this {@link MapReduceAction} object.
+     */
     public Pipes getPipes() {
         return attributes.getPipes();
     }
 
+    /**
+     * Returns the list of job XMLs stored in this {@link MapReduceAction} object.
+     * @return The list of job XMLs stored in this {@link MapReduceAction} object.
+     */
     public List<String> getJobXmls() {
         return attributes.getJobXmls();
     }
 
+
+    /**
+     * Returns the value associated with the provided configuration property name.
+     * @param property The name of the configuration property for which the value will be returned.
+     * @return The value associated with the provided configuration property name.
+     */
     public String getConfigProperty(final String property) {
         return attributes.getConfiguration().get(property);
     }
 
+    /**
+     * Returns an immutable map of the configuration key-value pairs stored in this {@link MapReduceAction} object.
+     * @return An immutable map of the configuration key-value pairs stored in this {@link MapReduceAction} object.
+     */
     public Map<String, String> getConfiguration() {
         return attributes.getConfiguration();
     }
 
+    /**
+     * Returns the configuration class property of this {@link MapReduceAction} object.
+     * @return The configuration class property of this {@link MapReduceAction} object.
+     */
     public String getConfigClass() {
         return attributes.getConfigClass();
     }
 
+    /**
+     * Returns an immutable list of the names of the files associated with this {@link MapReduceAction} object.
+     * @return An immutable list of the names of the files associated with this {@link MapReduceAction} object.
+     */
     public List<String> getFiles() {
         return attributes.getFiles();
     }
 
+    /**
+     * Returns an immutable list of the names of the archives associated with this {@link MapReduceAction} object.
+     * @return An immutable list of the names of the archives associated with this {@link MapReduceAction} object.
+     */
     public List<String> getArchives() {
         return attributes.getArchives();
     }

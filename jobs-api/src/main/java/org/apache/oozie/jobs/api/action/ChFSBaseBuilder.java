@@ -20,6 +20,9 @@ package org.apache.oozie.jobs.api.action;
 
 import org.apache.oozie.jobs.api.ModifyOnce;
 
+/**
+ * A base class for {@link ChgrpBuilder} and {@ling ChmodBuilder}.
+ */
 public abstract class ChFSBaseBuilder <B extends ChFSBaseBuilder<B>> {
     private final ModifyOnce<Boolean> recursive;
     private final ModifyOnce<String> path;

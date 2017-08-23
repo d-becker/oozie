@@ -20,6 +20,16 @@ package org.apache.oozie.jobs.api.action;
 
 import org.apache.oozie.jobs.api.ModifyOnce;
 
+/**
+ * A builder class for {@link Chgrp}.
+ *
+ * The properties of the builder can only be set once, an attempt to set them a second time will trigger
+ * an {@link IllegalStateException}. The properties that are lists are an exception to this rule, of course multiple
+ * elements can be added / removed.
+ *
+ * Builder instances can be used to build several elements, although properties already set cannot be changed after
+ * a call to {@link ChgrpBuilder#build} either.
+ */
 public class ChgrpBuilder extends ChFSBaseBuilder<ChgrpBuilder> implements Builder<Chgrp> {
     private final ModifyOnce<String> group;
 

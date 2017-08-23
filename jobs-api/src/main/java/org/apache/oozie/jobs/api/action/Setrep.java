@@ -18,6 +18,9 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A class representing the setrep command of {@link FSAction}.
+ */
 public class Setrep {
     private final String path;
     private final short replicationFactor;
@@ -28,10 +31,18 @@ public class Setrep {
         this.replicationFactor = replicationFactor;
     }
 
+    /**
+     * Returns the path of the file for which the replication factor will be set when running this command.
+     * @return
+     */
     public String getPath() {
         return path;
     }
 
+    /**
+     * Returns the replication factor that will be set when running this command.
+     * @return
+     */
     public short getReplicationFactor() {
         return replicationFactor;
     }

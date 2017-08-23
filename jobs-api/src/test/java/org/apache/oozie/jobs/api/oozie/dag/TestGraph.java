@@ -722,8 +722,8 @@ public class TestGraph {
         final List<NodeBase> nodes = Arrays.asList(
                 start, end, fork, join, decision, decisionJoin, A, B, C, D, E, F, G);
 
-        nodesToPng.withWorkflow(workflow);
-        nodesToPng.withGraph(graph);
+//        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withGraph(graph);
 
         checkEqualStructureByNames(nodes, graph);
     }

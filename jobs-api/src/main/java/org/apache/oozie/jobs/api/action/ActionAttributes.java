@@ -92,128 +92,128 @@ public class ActionAttributes {
     }
 
     /**
-     * Return the name of the name node.
-     * @return The name of the name node.
+     * Returns the name node stored in this {@link ActionAttributes} object.
+     * @return The name node stored in this {@link ActionAttributes} object.
      */
     public String getNameNode() {
         return nameNode;
     }
 
     /**
-     * Return the {@link Prepare} object stored in this {@link ActionAttributes}.
-     * @return The {@link Prepare} object stored in this {@link ActionAttributes}.
+     * Returns the {@link Prepare} object stored in this {@link ActionAttributes} object.
+     * @return The {@link Prepare} object stored in this {@link ActionAttributes} object.
      */
     public Prepare getPrepare() {
         return prepare;
     }
 
     /**
-     * Return the {@link Streaming} object stored in this {@link ActionAttributes}.
-     * @return The {@link Streaming} object stored in this {@link ActionAttributes}.
+     * Returns the {@link Streaming} object stored in this {@link ActionAttributes} object.
+     * @return The {@link Streaming} object stored in this {@link ActionAttributes} object.
      */
     public Streaming getStreaming() {
         return streaming;
     }
 
     /**
-     * Return the {@link Pipes} object stored in this {@link ActionAttributes}.
-     * @return The {@link Pipes} object stored in this {@link ActionAttributes}.
+     * Returns the {@link Pipes} object stored in this {@link ActionAttributes} object.
+     * @return The {@link Pipes} object stored in this {@link ActionAttributes} object.
      */
     public Pipes getPipes() {
         return pipes;
     }
 
     /**
-     * Return the list of job XMLs stored in this {@link ActionAttributes}.
-     * @return The list of job XMLs stored in this {@link ActionAttributes}.
+     * Returns the list of job XMLs stored in this {@link ActionAttributes} object.
+     * @return The list of job XMLs stored in this {@link ActionAttributes} object.
      */
     public ImmutableList<String> getJobXmls() {
         return jobXmls;
     }
 
     /**
-     * Return an immutable map of the configuration key-value pairs stored in this {@link ActionAttributes}.
-     * @return An immutable map of the configuration key-value pairs stored in this {@link ActionAttributes}.
+     * Returns an immutable map of the configuration key-value pairs stored in this {@link ActionAttributes} object.
+     * @return An immutable map of the configuration key-value pairs stored in this {@link ActionAttributes} object.
      */
     public ImmutableMap<String, String> getConfiguration() {
         return configuration;
     }
 
     /**
-     * Return the configuration class property of this {@link ActionAttributes}.
-     * @return The configuration class property of this {@link ActionAttributes}.
+     * Returns the configuration class property of this {@link ActionAttributes} object.
+     * @return The configuration class property of this {@link ActionAttributes} object.
      */
     public String getConfigClass() {
         return configClass;
     }
 
     /**
-     * Return an immutable list of the names of the files associated with this {@link ActionAttributes}.
-     * @return An immutable list of the names of the files associated with this {@link ActionAttributes}.
+     * Returns an immutable list of the names of the files associated with this {@link ActionAttributes} object.
+     * @return An immutable list of the names of the files associated with this {@link ActionAttributes} object.
      */
     public ImmutableList<String> getFiles() {
         return files;
     }
 
     /**
-     * Return an immutable list of the names of the archives associated with this {@link ActionAttributes}.
-     * @return An immutable list of the names of the archives associated with this {@link ActionAttributes}.
+     * Returns an immutable list of the names of the archives associated with this {@link ActionAttributes} object.
+     * @return An immutable list of the names of the archives associated with this {@link ActionAttributes} object.
      */
     public ImmutableList<String> getArchives() {
         return archives;
     }
 
     /**
-     * Return an immutable list of the {@link Delete} objects stored in this {@link ActionAttributes}.
-     * @return An immutable list of the {@link Delete} objects stored in this {@link ActionAttributes}.
+     * Returns an immutable list of the {@link Delete} objects stored in this {@link ActionAttributes} object.
+     * @return An immutable list of the {@link Delete} objects stored in this {@link ActionAttributes} object.
      */
     public ImmutableList<Delete> getDeletes() {
         return deletes;
     }
 
     /**
-     * Return an immutable list of the {@link Mkdir} objects stored in this {@link ActionAttributes}.
-     * @return An immutable list of the {@link Mkdir} objects stored in this {@link ActionAttributes}.
+     * Returns an immutable list of the {@link Mkdir} objects stored in this {@link ActionAttributes} object.
+     * @return An immutable list of the {@link Mkdir} objects stored in this {@link ActionAttributes} object.
      */
     public ImmutableList<Mkdir> getMkdirs() {
         return mkdirs;
     }
 
     /**
-     * Return an immutable list of the {@link Move} objects stored in this {@link ActionAttributes}.
-     * @return An immutable list of the {@link Move} objects stored in this {@link ActionAttributes}.
+     * Returns an immutable list of the {@link Move} objects stored in this {@link ActionAttributes} object.
+     * @return An immutable list of the {@link Move} objects stored in this {@link ActionAttributes} object.
      */
     public ImmutableList<Move> getMoves() {
         return moves;
     }
 
     /**
-     * Return an immutable list of the {@link Chmod} objects stored in this {@link ActionAttributes}.
-     * @return An immutable list of the {@link Chmod} objects stored in this {@link ActionAttributes}.
+     * Returns an immutable list of the {@link Chmod} objects stored in this {@link ActionAttributes} object.
+     * @return An immutable list of the {@link Chmod} objects stored in this {@link ActionAttributes} object.
      */
     public ImmutableList<Chmod> getChmods() {
         return chmods;
     }
 
     /**
-     * Return an immutable list of the {@link Touchz} objects stored in this {@link ActionAttributes}.
-     * @return An immutable list of the {@link Touchz} objects stored in this {@link ActionAttributes}.
+     * Returns an immutable list of the {@link Touchz} objects stored in this {@link ActionAttributes} object.
+     * @return An immutable list of the {@link Touchz} objects stored in this {@link ActionAttributes} object.
      */
     public ImmutableList<Touchz> getTouchzs() {
         return touchzs;
     }
 
     /**
-     * Return an immutable list of the {@link Chgrp} objects stored in this {@link ActionAttributes}.
-     * @return An immutable list of the {@link Delete} objects stored in this {@link ActionAttributes}.
+     * Returns an immutable list of the {@link Chgrp} objects stored in this {@link ActionAttributes} object.
+     * @return An immutable list of the {@link Delete} objects stored in this {@link ActionAttributes} object.
      */
     public ImmutableList<Chgrp> getChgrps() {
         return chgrps;
     }
 
     /**
-     * Return an immutable list of the {@link Setrep} objects stored in this {@link ActionAttributes}.
-     * @return An immutable list of the {@link Setrep} objects stored in this {@link ActionAttributes}.
+     * Returns an immutable list of the {@link Setrep} objects stored in this {@link ActionAttributes} object.
+     * @return An immutable list of the {@link Setrep} objects stored in this {@link ActionAttributes} object.
      */
     public ImmutableList<Setrep> getSetreps() {
         return setreps;

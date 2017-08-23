@@ -462,7 +462,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
     }
 
     /**
-     * Removes all {@link Touchz} objects that are registered with this builder.
+     * Removes all {@link Chgrp} objects that are registered with this builder.
      */
     void clearChgrps() {
         chgrps.clear();

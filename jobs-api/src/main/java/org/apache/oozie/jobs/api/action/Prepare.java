@@ -22,19 +22,32 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
+/**
+ * A class representing the prepare section of various actions.
+ *
+ * Instances of this class should be built using the builder {@link PrepareBuilder}.
+ */
 public class Prepare {
     private final ImmutableList<Delete> deletes;
     private final ImmutableList<Mkdir> mkdirs;
 
-    public Prepare(final ImmutableList<Delete> deletes, final ImmutableList<Mkdir> mkdirs) {
+    Prepare(final ImmutableList<Delete> deletes, final ImmutableList<Mkdir> mkdirs) {
         this.deletes = deletes;
         this.mkdirs = mkdirs;
     }
 
+    /**
+     * Returns the {@link Delete} objects that specify which directories or files will be deleted.
+     * @return The {@link Delete} objects that specify which directories or files will be deleted.
+     */
     List<Delete> getDeletes() {
         return deletes;
     }
 
+    /**
+     * Returns the {@link Mkdir} objects that specify which directories will be created.
+     * @return The {@link Mkdir} objects that specify which directories will be created.
+     */
     List<Mkdir> getMkdirs() {
         return mkdirs;
     }

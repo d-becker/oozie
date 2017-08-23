@@ -26,6 +26,23 @@ import org.apache.oozie.jobs.api.ModifyOnce;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * An abstract base class for builders that build concrete instances of subclasses of {@link Node}. This class doesn't
+ * implement the {@link Builder} interface as no type information as to the concrete node to build. The concrete node
+ * builder classes of course should implement {@link Builder}.
+ *
+ * The concrete builders should provide a fluent API, and to facilitate this, the methods in this base class have to
+ * return the concrete builder. Therefore it is templated on the type of the concrete builder class. Although it cannot
+ * be enforced that the provided generic parameter is the same as the class deriving from this class, it definitely
+ * should be, and the constraint on the type parameter tries to minimize the chance that the class is subclassed
+ * incorrectly.
+ *
+ * The properties of the builder can only be set once, an attempt to set them a second time will trigger
+ * an {@link IllegalStateException}. The properties that are lists are an exception to this rule, of course multiple
+ * elements can be added / removed.
+ *
+ * @param <B> The type of the concrete builder class deriving from this class.
+ */
 public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
     private final ModifyOnce<String> name;
     private final List<Node> parents;
@@ -52,21 +69,43 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
         }
     }
 
+    /**
+     * Registers an error handler with this builder.
+     * @param errorHandler The error handler to register.
+     * @return This builder.
+     */
     public B withErrorHandler(final ErrorHandler errorHandler) {
         this.errorHandler.set(errorHandler);
         return ensureRuntimeSelfReference();
     }
 
+    /**
+     * Removes the currently registered error handler if any.
+     * @return This builder.
+     */
     public B withoutErrorHandler() {
         errorHandler.set(null);
         return ensureRuntimeSelfReference();
     }
 
+    /**
+     * Registers a name that will be the name of the action built by this builder.
+     * @param name The name of the action that will be built.
+     * @return This builder.
+     */
     public B withName(final String name) {
         this.name.set(name);
         return ensureRuntimeSelfReference();
     }
 
+    /**
+     * Registers an unconditional parent with this builder. If the parent is already registered with this builder,
+     * {@link IllegalArgumentException} is thrown.
+     * @param parent The node that will be the parent of the built action.
+     * @return This builder.
+     *
+     * @throws IllegalArgumentException if the provided node is already registered as a parent.
+     */
     public B withParent(final Node parent) {
         checkNoDuplicateParent(parent);
 
@@ -74,6 +113,15 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
         return ensureRuntimeSelfReference();
     }
 
+    /**
+     * Registers a conditional parent with this builder. If the parent is already registered with this builder,
+     * {@link IllegalArgumentException} is thrown.
+     * @param parent The node that will be the parent of the built action.
+     * @param condition The condition of the parent.
+     * @return This builder.
+     *
+     * @throws IllegalArgumentException if the provided node is already registered as a parent.
+     */
     public B withParentWithCondition(final Node parent, final String condition) {
         checkNoDuplicateParent(parent);
 
@@ -81,12 +129,29 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
         return ensureRuntimeSelfReference();
     }
 
+    /**
+     * Registers a conditional parent for which this node is the default transition. If the parent is already registered
+     * with this builder, {@link IllegalArgumentException} is thrown.
+     * {@link IllegalArgumentException} is thrown.
+     * @param parent The node that will be the parent of the built action.
+     * @return This builder.
+     *
+     * @throws IllegalArgumentException if the provided node is already registered as a parent.
+     */
     public B withParentDefaultConditional(final Node parent) {
+        checkNoDuplicateParent(parent);
+
         parentsWithConditions.add(new Node.NodeWithCondition(parent, Condition.defaultCondition()));
         return ensureRuntimeSelfReference();
     }
 
-    B withoutParent(final Node parent) {
+    /**
+     * Removes a parent registered with this builder. If the parent is not registered with this builder, this method
+     * does nothing.
+     * @param parent The parent to remove.
+     * @return This builder.
+     */
+    public B withoutParent(final Node parent) {
         if (parents.contains(parent)) {
             parents.remove(parent);
         } else {
@@ -97,6 +162,10 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
         return ensureRuntimeSelfReference();
     }
 
+    /**
+     * Removes all parents registered with this builder.
+     * @return This builder.
+     */
     public B clearParents() {
         parents.clear();
         parentsWithConditions.clear();

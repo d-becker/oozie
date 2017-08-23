@@ -18,9 +18,23 @@
 
 package org.apache.oozie.jobs.api.action;
 
+/**
+ * A builder class for {@link MapReduceAction}.
+ *
+ * The properties of the builder can only be set once, an attempt to set them a second time will trigger
+ * an {@link IllegalStateException}. The properties that are lists are an exception to this rule, of course multiple
+ * elements can be added / removed.
+ *
+ * Builder instances can be used to build several elements, although properties already set cannot be changed after
+ * a call to {@link MapReduceActionBuilder#build} either.
+ */
 public class MapReduceActionBuilder extends NodeBuilderBaseImpl<MapReduceActionBuilder> implements Builder<MapReduceAction> {
     private final ActionAttributesBuilder attributesBuilder;
 
+    /**
+     * Creates and returns an empty builder.
+     * @return An empty builder.
+     */
     public static MapReduceActionBuilder create() {
         final ActionAttributesBuilder builder = ActionAttributesBuilder.create();
 
@@ -29,6 +43,13 @@ public class MapReduceActionBuilder extends NodeBuilderBaseImpl<MapReduceActionB
                 builder);
     }
 
+    /**
+     * Create and return a new {@link MapReduceActionBuilder} that is based on an already built
+     * {@link MapReduceAction} object. The properties of the builder will initially be the same as those of the
+     * provided {@link MapReduceAction} object, but it is possible to modify them once.
+     * @param action The {@link MapReduceAction} object on which this {@link MapReduceActionBuilder} will be based.
+     * @return A new {@link MapReduceActionBuilder} that is based on a previously built {@link MapReduceAction} object.
+     */
     public static MapReduceActionBuilder createFromExistingAction(final MapReduceAction action) {
         final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromExisting(action.getAttributes());
 
@@ -37,99 +58,169 @@ public class MapReduceActionBuilder extends NodeBuilderBaseImpl<MapReduceActionB
                 builder);
     }
 
-    public MapReduceActionBuilder(final MapReduceAction action,
+    MapReduceActionBuilder(final MapReduceAction action,
                                   final ActionAttributesBuilder attributesBuilder) {
         super(action);
 
         this.attributesBuilder = attributesBuilder;
     }
 
+    /**
+     * Registers a job tracker.
+     * @param jobTracker The string representing the job tracker.
+     * @throws IllegalStateException if a job tracker has already been set on this builder.
+     */
     public MapReduceActionBuilder withJobTracker(final String jobTracker) {
         attributesBuilder.withJobTracker(jobTracker);
         return this;
     }
 
+    /**
+     * Registers a name node.
+     * @param nameNode The string representing the name node.
+     * @throws IllegalStateException if a name node has already been set on this builder.
+     */
     public MapReduceActionBuilder withNameNode(final String nameNode) {
         attributesBuilder.withNameNode(nameNode);
         return this;
     }
 
+    /**
+     * Registers a {@link Prepare} object.
+     * @param prepare The {@link Prepare} object to register.
+     * @throws IllegalStateException if a {@link Prepare} object has already been set on this builder.
+     */
     public MapReduceActionBuilder withPrepare(final Prepare prepare) {
         attributesBuilder.withPrepare(prepare);
         return this;
     }
 
+    /**
+     * Registers a {@link Streaming} object.
+     * @param streaming The {@link Streaming} object to register.
+     * @throws IllegalStateException if a {@link Streaming} object has already been set on this builder.
+     */
     public MapReduceActionBuilder withStreaming(final Streaming streaming) {
         attributesBuilder.withStreaming(streaming);
         return this;
     }
 
+    /**
+     * Registers a {@link Pipes} object.
+     * @param pipes The {@link Pipes} object to register.
+     * @throws IllegalStateException if a {@link Pipes} object has already been set on this builder.
+     */
     public MapReduceActionBuilder withPipes(final Pipes pipes) {
         attributesBuilder.withPipes(pipes);
         return this;
     }
 
+    /**
+     * Registers a job XML with this builder.
+     * @param jobXml The job XML to register.
+     */
     public MapReduceActionBuilder withJobXml(final String jobXml) {
         attributesBuilder.withJobXml(jobXml);
         return this;
     }
 
+    /**
+     * Removes a job XML if it is registered with this builder, otherwise does nothing.
+     * @param jobXml The job XML to remove.
+     */
     public MapReduceActionBuilder withoutJobXml(final String jobXml) {
         attributesBuilder.withoutJobXml(jobXml);
         return this;
     }
 
+    /**
+     * Removes all job XMLs that are registered with this builder.
+     */
     public MapReduceActionBuilder clearJobXmls() {
         attributesBuilder.clearJobXmls();
         return this;
     }
 
     /**
-     * Setting a key to null means deleting it.
-     * @param key
-     * @param value
-     * @return
+     * Registers a configuration property (a key-value pair) with this builder. If the provided key has already been
+     * set on this builder, an exception is thrown. Setting a key to null means deleting it.
+     * @param key The name of the property to set.
+     * @param value The value of the property to set.
+     * @throws IllegalStateException if the provided key has already been set on this builder.
      */
     public MapReduceActionBuilder withConfigProperty(final String key, final String value) {
         attributesBuilder.withConfigProperty(key, value);
         return this;
     }
 
+    /**
+     * Registers a configuration class with this builder.
+     * @param configClass The string representing the configuration class.
+     * @throws IllegalStateException if a configuration class has already been set on this builder.
+     */
     public MapReduceActionBuilder withConfigClass(final String configClass) {
         attributesBuilder.withConfigClass(configClass);
         return this;
     }
 
+    /**
+     * Registers a file with this builder.
+     * @param file The file to register.
+     */
     public MapReduceActionBuilder withFile(final String file) {
         attributesBuilder.withFile(file);
         return this;
     }
 
+    /**
+     * Removes a file if it is registered with this builder, otherwise does nothing.
+     * @param file The file to remove.
+     */
     public MapReduceActionBuilder withoutFile(final String file) {
         attributesBuilder.withoutFile(file);
         return this;
     }
 
+    /**
+     * Removes all files that are registered with this builder.
+     */
     public MapReduceActionBuilder clearFiles() {
         attributesBuilder.clearFiles();
         return this;
     }
 
+    /**
+     * Registers an archive with this builder.
+     * @param archive The archive to register.
+     */
     public MapReduceActionBuilder withArchive(final String archive) {
         attributesBuilder.withArchive(archive);
         return this;
     }
 
+    /**
+     * Removes an archive if it is registered with this builder, otherwise does nothing.
+     * @param archive The archive to remove.
+     */
     public MapReduceActionBuilder withoutArchive(final String archive) {
         attributesBuilder.withoutArchive(archive);
         return this;
     }
 
+    /**
+     * Removes all archives that are registered with this builder.
+     */
     public MapReduceActionBuilder clearArchives() {
         attributesBuilder.clearArchives();
         return this;
     }
 
+    /**
+     * Creates a new {@link MapReduceAction} object with the properties stores in this builder.
+     * The new {@link MapReduceAction} object is independent of this builder and the builder can be used to build
+     * new instances.
+     * @return A new {@link MapReduceAction} object with the properties stored in this builder.
+     */
     @Override
     public MapReduceAction build() {
         final Node.ConstructionData constructionData = getConstructionData();
