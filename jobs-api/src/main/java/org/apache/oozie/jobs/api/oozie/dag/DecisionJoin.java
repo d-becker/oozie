@@ -26,7 +26,12 @@ package org.apache.oozie.jobs.api.oozie.dag;
  */
 public class DecisionJoin extends JoiningNodeBase<Decision> {
 
-    public DecisionJoin(final String name, final Decision branching) {
-        super(name, branching);
+    /**
+     * Creates a new {@link DecisionJoin} object.
+     * @param name The name of the new decision object.
+     * @param decision The {@link Decision} node that this {@link DecisionJoin} node closes.
+     */
+    public DecisionJoin(final String name, final Decision decision) {
+        super(name, decision);
     }
 }

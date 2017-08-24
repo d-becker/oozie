@@ -20,23 +20,44 @@ package org.apache.oozie.jobs.api;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * A generic wrapper class for a value that can be modified once after construction, but only once.
+ * @param <T>
+ */
 public class ModifyOnce<T> {
     private T data;
     private boolean modified;
 
+    /**
+     * Creates a new {@link ModifyOnce} object initialized to {@code null}.
+     */
     public ModifyOnce() {
         this(null);
     }
 
+    /**
+     * Creates a new {@link ModifyOnce} object initialized to {@code defaultData}.
+     * @param defaultData The initial value of this {@link ModifyOnce} object.
+     */
     public ModifyOnce(final T defaultData) {
         this.data = defaultData;
         this.modified = false;
     }
 
+    /**
+     * Returns the wrapped value.
+     * @return The wrapped value.
+     */
     public T get() {
         return data;
     }
 
+    /**
+     * Sets the wrapped value. If it is not the first modification attempt, {@link IllegalStateException} is thrown.
+     * @param data The new data to store.
+     *
+     * @throws IllegalStateException if this is not the first modification attempt.
+     */
     public void set(final T data) {
         Preconditions.checkState(!modified, "Has already been modified once.");
 

@@ -25,47 +25,88 @@ import org.apache.oozie.jobs.api.action.Node;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A class representing action nodes in an Oozie workflow definition DAG. These are the nodes in the intermediate graph
+ * representation that correspond to the nodes that are explicitly defined by the user.
+ */
 public class ExplicitNode extends NodeBase {
     private NodeBase parent;
     private NodeBase child;
     private final Node realNode;
 
+    /**
+     * Create a new explicit node with the given name.
+     * @param name The name of the new explicit node.
+     * @param realNode The API level {@link Node} object defined by the end user.
+     */
     public ExplicitNode(final String name, final Node realNode) {
         super(name);
         this.realNode = realNode;
     }
 
+    /**
+     * Returns the API level {@link Node} object defined by the end user.
+     * @return The API level {@link Node} object defined by the end user.
+     */
     public Node getRealNode() {
         return realNode;
     }
 
+    /**
+     * Returns the parent of this node.
+     * @return The parent of this node.
+     */
     public NodeBase getParent() {
         return parent;
     }
 
+    /**
+     * Returns the child of this node.
+     * @return The child of this node.
+     */
     public NodeBase getChild() {
         return child;
     }
 
+    /**
+     * Adds the provided node as a parent of this node.
+     * @param parent The new parent of this node.
+     *
+     * @throws {@link IllegalStateException} if this node already has a parent.
+     */
     @Override
     public void addParent(final NodeBase parent) {
-        Preconditions.checkState(this.parent == null, "A normal node cannot have multiple parents.");
+        Preconditions.checkState(this.parent == null, "An explicit node cannot have multiple parents.");
 
         this.parent = parent;
         parent.addChild(this);
     }
 
+    /**
+     * Adds the provided node as a conditional parent of this node.
+     * @param parent The new conditional parent of this node.
+     * @param condition The condition which must be true in addition the parent completing successfully for this node
+     *                  to be executed.
+     *
+     * @throws {@link IllegalStateException} if this node already has a parent.
+     */
     @Override
     public void addParentWithCondition(final Decision parent, final Condition condition) {
-        Preconditions.checkState(this.parent == null, "A normal node cannot have multiple parents.");
+        Preconditions.checkState(this.parent == null, "An explicit node cannot have multiple parents.");
 
         this.parent = parent;
         parent.addChildWithCondition(this, condition);
     }
 
+    /**
+     * Adds the provided node as the default conditional parent of this node.
+     * @param parent The new conditional parent of this node.
+     *
+     * @throws {@link IllegalStateException} if this node already has a parent.
+     */
     @Override
     public void addParentDefaultConditional(Decision parent) {
-        Preconditions.checkState(this.parent == null, "A normal node cannot have multiple parents.");
+        Preconditions.checkState(this.parent == null, "An explicit node cannot have multiple parents.");
 
         this.parent = parent;
         parent.addDefaultChild(this);

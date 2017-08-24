@@ -24,37 +24,76 @@ import org.apache.oozie.jobs.api.Condition;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A class representing start nodes in an Oozie workflow definition DAG. These nodes are generated automatically,
+ * the end user should not need to use this class directly.
+ */
 public class Start extends NodeBase {
     private NodeBase child;
 
+    /**
+     * Create a new start node with the given name.
+     * @param name The name of the new start node.
+     */
     public Start(final String name) {
         super(name);
     }
 
+    /**
+     * Returns the child of this {@link Start} object.
+     * @return
+     */
     public NodeBase getChild() {
         return child;
     }
 
+    /**
+     * Throws {@link IllegalStateException} as start nodes cannot have parents.
+     * @param parent The new parent of this {@link NodeBase} object.
+     *
+     * @throws {@link IllegalStateException} always.
+     */
     @Override
     public void addParent(final NodeBase parent) {
         throw new IllegalStateException("Start nodes cannot have parents.");
     }
 
+    /**
+     * Throws {@link IllegalStateException} as start nodes cannot have parents.
+     * @param parent The new parent of this {@link NodeBase} object.
+     *
+     * @throws {@link IllegalStateException} always.
+     */
     @Override
     public void addParentWithCondition(final Decision parent, final Condition condition) {
         throw new IllegalStateException("Start nodes cannot have parents.");
     }
 
+    /**
+     * Throws {@link IllegalStateException} as start nodes cannot have parents.
+     * @param parent The new parent of this {@link NodeBase} object.
+     *
+     * @throws {@link IllegalStateException} always.
+     */
     @Override
     public void addParentDefaultConditional(Decision parent) {
         throw new IllegalStateException("Start nodes cannot have parents.");
     }
 
+    /**
+     * Throws {@link IllegalStateException} as start nodes cannot have parents.
+     * @param parent The new parent of this {@link NodeBase} object.
+     *
+     * @throws {@link IllegalStateException} always.
+     */
     @Override
     public void removeParent(NodeBase parent) {
         throw new IllegalStateException("Start nodes cannot have parents.");
     }
 
+    /**
+     * Does nothing as start nodes cannot have parents.
+     */
     @Override
     public void clearParents() {
 

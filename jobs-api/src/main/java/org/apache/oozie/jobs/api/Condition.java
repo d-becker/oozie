@@ -20,6 +20,9 @@ package org.apache.oozie.jobs.api;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * A class representing a condition in the "switch statement" of an Oozie decision node.
+ */
 public class Condition {
     private final String condition;
     private final boolean isDefault;
@@ -34,20 +37,38 @@ public class Condition {
         this.isDefault = isDefault;
     }
 
+    /**
+     * Creates an actual condition (as opposed to a default condition).
+     * @param condition The string defining the condition.
+     * @return A new actual condition.
+     */
     public static Condition actualCondition(final String condition) {
         Preconditions.checkArgument(condition != null, "The argument 'condition' must not be null.");
 
         return new Condition(condition, false);
     }
 
+    /**
+     * Creates a new default condition. Every decision node must have a default path which is chosen if no other
+     * condition is true.
+     * @return A new default condition.
+     */
     public static Condition defaultCondition() {
         return new Condition(null, true);
     }
 
+    /**
+     * Returns the string defining the condition or {@code null} if this is a default condition.
+     * @return The string defining the condition or {@code null} if this is a default condition.
+     */
     public String getCondition() {
         return condition;
     }
 
+    /**
+     * Returns whether this condition is a default condition.
+     * @return {@code true} if this condition is a default condition, {@code false} otherwise.
+     */
     public boolean isDefault() {
         return isDefault;
     }

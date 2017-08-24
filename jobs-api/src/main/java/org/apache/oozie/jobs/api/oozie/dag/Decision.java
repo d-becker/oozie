@@ -25,21 +25,39 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * A class representing decision nodes in an Oozie workflow definition DAG. These nodes are generated automatically,
+ * the end user should not need to use this class directly.
+ */
 public class Decision extends NodeBase {
     private NodeBase parent;
     private final List<DagNodeWithCondition> childrenWithConditions;
     private NodeBase defaultChild;
 
+    /**
+     * Create a new decision node with the given name.
+     * @param name The name of the new decision node.
+     */
     public Decision(final String name) {
         super(name);
         this.parent = null;
         this.childrenWithConditions = new ArrayList<>();
     }
 
+    /**
+     * Returns the parent of this node.
+     * @return The parent of this node.
+     */
     public NodeBase getParent() {
         return parent;
     }
 
+    /**
+     * Adds the provided node as a parent of this node.
+     * @param parent The new parent of this node.
+     *
+     * @throws {@link IllegalStateException} if this node already has a parent.
+     */
     @Override
     public void addParent(final NodeBase parent) {
         Preconditions.checkState(this.parent == null, "Decision nodes cannot have multiple parents.");
@@ -48,6 +66,14 @@ public class Decision extends NodeBase {
         this.parent.addChild(this);
     }
 
+    /**
+     * Adds the provided node as a conditional parent of this node.
+     * @param parent The new conditional parent of this node.
+     * @param condition The condition which must be true in addition the parent completing successfully for this node
+     *                  to be executed.
+     *
+     * @throws {@link IllegalStateException} if this node already has a parent.
+     */
     @Override
     public void addParentWithCondition(final Decision parent, final Condition condition) {
         Preconditions.checkState(this.parent == null, "Decision nodes cannot have multiple parents.");
@@ -56,6 +82,12 @@ public class Decision extends NodeBase {
         parent.addChildWithCondition(this, condition);
     }
 
+    /**
+     * Adds the provided node as the default conditional parent of this node.
+     * @param parent The new conditional parent of this node.
+     *
+     * @throws {@link IllegalStateException} if this node already has a parent.
+     */
     @Override
     public void addParentDefaultConditional(final Decision parent) {
         Preconditions.checkState(this.parent == null, "Decision nodes cannot have multiple parents.");
@@ -91,6 +123,12 @@ public class Decision extends NodeBase {
         return Collections.unmodifiableList(results);
     }
 
+    /**
+     * Returns the children of this {@link Decision} node together with their conditions (all children are conditional),
+     * including the default child.
+     * @return The conditional children of this {@link Decision} node together with their conditions,
+     *         including the default child.
+     */
     public List<DagNodeWithCondition> getChildrenWithConditions() {
         final List<DagNodeWithCondition> results = new ArrayList<>(childrenWithConditions);
 
@@ -101,6 +139,10 @@ public class Decision extends NodeBase {
         return Collections.unmodifiableList(results);
     }
 
+    /**
+     * Returns the default child of this {@code Decision} node.
+     * @return The default child of this {@code Decision} node.
+     */
     public NodeBase getDefaultChild() {
         return defaultChild;
     }

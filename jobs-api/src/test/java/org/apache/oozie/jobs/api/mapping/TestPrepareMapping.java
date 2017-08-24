@@ -18,16 +18,13 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
-import com.google.common.collect.ImmutableList;
-import org.apache.oozie.jobs.api.action.Delete;
-import org.apache.oozie.jobs.api.action.Mkdir;
 import org.apache.oozie.jobs.api.action.Prepare;
+import org.apache.oozie.jobs.api.action.PrepareBuilder;
+import org.apache.oozie.jobs.api.generated.workflow.DELETE;
 import org.apache.oozie.jobs.api.generated.workflow.MKDIR;
 import org.apache.oozie.jobs.api.generated.workflow.PREPARE;
-import org.apache.oozie.jobs.api.generated.workflow.DELETE;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -37,22 +34,20 @@ public class TestPrepareMapping {
     public void testMappingPrepare() {
         final String deletePath1 = "path/to/delete/location1";
         final Boolean skipTrash1 = Boolean.TRUE;
-        final Delete delete1 = new Delete(deletePath1, skipTrash1);
 
         final String deletePath2 = "path/to/delete/location2";
         final Boolean skipTrash2 = Boolean.FALSE;
-        final Delete delete2 = new Delete(deletePath2, skipTrash2);
 
         final String mkdirPath1 = "path/to/mkdir/location1";
-        final Mkdir mkdir1 = new Mkdir(mkdirPath1);
 
         final String mkdirPath2 = "path/to/mkdir/location2";
-        final Mkdir mkdir2 = new Mkdir(mkdirPath2);
 
-        final ImmutableList<Delete> deletes = ImmutableList.copyOf(Arrays.asList(delete1, delete2));
-        final ImmutableList<Mkdir> mkdirs = ImmutableList.copyOf(Arrays.asList(mkdir1, mkdir2));
-
-        final Prepare prepare = new Prepare(deletes, mkdirs);
+        final Prepare prepare = new PrepareBuilder()
+                .withDelete(deletePath1, skipTrash1)
+                .withDelete(deletePath2, skipTrash2)
+                .withMkdir(mkdirPath1)
+                .withMkdir(mkdirPath2)
+                .build();
 
         final PREPARE prepareJAXB = DozerMapperSingletonWrapper.instance().map(prepare, PREPARE.class);
 

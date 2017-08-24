@@ -26,6 +26,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * An abstract base class for {@link Join} and {@link DecisionJoin}.
+ * @param <T> The type of the node for which this class is the closing pair.
+ */
 public abstract class JoiningNodeBase<T> extends NodeBase {
     private final List<NodeBase> parents;
     private NodeBase child;
@@ -39,6 +43,10 @@ public abstract class JoiningNodeBase<T> extends NodeBase {
         this.branching = branching;
     }
 
+    /**
+     * Returns an unmodifiable list of the parents of this node.
+     * @return An unmodifiable list of the parents of this node.
+     */
     public List<NodeBase> getParents() {
         return Collections.unmodifiableList(parents);
     }

@@ -24,17 +24,35 @@ import org.apache.oozie.jobs.api.Condition;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A class representing end nodes in an Oozie workflow definition DAG. These nodes are generated automatically,
+ * the end user should not need to use this class directly.
+ */
 public class End extends NodeBase {
     private NodeBase parent;
 
+    /**
+     * Create a new end node with the given name.
+     * @param name The name of the new end node.
+     */
     public End(final String name) {
         super(name);
     }
 
+    /**
+     * Returns the parent of this node.
+     * @return The parent of this node.
+     */
     public NodeBase getParent() {
         return parent;
     }
 
+    /**
+     * Adds the provided node as a parent of this node.
+     * @param parent The new parent of this node.
+     *
+     * @throws {@link IllegalStateException} if this node already has a parent.
+     */
     @Override
     public void addParent(final NodeBase parent) {
         Preconditions.checkState(this.parent == null, "End nodes cannot have multiple parents.");
@@ -43,6 +61,14 @@ public class End extends NodeBase {
         parent.addChild(this);
     }
 
+    /**
+     * Adds the provided node as a conditional parent of this node.
+     * @param parent The new conditional parent of this node.
+     * @param condition The condition which must be true in addition the parent completing successfully for this node
+     *                  to be executed.
+     *
+     * @throws {@link IllegalStateException} if this node already has a parent.
+     */
     @Override
     public void addParentWithCondition(final Decision parent, final Condition condition) {
         Preconditions.checkState(this.parent == null, "End nodes cannot have multiple parents.");
@@ -51,6 +77,12 @@ public class End extends NodeBase {
         parent.addChildWithCondition(this, condition);
     }
 
+    /**
+     * Adds the provided node as the default conditional parent of this node.
+     * @param parent The new conditional parent of this node.
+     *
+     * @throws {@link IllegalStateException} if this node already has a parent.
+     */
     @Override
     public void addParentDefaultConditional(Decision parent) {
         Preconditions.checkState(this.parent == null, "End nodes cannot have multiple parents.");

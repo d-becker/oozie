@@ -34,6 +34,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The class holding the intermediate representation of the workflow. This is where the API level {@link Workflow}
+ * object is transformed to an intermediate graph, and all control nodes are generated.
+ * This graph is later further transformed to JAXB objects and to xml.
+ */
 public class Graph {
     private final String name;
     private final Start start = new Start("start");
@@ -52,6 +57,11 @@ public class Graph {
      */
     private final Map<NodeBase, Join> closingJoins = new HashMap<>();
 
+    /**
+     * Creates a new {@link Graph} object transforming the graph of the provided {@link Workflow} object
+     * into an intermediate level graph.
+     * @param workflow The {@link Workflow} object to transform.
+     */
     public Graph(final Workflow workflow) {
         this.name = workflow.getName();
 
@@ -63,22 +73,43 @@ public class Graph {
         convert(nodesInTopologicalOrder);
     }
 
+    /**
+     * Returns the name of this graph.
+     * @return The name of this graph.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the start node of this graph.
+     * @return The start node of this graph.
+     */
     public Start getStart() {
         return start;
     }
 
+    /**
+     * Returns the end node of this graph.
+     * @return The end node of this graph.
+     */
     public End getEnd() {
         return end;
     }
 
+    /**
+     * Returns the node with the given name in this graph if it exists, {@code null} otherwise.
+     * @param name The name of the node that will be returned.
+     * @return The node with the given name in this graph if it exists, {@code null} otherwise.
+     */
     public NodeBase getNodeByName(final String name) {
         return nodesByName.get(name);
     }
 
+    /**
+     * Returns a collection of the nodes in this graph.
+     * @return A collection of the nodes in this graph.
+     */
     public Collection<NodeBase> getNodes() {
         return nodesByName.values();
     }
@@ -103,7 +134,7 @@ public class Graph {
         handleNodeWithParents(end, finalNodes);
     }
 
-    void checkAndInsertDecisionNode(Node originalNode, ExplicitNode convertedNode) {
+    private void checkAndInsertDecisionNode(Node originalNode, ExplicitNode convertedNode) {
         if (!originalNode.getChildrenWithConditions().isEmpty()) {
             // We insert a decision node below the current convertedNode.
             final Decision decision = newDecision();
