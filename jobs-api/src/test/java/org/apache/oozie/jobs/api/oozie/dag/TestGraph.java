@@ -852,10 +852,10 @@ public class TestGraph {
         final Node d = MapReduceActionBuilder.create().withName("D").withParent(a).build();
 
         final Node e = MapReduceActionBuilder.create().withName("E").withParentWithCondition(c, "condition_goto_E").build();
-        final Node f = MapReduceActionBuilder.create().withName("F").withParentWithCondition(c, "condition_goto_F").build();
+        final Node f = MapReduceActionBuilder.create().withName("F").withParentDefaultConditional(c).build();
 
         final Node g = MapReduceActionBuilder.create().withName("G").withParentWithCondition(d, "condition_goto_G").build();
-        final Node h = MapReduceActionBuilder.create().withName("H").withParentWithCondition(d, "condition_goto_H").build();
+        final Node h = MapReduceActionBuilder.create().withName("H").withParentDefaultConditional(d).build();
 
         final Node i = MapReduceActionBuilder.create().withName("I").withParent(b).withParent(f).withParent(g).build();
         final Node j = MapReduceActionBuilder.create().withName("J").withParent(h).build();
@@ -865,7 +865,7 @@ public class TestGraph {
                 .withDagContainingNode(a)
                 .build();
 
-//        nodesToPng.withWorkflow(workflow);
+        nodesToPng.withWorkflow(workflow);
 
         // TODO: We might choose to implement it later without an exception.
         expectedException.expect(IllegalStateException.class);

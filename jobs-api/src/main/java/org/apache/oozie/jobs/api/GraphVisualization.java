@@ -24,6 +24,7 @@ import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.parse.Parser;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
 import org.apache.oozie.jobs.api.action.Node;
+import org.apache.oozie.jobs.api.oozie.dag.Decision;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.apache.oozie.jobs.api.workflow.Workflow;
@@ -48,8 +49,13 @@ public class GraphVisualization {
         for (final NodeBase node : nodes) {
             final List<NodeBase> children = node.getChildren();
 
+            String style = "";
+            if (node instanceof Decision) {
+                style = "[style=dashed];";
+            }
+
             for (final NodeBase child : children) {
-                final String s = String.format("\t\"%s\" -> \"%s\"%n", node.getName(), child.getName());
+                final String s = String.format("\t\"%s\" -> \"%s\"%s%n", node.getName(), child.getName(), style);
                 builder.append(s);
             }
         }
@@ -69,8 +75,13 @@ public class GraphVisualization {
         for (final Node node : nodes) {
             final List<Node> children = node.getAllChildren();
 
+            String style = "";
+            if (!node.getChildrenWithConditions().isEmpty()) {
+                style = "[style=dashed];";
+            }
+
             for (final Node child : children) {
-                builder.append(String.format("\t\"%s\" -> \"%s\"%n", node.getName(), child.getName()));
+                builder.append(String.format("\t\"%s\" -> \"%s\"%s%n", node.getName(), child.getName(), style));
             }
         }
 
