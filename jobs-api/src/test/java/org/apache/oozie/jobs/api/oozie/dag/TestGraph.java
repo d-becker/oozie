@@ -865,7 +865,7 @@ public class TestGraph {
                 .withDagContainingNode(a)
                 .build();
 
-        nodesToPng.withWorkflow(workflow);
+//        nodesToPng.withWorkflow(workflow);
 
         // TODO: We might choose to implement it later without an exception.
         expectedException.expect(IllegalStateException.class);
