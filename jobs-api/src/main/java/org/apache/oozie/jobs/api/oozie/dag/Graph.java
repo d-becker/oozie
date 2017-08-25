@@ -40,7 +40,8 @@ import java.util.Set;
  * This graph is later further transformed to JAXB objects and to xml.
  *
  * The conversion from the API level {@link Workflow} object to the intermediate graph is as follows:
- * We take the nodes in topological order. There are two main possibilities when processing a node:
+ * We take the nodes in topological order, meaning every node is processed after all of its dependencies
+ * have been processed. There are two main possibilities when processing a node:
  *      - the node has zero or one parent
  *      - the node has at least two parents.
  *
@@ -144,39 +145,6 @@ public class Graph {
         return nodesByName.values();
     }
 
-    /**
-     * The conversion algorithm is as follows:
-     * We take the nodes in topological order. There are two main possibilities when processing a node:
-     *      - the node has zero or one parent
-     *      - the node has at least two parents.
-     *
-     * In the first case, we simply add the converted node as a child to its parent (or start if there are none),
-     * possibly inserting a fork if the parent already has children, or using a pre-existing fork if a parent already
-     * has one.
-     *
-     * In the second case, we have to insert a join. We first check if we can join all incoming paths in a single join
-     * node or if we have to split them up because they come from multiple embedded forks. I is also possible that some
-     * incoming paths originate from the same fork but that fork has other outgoing paths as well. In that case we split
-     * the fork up into multiple embedded forks.
-     *
-     * After this, when examine all paths that we are going to join and look for side branches that lead out of the
-     * fork / join block. If these are non-conditional branches, we simply cut them down from their original parents
-     * and put them under the new join (and possibly under a fork), and make them siblings of whatever nodes originally
-     * come after the join. This way all original dependencies are preserved, as the original parents will still be
-     * ancestors (though indirectly) to the relocated nodes, but new dependencies are introduced. This preserves the
-     * correctness of the workflow but decreases its parallelism. This is unfortunate but Oozie's graph format is more
-     * restrictive than a general DAG, so we have to accept it.
-     *
-     * If the side branches are conditional, we cut above the decision node and insert a join there. We reinsert the
-     * decision node under the new join. This is very similar to the handling of non-conditional paths, but it
-     * decreases parallelism even more (we cut one level higher).
-     * A problem occurs if two or more decision nodes come right after the fork that we want to close. If we cut above
-     * the decision nodes we gain nothing, we insert a join and a fork and arrive at the same situation as before
-     * - multiple decision nodes under a fork. Currently, we are not able to handle this situation and we throw
-     * an exception.
-     * @param nodesInTopologicalOrder The nodes that will be inserted in this graph. They must be topologically sorted,
-     *                                meaning that a node always comes later than all of its dependencies.
-     */
     private void convert(final List<Node> nodesInTopologicalOrder) {
         final Map<Node, NodeBase> nodeToNodeBase = new HashMap<>();
 
