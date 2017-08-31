@@ -59,6 +59,19 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.oozie.test</groupId>
+            <artifactId>oozie-mini</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.oozie.test</groupId>
+            <artifactId>oozie-mini</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>

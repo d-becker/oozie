@@ -18,6 +18,8 @@
 
 package org.apache.oozie.jobs.api.examples;
 
+import org.apache.oozie.client.OozieClientException;
+import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.jobs.api.GraphVisualization;
 import org.apache.oozie.jobs.api.action.EmailActionBuilder;
 import org.apache.oozie.jobs.api.action.Node;
@@ -25,27 +27,30 @@ import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
+import org.apache.oozie.test.TestWorkflow;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class SimpleEmailExample {
-    public static void main(String[] args) throws JAXBException, IOException {
-        final Node a = EmailActionBuilder.create()
-                .withName("A")
+public class TestEmailAction extends TestWorkflow {
+
+    public void testForkedEmailActions() throws JAXBException, IOException, OozieClientException {
+        final Node parent = EmailActionBuilder.create()
+                .withName("parent")
                 .withRecipient("somebody@apache.org")
                 .withSubject("Subject")
                 .withBody("This is a wonderful e-mail.")
                 .build();
 
-        final Node b = EmailActionBuilder.create()
-                .withName("B").withParent(a)
+        final Node leftChild = EmailActionBuilder.create()
+                .withName("leftChild").withParent(parent)
                 .withRecipient("somebody.else@apache.org")
                 .withSubject("Re: Subject")
                 .withBody("This is an even more wonderful e-mail.")
                 .build();
-        final Node c = EmailActionBuilder.create()
-                .withName("C").withParent(a)
+
+        final Node rightChild = EmailActionBuilder.create()
+                .withName("rightChild").withParent(parent)
                 .withRecipient("somebody@apache.org")
                 .withSubject("Re: Subject")
                 .withBody("No, this is the most wonderful e-mail.")
@@ -53,7 +58,7 @@ public class SimpleEmailExample {
 
         final Workflow workflow = new WorkflowBuilder()
                 .withName("simple-email-example")
-                .withDagContainingNode(a).build();
+                .withDagContainingNode(parent).build();
 
         GraphVisualization.workflowToPng(workflow, "simple-email-example-workflow.png");
 
@@ -63,6 +68,8 @@ public class SimpleEmailExample {
 
         final String xml = Serializer.serialize(workflow);
 
-        System.out.println(xml);
+        log.debug("Workflow XML is:\n{0}", xml);
+
+        submitAndAssert(xml, WorkflowJob.Status.KILLED);
     }
 }

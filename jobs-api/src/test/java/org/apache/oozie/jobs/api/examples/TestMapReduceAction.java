@@ -18,6 +18,8 @@
 
 package org.apache.oozie.jobs.api.examples;
 
+import org.apache.oozie.client.OozieClientException;
+import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.jobs.api.GraphVisualization;
 import org.apache.oozie.jobs.api.action.MapReduceAction;
 import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
@@ -27,40 +29,41 @@ import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
+import org.apache.oozie.test.TestWorkflow;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class SimpleMapReduceExample {
-    public static void main(String[] args) throws IOException, JAXBException {
+public class TestMapReduceAction extends TestWorkflow {
+    public void testForkedMapReduceActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
-                .withDelete("${nameNode}/user/${wf:user()}/${examplesRoot}/output")
+                .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
                 .build();
 
-        final MapReduceAction mrAction1 = MapReduceActionBuilder.create()
-                .withName("mr-action-1")
-                .withJobTracker("${jobTracker}")
-                .withNameNode("${nameNode}")
+        final MapReduceAction parent = MapReduceActionBuilder.create()
+                .withName("parent")
+                .withJobTracker(getJobTrackerUri())
+                .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
-                .withConfigProperty("mapred.job.queue.name", "${queueName}")
+                .withConfigProperty("mapred.job.queue.name", "default")
                 .withConfigProperty("mapred.mapper.class", "org.apache.hadoop.mapred.lib.IdentityMapper")
-                .withConfigProperty("mapred.input.dir", "/user/${wf:user()}/${examplesRoot}/input")
-                .withConfigProperty("mapred.output.dir", "/user/${wf:user()}/${examplesRoot}/output")
+                .withConfigProperty("mapred.input.dir", "/user/${wf:user()}/examples/input")
+                .withConfigProperty("mapred.output.dir", "/user/${wf:user()}/examples/output")
                 .build();
 
         //  We are reusing the definition of mrAction1 and only modifying and adding what is different.
-        final MapReduceAction mrAction2 = MapReduceActionBuilder.createFromExistingAction(mrAction1)
-                .withName("mr-action-2")
-                .withParent(mrAction1)
+        final MapReduceAction leftChild = MapReduceActionBuilder.createFromExistingAction(parent)
+                .withName("leftChild")
+                .withParent(parent)
                 .build();
 
-        final MapReduceAction mrAction3 = MapReduceActionBuilder.createFromExistingAction(mrAction2)
-                .withName("mr-action-3")
+        final MapReduceAction rightChild = MapReduceActionBuilder.createFromExistingAction(leftChild)
+                .withName("rightChild")
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
                 .withName("simple-map-reduce-example")
-                .withDagContainingNode(mrAction1).build();
+                .withDagContainingNode(parent).build();
 
         final String xml = Serializer.serialize(workflow);
 
@@ -71,5 +74,7 @@ public class SimpleMapReduceExample {
         final Graph intermediateGraph = new Graph(workflow);
 
         GraphVisualization.graphToPng(intermediateGraph, "simple-map-reduce-example-graph.png");
+
+        submitAndAssert(xml, WorkflowJob.Status.RUNNING);
     }
 }

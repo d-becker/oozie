@@ -56,44 +56,22 @@ public class TestWorkflow extends MiniOozieTestCase {
     }
 
     public void testWorkflowWithStartAndEndCompletesSuccessfully() throws Exception {
-        final String wfApp = "<workflow-app xmlns='uri:oozie:workflow:0.1' name='test-wf'>" + "    <start to='end'/>"
+        final String workflowXml = "<workflow-app xmlns='uri:oozie:workflow:0.1' name='test-wf'>" + "    <start to='end'/>"
                 + "    <end name='end'/>" + "</workflow-app>";
 
-        final FileSystem fs = getFileSystem();
-        final Path appPath = new Path(getFsTestCaseDir(), "app");
-        fs.mkdirs(appPath);
-        fs.mkdirs(new Path(appPath, "lib"));
+        submitAndAssert(workflowXml, WorkflowJob.Status.SUCCEEDED);
+    }
 
-        final Writer writer = new OutputStreamWriter(fs.create(new Path(appPath, "workflow.xml")));
-        writer.write(wfApp);
-        writer.close();
+    protected void submitAndAssert(final String workflowXml, final WorkflowJob.Status terminalStatus)
+            throws OozieClientException, IOException {
+        final WorkflowJob finishedWorkflowJob = new WorkflowJobBuilder()
+                .submit(workflowXml)
+                .start()
+                .waitForSucceeded()
+                .build();
 
-        final OozieClient wc = LocalOozie.getClient();
-
-        final Properties conf = wc.createConfiguration();
-        conf.setProperty(OozieClient.APP_PATH, new Path(appPath, "workflow.xml").toString());
-        conf.setProperty(OozieClient.USER_NAME, getTestUser());
-
-
-        final String jobId = wc.submit(conf);
-        assertNotNull(jobId);
-
-        WorkflowJob wf = wc.getJobInfo(jobId);
-        assertNotNull(wf);
-        assertEquals(WorkflowJob.Status.PREP, wf.getStatus());
-
-        wc.start(jobId);
-
-        waitFor(1000, new Predicate() {
-            public boolean evaluate() throws Exception {
-                final WorkflowJob wf = wc.getJobInfo(jobId);
-                return wf.getStatus() == WorkflowJob.Status.SUCCEEDED;
-            }
-        });
-
-        wf = wc.getJobInfo(jobId);
-        assertNotNull(wf);
-        assertEquals(WorkflowJob.Status.SUCCEEDED, wf.getStatus());
+        assertNotNull(finishedWorkflowJob);
+        assertEquals(terminalStatus, finishedWorkflowJob.getStatus());
     }
 
     public void testFsDecisionWorkflowCompletesSuccessfully() throws Exception {
@@ -155,7 +133,7 @@ public class TestWorkflow extends MiniOozieTestCase {
 
         oozieClient.start(jobId);
 
-        waitFor(15 * 1000, new Predicate() {
+        waitFor(15_000, new Predicate() {
             public boolean evaluate() throws Exception {
                 final WorkflowJob wf = oozieClient.getJobInfo(jobId);
                 return wf.getStatus() == WorkflowJob.Status.SUCCEEDED;
@@ -210,6 +188,76 @@ public class TestWorkflow extends MiniOozieTestCase {
         int read;
         while ((read = reader.read(buffer)) > -1) {
             writer.write(buffer, 0, read);
+        }
+    }
+
+    private class WorkflowJobBuilder {
+        private final FileSystem dfs;
+        private final Path appPath;
+        private final OozieClient oozieClient = LocalOozie.getClient();
+        private String workflowJobId;
+        private WorkflowJob workflowJob;
+
+        private WorkflowJobBuilder() throws IOException {
+            this.dfs = getFileSystem();
+            this.appPath = new Path(getFsTestCaseDir(), "app");
+
+            dfs.mkdirs(appPath);
+            dfs.mkdirs(new Path(appPath, "lib"));
+        }
+
+        private WorkflowJobBuilder submit(final String workflowXml) throws IOException, OozieClientException {
+            final Writer writer = new OutputStreamWriter(dfs.create(new Path(appPath, "workflow.xml")));
+            writer.write(workflowXml);
+            writer.close();
+
+            final OozieClient wc = LocalOozie.getClient();
+
+            final Properties conf = wc.createConfiguration();
+            conf.setProperty(OozieClient.APP_PATH, new Path(appPath, "workflow.xml").toString());
+            conf.setProperty(OozieClient.USER_NAME, getTestUser());
+            conf.setProperty("nameNodeBasePath", getFsTestCaseDir().toString());
+            conf.setProperty("base", getFsTestCaseDir().toUri().getPath());
+            conf.setProperty("nameNode", getNameNodeUri());
+            conf.setProperty("jobTracker", getJobTrackerUri());
+
+            workflowJobId = oozieClient.submit(conf);
+
+            assertNotNull(workflowJobId);
+
+            return this;
+        }
+
+        private WorkflowJobBuilder start() throws OozieClientException {
+            workflowJob = oozieClient.getJobInfo(workflowJobId);
+
+            assertNotNull(workflowJob);
+            assertEquals(WorkflowJob.Status.PREP, workflowJob.getStatus());
+
+            oozieClient.start(workflowJobId);
+
+            workflowJob = oozieClient.getJobInfo(workflowJobId);
+
+            assertEquals(WorkflowJob.Status.RUNNING, workflowJob.getStatus());
+
+            return this;
+        }
+
+        private WorkflowJobBuilder waitForSucceeded() throws OozieClientException {
+            waitFor(15_000, new Predicate() {
+                public boolean evaluate() throws Exception {
+                    final WorkflowJob wf = oozieClient.getJobInfo(workflowJobId);
+                    return wf.getStatus() == WorkflowJob.Status.SUCCEEDED;
+                }
+            });
+
+            workflowJob = oozieClient.getJobInfo(workflowJobId);
+
+            return this;
+        }
+
+        private WorkflowJob build() {
+            return workflowJob;
         }
     }
 }
