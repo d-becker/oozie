@@ -28,7 +28,6 @@ import org.apache.oozie.jobs.api.action.FSAction;
 import org.apache.oozie.jobs.api.action.FSActionBuilder;
 import org.apache.oozie.jobs.api.action.Mkdir;
 import org.apache.oozie.jobs.api.action.Move;
-import org.apache.oozie.jobs.api.action.Setrep;
 import org.apache.oozie.jobs.api.action.Touchz;
 import org.apache.oozie.jobs.api.generated.workflow.FS;
 import org.junit.Test;
@@ -50,7 +49,6 @@ public class TestFSActionMapping {
         final Chmod chmod = new ChmodBuilder().withPermissions("511").build();
         final Touchz touchz = new Touchz("path");
         final Chgrp chgrp = new ChgrpBuilder().withGroup("user:group:").build();
-        final Setrep setrep = new Setrep("path", (short) 3);
 
         final FSActionBuilder builder = FSActionBuilder.create()
                 .withNameNode(nameNode);
@@ -64,8 +62,7 @@ public class TestFSActionMapping {
                 .withMove(move)
                 .withChmod(chmod)
                 .withTouchz(touchz)
-                .withChgrp(chgrp)
-                .withSetrep(setrep);
+                .withChgrp(chgrp);
 
         final FSAction action = builder.build();
 
@@ -74,7 +71,7 @@ public class TestFSActionMapping {
         assertEquals(nameNode, fsAction.getNameNode());
         assertEquals(jobXmls, fsAction.getJobXml());
 
-        final List<Object> expectedList = Arrays.asList(delete, mkdir, move, chmod, touchz, chgrp, setrep);
+        final List<Object> expectedList = Arrays.asList(delete, mkdir, move, chmod, touchz, chgrp);
         assertEquals(expectedList.size(), fsAction.getDeleteOrMkdirOrMove().size());
     }
 }

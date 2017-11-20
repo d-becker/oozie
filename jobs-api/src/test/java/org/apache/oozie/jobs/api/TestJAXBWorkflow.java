@@ -235,7 +235,8 @@ public class TestJAXBWorkflow {
                 .ignoreComments()
                 .withDifferenceEvaluator(DifferenceEvaluators.chain(
                         DifferenceEvaluators.Default,
-                        new IgnoreWhitespaceInTextValueDifferenceEvaluator()))
+                        new IgnoreWhitespaceInTextValueDifferenceEvaluator(),
+                        new IgnoreNamespacePrefixDifferenceEvaluator()))
                 .build();
 
         assertFalse(diff.hasDifferences());
@@ -252,11 +253,11 @@ public class TestJAXBWorkflow {
                 .ignoreComments()
                 .withDifferenceEvaluator(DifferenceEvaluators.chain(
                         DifferenceEvaluators.Default,
-                        new IgnoreWhitespaceInTextValueDifferenceEvaluator()))
+                        new IgnoreWhitespaceInTextValueDifferenceEvaluator(),
+                        new IgnoreNamespacePrefixDifferenceEvaluator()))
                 .build();
 
-        // TODO: OOZIE-3005 The problem is the issue with namespaces / namespace prefixes.
-//        assertFalse(diff.hasDifferences());
+        assertFalse("unmarshalled and marshalled workflow XMLs differ", diff.hasDifferences());
     }
 
     private static class IgnoreWhitespaceInTextValueDifferenceEvaluator implements DifferenceEvaluator {
@@ -287,6 +288,22 @@ public class TestJAXBWorkflow {
         }
     }
 
+    private static class IgnoreNamespacePrefixDifferenceEvaluator implements DifferenceEvaluator {
+
+        @Override
+        public ComparisonResult evaluate(final Comparison comparison, final ComparisonResult comparisonResult) {
+            if (isElementNodeComparison(comparison)) {
+                return ComparisonResult.EQUAL;
+            }
+
+            return comparisonResult;
+        }
+
+        private boolean isElementNodeComparison(final Comparison comparison) {
+            return comparison.getType().equals(ComparisonType.NAMESPACE_PREFIX);
+        }
+    }
+
     private WORKFLOWAPP unmarshalWorkflowWithAllActionTypes() throws SAXException, JAXBException, URISyntaxException {
         final JAXBContext jc = JAXBContext.newInstance(GENERATED_PACKAGES_ALL);
         final Unmarshaller u = jc.createUnmarshaller();
@@ -302,21 +319,22 @@ public class TestJAXBWorkflow {
     private Schema getSchema() throws SAXException, URISyntaxException {
         final SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         return sf.newSchema(new Source [] {
+                getStreamSource("/oozie-common-1.0.xsd"),
                 getStreamSource("/distcp-action-0.2.xsd"),
                 getStreamSource("/email-action-0.2.xsd"),
-                getStreamSource("/hive2-action-0.2.xsd"),
-                getStreamSource("/hive-action-0.6.xsd"),
+                getStreamSource("/hive2-action-1.0.xsd"),
+                getStreamSource("/hive-action-1.0.xsd"),
                 getStreamSource("/oozie-sla-0.2.xsd"),
-                getStreamSource("/oozie-workflow-0.5.xsd"),
-                getStreamSource("/shell-action-0.3.xsd"),
-                getStreamSource("/spark-action-0.2.xsd"),
-                getStreamSource("/sqoop-action-0.4.xsd"),
+                getStreamSource("/oozie-workflow-1.0.xsd"),
+                getStreamSource("/shell-action-1.0.xsd"),
+                getStreamSource("/spark-action-1.0.xsd"),
+                getStreamSource("/sqoop-action-1.0.xsd"),
                 getStreamSource("/ssh-action-0.2.xsd")
         });
     }
 
     private Source getStreamSource(final String resourceURI) throws URISyntaxException {
-        return new StreamSource(new File(getClass().getResource(resourceURI).toURI()));
+        return new StreamSource(getClass().getResource(resourceURI).toExternalForm());
     }
 
     private String marshalWorkflowApp(final WORKFLOWAPP wfApp, final String packages)
@@ -331,6 +349,7 @@ public class TestJAXBWorkflow {
 
         return out.toString(StandardCharsets.UTF_8.toString());
     }
+
     private WORKFLOWAPP getWfApp() {
         final START start = new START();
         start.setTo("mr-node");

@@ -75,6 +75,6 @@ public class TestMapReduceAction extends TestWorkflow {
 
         GraphVisualization.graphToPng(intermediateGraph, "simple-map-reduce-example-graph.png");
 
-        submitAndAssert(xml, WorkflowJob.Status.RUNNING);
+        submitAndAssert(xml, WorkflowJob.Status.KILLED);
     }
 }

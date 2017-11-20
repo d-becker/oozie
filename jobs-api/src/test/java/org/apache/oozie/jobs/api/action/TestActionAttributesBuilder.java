@@ -97,12 +97,6 @@ public class TestActionAttributesBuilder {
             new ChgrpBuilder().withGroup("user3").build()
     };
 
-    private static final Setrep[] SETREPS = {new Setrep("path0", (short) 4),
-            new Setrep("path1", (short) 4),
-            new Setrep("path2", (short) 4),
-            new Setrep("path3", (short) 4)
-    };
-
     private ActionAttributesBuilder getBuilderInstance() {
         return ActionAttributesBuilder.create();
     }
@@ -689,49 +683,5 @@ public class TestActionAttributesBuilder {
         final ActionAttributes attributes = builder.build();
 
         assertTrue(attributes.getChgrps().isEmpty());
-    }
-
-    @Test
-    public void testSeveralSetrepsAdded() {
-        final ActionAttributesBuilder builder = getBuilderInstance();
-
-        for (final Setrep setrep : SETREPS) {
-            builder.withSetrep(setrep);
-        }
-
-        final ActionAttributes attributes = builder.build();
-
-        assertEquals(Arrays.asList(SETREPS), attributes.getSetreps());
-    }
-
-    @Test
-    public void testWithoutSetrep() {
-        final ActionAttributesBuilder builder = getBuilderInstance();
-
-        for (final Setrep setrep : SETREPS) {
-            builder.withSetrep(setrep);
-        }
-
-        builder.withoutSetrep(SETREPS[0]);
-
-        final ActionAttributes attributes = builder.build();
-
-        final List<Setrep> expectedSetreps = Arrays.asList(SETREPS).subList(1, SETREPS.length);
-        assertEquals(expectedSetreps, attributes.getSetreps());
-    }
-
-    @Test
-    public void testClearSetreps() {
-        final ActionAttributesBuilder builder = getBuilderInstance();
-
-        for (final Setrep setrep : SETREPS) {
-            builder.withSetrep(setrep);
-        }
-
-        builder.clearSetreps();
-
-        final ActionAttributes attributes = builder.build();
-
-        assertTrue(attributes.getSetreps().isEmpty());
     }
 }

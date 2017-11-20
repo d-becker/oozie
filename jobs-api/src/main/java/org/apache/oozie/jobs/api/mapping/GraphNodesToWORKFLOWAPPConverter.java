@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.mapping;
 
+import com.google.common.base.Preconditions;
 import org.apache.oozie.jobs.api.action.ErrorHandler;
 import org.apache.oozie.jobs.api.action.Node;
 import org.apache.oozie.jobs.api.generated.workflow.ACTION;
@@ -38,7 +39,6 @@ import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.dozer.DozerConverter;
 import org.dozer.Mapper;
 import org.dozer.MapperAware;
-import parquet.Preconditions;
 
 import java.util.HashMap;
 import java.util.Map;

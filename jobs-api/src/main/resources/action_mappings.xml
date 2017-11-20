@@ -31,11 +31,6 @@
             <a>path</a>
             <b>path</b>
         </field>
-
-        <field>
-            <a is-accessible="true">skipTrash</a>
-            <b>skipTrash</b>
-        </field>
     </mapping>
 
     <mapping type="one-way">
@@ -271,12 +266,6 @@
             <a>chgrps</a>
             <b>deleteOrMkdirOrMove</b>
             <b-hint>org.apache.oozie.jobs.api.generated.workflow.CHGRP</b-hint>
-        </field>
-
-        <field relationship-type="cumulative">
-            <a>setreps</a>
-            <b>deleteOrMkdirOrMove</b>
-            <b-hint>org.apache.oozie.jobs.api.generated.workflow.SETREP</b-hint>
         </field>
     </mapping>
 

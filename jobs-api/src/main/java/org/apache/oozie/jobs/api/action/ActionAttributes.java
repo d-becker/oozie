@@ -43,7 +43,6 @@ public class ActionAttributes {
     private final ImmutableList<Chmod> chmods;
     private final ImmutableList<Touchz> touchzs;
     private final ImmutableList<Chgrp> chgrps;
-    private final ImmutableList<Setrep> setreps;
 
     ActionAttributes(final String jobTracker,
                      final String nameNode,
@@ -61,8 +60,7 @@ public class ActionAttributes {
                      final ImmutableList<Move> moves,
                      final ImmutableList<Chmod> chmods,
                      final ImmutableList<Touchz> touchzs,
-                     final ImmutableList<Chgrp> chgrps,
-                     final ImmutableList<Setrep> setreps) {
+                     final ImmutableList<Chgrp> chgrps) {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
         this.prepare = prepare;
@@ -80,7 +78,6 @@ public class ActionAttributes {
         this.chmods = chmods;
         this.touchzs = touchzs;
         this.chgrps = chgrps;
-        this.setreps = setreps;
     }
 
     /**
@@ -209,13 +206,5 @@ public class ActionAttributes {
      */
     public ImmutableList<Chgrp> getChgrps() {
         return chgrps;
-    }
-
-    /**
-     * Returns an immutable list of the {@link Setrep} objects stored in this {@link ActionAttributes} object.
-     * @return An immutable list of the {@link Setrep} objects stored in this {@link ActionAttributes} object.
-     */
-    public ImmutableList<Setrep> getSetreps() {
-        return setreps;
     }
 }

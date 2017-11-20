@@ -16,7 +16,7 @@
   limitations under the License.
 -->
 
-<workflow-app xmlns="uri:oozie:workflow:0.5" name="jaxb-example-wf">
+<workflow-app xmlns="uri:oozie:workflow:1.0" name="jaxb-example-wf">
     <start to="mr-node"/>
     <action name="mr-node">
         <map-reduce>

@@ -55,7 +55,6 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
     private final List<Chmod> chmods;
     private final List<Touchz> touchzs;
     private final List<Chgrp> chgrps;
-    private final List<Setrep> setreps;
 
     /**
      * Creates and returns an empty builder.
@@ -79,7 +78,6 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         final List<Chmod> chmods = new ArrayList<>();
         final List<Touchz> touchzs = new ArrayList<>();
         final List<Chgrp> chgrps = new ArrayList<>();
-        final List<Setrep> setreps = new ArrayList<>();
 
         return new ActionAttributesBuilder(
                 jobTracker,
@@ -98,8 +96,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 moves,
                 chmods,
                 touchzs,
-                chgrps,
-                setreps);
+                chgrps);
     }
 
     /**
@@ -128,7 +125,6 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         final List<Chmod> chmods = new ArrayList<>(attributes.getChmods());
         final List<Touchz> touchzs = new ArrayList<>(attributes.getTouchzs());
         final List<Chgrp> chgrps = new ArrayList<>(attributes.getChgrps());
-        final List<Setrep> setreps = new ArrayList<>(attributes.getSetreps());
 
         return new ActionAttributesBuilder(
                 jobTracker,
@@ -147,8 +143,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 moves,
                 chmods,
                 touchzs,
-                chgrps,
-                setreps);
+                chgrps);
     }
 
     private ActionAttributesBuilder(final ModifyOnce<String> jobTracker,
@@ -167,8 +162,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                                     final List<Move> moves,
                                     final List<Chmod> chmods,
                                     final List<Touchz> touchzs,
-                                    final List<Chgrp> chgrps,
-                                    final List<Setrep> setreps) {
+                                    final List<Chgrp> chgrps) {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
         this.prepare = prepare;
@@ -186,7 +180,6 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         this.chmods = chmods;
         this.touchzs = touchzs;
         this.chgrps = chgrps;
-        this.setreps = setreps;
     }
 
     /**
@@ -469,29 +462,6 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
     }
 
     /**
-     * Registers a {@link Setrep} object with this builder.
-     * @param setrep The {@link Setrep} object to register.
-     */
-    void withSetrep(final Setrep setrep) {
-        this.setreps.add(setrep);
-    }
-
-    /**
-     * Removes a {@link Setrep} object if it is registered with this builder, otherwise does nothing.
-     * @param setrep The {@link Setrep} object to remove.
-     */
-    void withoutSetrep(final Setrep setrep) {
-        setreps.remove(setrep);
-    }
-
-    /**
-     * Removes all {@link Setrep} objects that are registered with this builder.
-     */
-    void clearSetreps() {
-        setreps.clear();
-    }
-
-    /**
      * Creates a new {@link ActionAttributes} object with the properties stores in this builder.
      * The new {@link ActionAttributes} object is independent of this builder and the builder can be used to build
      * new instances.
@@ -515,8 +485,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 ImmutableList.copyOf(moves),
                 ImmutableList.copyOf(chmods),
                 ImmutableList.copyOf(touchzs),
-                ImmutableList.copyOf(chgrps),
-                ImmutableList.copyOf(setreps)
+                ImmutableList.copyOf(chgrps)
         );
     }
 

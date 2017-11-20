@@ -33,18 +33,14 @@ public class TestPrepareMapping {
     @Test
     public void testMappingPrepare() {
         final String deletePath1 = "path/to/delete/location1";
-        final Boolean skipTrash1 = Boolean.TRUE;
-
         final String deletePath2 = "path/to/delete/location2";
-        final Boolean skipTrash2 = Boolean.FALSE;
 
         final String mkdirPath1 = "path/to/mkdir/location1";
-
         final String mkdirPath2 = "path/to/mkdir/location2";
 
         final Prepare prepare = new PrepareBuilder()
-                .withDelete(deletePath1, skipTrash1)
-                .withDelete(deletePath2, skipTrash2)
+                .withDelete(deletePath1, false)
+                .withDelete(deletePath2, false)
                 .withMkdir(mkdirPath1)
                 .withMkdir(mkdirPath2)
                 .build();
@@ -60,10 +56,7 @@ public class TestPrepareMapping {
         final MKDIR mkdir2JAXB = mkdirsJAXB.get(1);
 
         assertEquals(deletePath1, delete1JAXB.getPath());
-        assertEquals(skipTrash1, delete1JAXB.isSkipTrash());
-
         assertEquals(deletePath2, delete2JAXB.getPath());
-        assertEquals(skipTrash2, delete2JAXB.isSkipTrash());
 
         assertEquals(mkdirPath1, mkdir1JAXB.getPath());
         assertEquals(mkdirPath2, mkdir2JAXB.getPath());

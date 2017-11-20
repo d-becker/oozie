@@ -270,32 +270,6 @@ public class FSActionBuilder extends NodeBuilderBaseImpl<FSActionBuilder> implem
     }
 
     /**
-     * Registers a {@link Setrep} object with this builder.
-     * @param setrep The {@link Setrep} object to register.
-     */
-    public FSActionBuilder withSetrep(final Setrep setrep) {
-        attributesBuilder.withSetrep(setrep);
-        return this;
-    }
-
-    /**
-     * Removes a {@link Setrep} object if it is registered with this builder, otherwise does nothing.
-     * @param setrep The {@link Setrep} object to remove.
-     */
-    public FSActionBuilder withoutSetrep(final Setrep setrep) {
-        attributesBuilder.withoutSetrep(setrep);
-        return this;
-    }
-
-    /**
-     * Removes all {@link Setrep} objects that are registered with this builder.
-     */
-    public FSActionBuilder clearSetreps() {
-        attributesBuilder.clearSetreps();
-        return this;
-    }
-
-    /**
      * Creates a new {@link FSAction} object with the properties stores in this builder.
      * The new {@link FSAction} object is independent of this builder and the builder can be used to build
      * new instances.

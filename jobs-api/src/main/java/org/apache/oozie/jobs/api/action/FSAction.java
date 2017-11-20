@@ -126,16 +126,6 @@ public class FSAction extends Node {
         return attributes.getChgrps();
     }
 
-    /**
-     * Returns the {@link Setrep} objects that specify which files will be set to have a new replication factor when
-     * running this action.
-     * @return The {@link Setrep} objects that specify which files will be set to have a new replication factor when
-     *         running this action.
-     */
-    public List<Setrep> getSetreps() {
-        return attributes.getSetreps();
-    }
-
     ActionAttributes getAttributes() {
         return attributes;
     }

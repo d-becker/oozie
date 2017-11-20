@@ -33,6 +33,18 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.oozie</groupId>
+            <artifactId>oozie-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.oozie</groupId>
+            <artifactId>oozie-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <scope>provided</scope>
@@ -50,12 +62,6 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-minicluster</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.oozie</groupId>
-            <artifactId>oozie-core</artifactId>
-            <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -159,18 +165,19 @@
                         <argument>-XhashCode</argument>
                         <argument>-Xequals</argument>
                         <argument>-Xnamespace-prefix</argument>
+                        <argument>-Xsetters</argument>
                     </arguments>
 
                     <sources>
                         <source>../client/src/main/resources/distcp-action-0.2.xsd</source>
                         <source>../client/src/main/resources/email-action-0.2.xsd</source>
-                        <source>../client/src/main/resources/hive2-action-0.2.xsd</source>
-                        <source>../client/src/main/resources/hive-action-0.6.xsd</source>
+                        <source>../client/src/main/resources/hive2-action-1.0.xsd</source>
+                        <source>../client/src/main/resources/hive-action-1.0.xsd</source>
                         <source>../client/src/main/resources/oozie-sla-0.2.xsd</source>
-                        <source>../client/src/main/resources/oozie-workflow-0.5.xsd</source>
-                        <source>../client/src/main/resources/shell-action-0.3.xsd</source>
-                        <source>../client/src/main/resources/spark-action-0.2.xsd</source>
-                        <source>../client/src/main/resources/sqoop-action-0.4.xsd</source>
+                        <source>../client/src/main/resources/oozie-workflow-1.0.xsd</source>
+                        <source>../client/src/main/resources/shell-action-1.0.xsd</source>
+                        <source>../client/src/main/resources/spark-action-1.0.xsd</source>
+                        <source>../client/src/main/resources/sqoop-action-1.0.xsd</source>
                         <source>../client/src/main/resources/ssh-action-0.2.xsd</source>
                     </sources>
                 </configuration>

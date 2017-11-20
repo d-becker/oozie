@@ -50,7 +50,7 @@
 
     </jaxb:bindings>
 
-    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/hive2-action-0.2.xsd">
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/hive2-action-1.0.xsd">
 
         <jaxb:schemaBindings>
             <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.hive2"/>
@@ -62,7 +62,7 @@
 
     </jaxb:bindings>
 
-    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/hive-action-0.6.xsd">
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/hive-action-1.0.xsd">
 
         <jaxb:schemaBindings>
             <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.hive"/>
@@ -74,19 +74,19 @@
 
     </jaxb:bindings>
 
-    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/oozie-sla-0.2.xsd">
+    <!--<jaxb:bindings schemaLocation = "../../../../client/src/main/resources/oozie-sla-0.2.xsd">-->
 
-        <jaxb:schemaBindings>
-            <jaxb:package name = "org.apache.oozie.jobs.api.generated.sla"/>
-        </jaxb:schemaBindings>
+        <!--<jaxb:schemaBindings>-->
+            <!--<jaxb:package name = "org.apache.oozie.jobs.api.generated.sla"/>-->
+        <!--</jaxb:schemaBindings>-->
 
-        <jaxb:bindings>
-            <namespace:prefix name="sla" />
-        </jaxb:bindings>
+        <!--<jaxb:bindings>-->
+            <!--<namespace:prefix name="sla" />-->
+        <!--</jaxb:bindings>-->
 
-    </jaxb:bindings>
+    <!--</jaxb:bindings>-->
 
-    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/oozie-workflow-0.5.xsd">
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/oozie-workflow-1.0.xsd">
 
         <jaxb:schemaBindings>
             <jaxb:package name = "org.apache.oozie.jobs.api.generated.workflow"/>
@@ -96,17 +96,26 @@
             <namespace:prefix name="workflow" />
         </jaxb:bindings>
 
-        <jaxb:bindings node="//xs:complexType[@name='ACTION']/xs:sequence/xs:any[@namespace='uri:oozie:sla:0.1 uri:oozie:sla:0.2']">
-            <jaxb:property name="sla"/>
+        <jaxb:bindings node="//xs:complexType[@name='ACTION']/xs:sequence/xs:choice/xs:any">
+            <jaxb:property name="other" generateElementProperty="true"/>
         </jaxb:bindings>
 
-        <jaxb:bindings node="//xs:complexType[@name='ACTION']/xs:sequence/xs:choice/xs:any[@namespace='##other']">
-            <jaxb:property name="other"/>
+        <jaxb:bindings node="//xs:complexType[@name='ACTION']/xs:sequence/xs:any[@namespace='uri:oozie:sla:0.1 uri:oozie:sla:0.2']">
+            <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/oozie-sla-0.2.xsd">
+
+                <jaxb:schemaBindings>
+                    <jaxb:package name = "org.apache.oozie.jobs.api.generated.sla"/>
+                </jaxb:schemaBindings>
+
+                <namespace:prefix name="sla" />
+            </jaxb:bindings>
+
+            <jaxb:property name="sla" generateElementProperty="true"/>
         </jaxb:bindings>
 
     </jaxb:bindings>
 
-    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/shell-action-0.3.xsd">
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/shell-action-1.0.xsd">
 
         <jaxb:schemaBindings>
             <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.shell"/>
@@ -118,7 +127,7 @@
 
     </jaxb:bindings>
 
-    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/spark-action-0.2.xsd">
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/spark-action-1.0.xsd">
 
         <jaxb:schemaBindings>
             <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.spark"/>
@@ -130,7 +139,7 @@
 
     </jaxb:bindings>
 
-    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/sqoop-action-0.4.xsd">
+    <jaxb:bindings schemaLocation = "../../../../client/src/main/resources/sqoop-action-1.0.xsd">
 
         <jaxb:schemaBindings>
             <jaxb:package name = "org.apache.oozie.jobs.api.generated.action.sqoop"/>

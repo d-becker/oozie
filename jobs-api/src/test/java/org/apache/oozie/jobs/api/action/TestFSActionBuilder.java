@@ -67,12 +67,6 @@ public class TestFSActionBuilder extends TestNodeBuilderBaseImpl<FSAction, FSAct
                                            new ChgrpBuilder().withGroup("user3").build()
                                           };
 
-    private static final Setrep[] SETREPS = {new Setrep("path0", (short) 4),
-                                             new Setrep("path1", (short) 4),
-                                             new Setrep("path2", (short) 4),
-                                             new Setrep("path3", (short) 4)
-                                            };
-
     private static final String MAPRED_JOB_QUEUE_NAME = "mapred.job.queue.name";
     private static final String DEFAULT = "default";
 
@@ -430,50 +424,6 @@ public class TestFSActionBuilder extends TestNodeBuilderBaseImpl<FSAction, FSAct
         final FSAction fsAction = builder.build();
 
         assertTrue(fsAction.getChgrps().isEmpty());
-    }
-
-    @Test
-    public void testSeveralSetrepsAdded() {
-        final FSActionBuilder builder = getBuilderInstance();
-
-        for (final Setrep setrep : SETREPS) {
-            builder.withSetrep(setrep);
-        }
-
-        final FSAction fsAction = builder.build();
-
-        assertEquals(Arrays.asList(SETREPS), fsAction.getSetreps());
-    }
-
-    @Test
-    public void testWithoutSetrep() {
-        final FSActionBuilder builder = getBuilderInstance();
-
-        for (final Setrep setrep : SETREPS) {
-            builder.withSetrep(setrep);
-        }
-
-        builder.withoutSetrep(SETREPS[0]);
-
-        final FSAction fsAction = builder.build();
-
-        final List<Setrep> expectedSetreps = Arrays.asList(SETREPS).subList(1, SETREPS.length);
-        assertEquals(expectedSetreps, fsAction.getSetreps());
-    }
-
-    @Test
-    public void testClearSetreps() {
-        final FSActionBuilder builder = getBuilderInstance();
-
-        for (final Setrep setrep : SETREPS) {
-            builder.withSetrep(setrep);
-        }
-
-        builder.clearSetreps();
-
-        final FSAction fsAction = builder.build();
-
-        assertTrue(fsAction.getSetreps().isEmpty());
     }
 
     @Test
