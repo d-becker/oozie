@@ -19,11 +19,7 @@
 package org.apache.oozie.jobs.api.mapping;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.oozie.jobs.api.action.EmailAction;
-import org.apache.oozie.jobs.api.action.FSAction;
-import org.apache.oozie.jobs.api.action.MapReduceAction;
-import org.apache.oozie.jobs.api.action.Node;
-import org.apache.oozie.jobs.api.action.SubWorkflowAction;
+import org.apache.oozie.jobs.api.action.*;
 import org.apache.oozie.jobs.api.generated.workflow.ACTION;
 import org.apache.oozie.jobs.api.generated.workflow.ACTIONTRANSITION;
 import org.apache.oozie.jobs.api.generated.workflow.FS;
@@ -53,7 +49,8 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
         builder.put(MapReduceAction.class, MAPREDUCE.class)
                 .put(SubWorkflowAction.class, SUBWORKFLOW.class)
                 .put(FSAction.class, FS.class)
-                .put(EmailAction.class, org.apache.oozie.jobs.api.generated.action.email.ACTION.class);
+                .put(EmailAction.class, org.apache.oozie.jobs.api.generated.action.email.ACTION.class)
+                .put(DistcpAction.class, org.apache.oozie.jobs.api.generated.action.distcp.ACTION.class);
 
         return builder.build();
     }
@@ -133,17 +130,26 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
         else if (actionTypeObject instanceof JAVA) {
             destination.setJava((JAVA) actionTypeObject);
         }
-        else {
-            // TODO: Handle all other action types, not just email actions.
-            setEmail(destination, (org.apache.oozie.jobs.api.generated.action.email.ACTION) actionTypeObject);
+        else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.email.ACTION) {
+            setEmail((org.apache.oozie.jobs.api.generated.action.email.ACTION) actionTypeObject, destination);
+        }
+        else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.distcp.ACTION) {
+            setDistcp((org.apache.oozie.jobs.api.generated.action.distcp.ACTION) actionTypeObject, destination);
         }
     }
 
-    private void setEmail(final ACTION destination,
-                          final org.apache.oozie.jobs.api.generated.action.email.ACTION actionTypeObject) {
+    private void setEmail(final org.apache.oozie.jobs.api.generated.action.email.ACTION source, final ACTION destination) {
         final JAXBElement jaxbElement
                 = new org.apache.oozie.jobs.api.generated.action.email.ObjectFactory().createEmail(
-                actionTypeObject);
+                source);
+        destination.setOther(jaxbElement);
+    }
+
+    private void setDistcp(final org.apache.oozie.jobs.api.generated.action.distcp.ACTION source, final ACTION destination) {
+        final JAXBElement<org.apache.oozie.jobs.api.generated.action.distcp.ACTION> jaxbElement
+                = new org.apache.oozie.jobs.api.generated.action.distcp.ObjectFactory().createDistcp(
+                source);
+
         destination.setOther(jaxbElement);
     }
 }

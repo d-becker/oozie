@@ -36,13 +36,14 @@ public class ActionAttributes {
     private final String configClass;
     private final ImmutableList<String> files;
     private final ImmutableList<String> archives;
-
     private final ImmutableList<Delete> deletes;
     private final ImmutableList<Mkdir> mkdirs;
     private final ImmutableList<Move> moves;
     private final ImmutableList<Chmod> chmods;
     private final ImmutableList<Touchz> touchzs;
     private final ImmutableList<Chgrp> chgrps;
+    private final String javaOpts;
+    private final ImmutableList<String> args;
 
     ActionAttributes(final String jobTracker,
                      final String nameNode,
@@ -54,13 +55,14 @@ public class ActionAttributes {
                      final String configClass,
                      final ImmutableList<String> files,
                      final ImmutableList<String> archives,
-
                      final ImmutableList<Delete> deletes,
                      final ImmutableList<Mkdir> mkdirs,
                      final ImmutableList<Move> moves,
                      final ImmutableList<Chmod> chmods,
                      final ImmutableList<Touchz> touchzs,
-                     final ImmutableList<Chgrp> chgrps) {
+                     final ImmutableList<Chgrp> chgrps,
+                     final String javaOpts,
+                     final ImmutableList<String> args) {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
         this.prepare = prepare;
@@ -71,13 +73,14 @@ public class ActionAttributes {
         this.configClass = configClass;
         this.files = files;
         this.archives = archives;
-
         this.deletes = deletes;
         this.mkdirs = mkdirs;
         this.moves = moves;
         this.chmods = chmods;
         this.touchzs = touchzs;
         this.chgrps = chgrps;
+        this.javaOpts = javaOpts;
+        this.args = args;
     }
 
     /**
@@ -206,5 +209,13 @@ public class ActionAttributes {
      */
     public ImmutableList<Chgrp> getChgrps() {
         return chgrps;
+    }
+
+    public String getJavaOpts() {
+        return javaOpts;
+    }
+
+    public ImmutableList<String> getArgs() {
+        return args;
     }
 }

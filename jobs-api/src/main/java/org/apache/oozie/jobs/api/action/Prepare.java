@@ -40,7 +40,7 @@ public class Prepare {
      * Returns the {@link Delete} objects that specify which directories or files will be deleted.
      * @return The {@link Delete} objects that specify which directories or files will be deleted.
      */
-    List<Delete> getDeletes() {
+    public List<Delete> getDeletes() {
         return deletes;
     }
 
@@ -48,7 +48,7 @@ public class Prepare {
      * Returns the {@link Mkdir} objects that specify which directories will be created.
      * @return The {@link Mkdir} objects that specify which directories will be created.
      */
-    List<Mkdir> getMkdirs() {
+    public List<Mkdir> getMkdirs() {
         return mkdirs;
     }
 }

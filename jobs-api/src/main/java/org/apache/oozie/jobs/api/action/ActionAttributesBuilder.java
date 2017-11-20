@@ -48,13 +48,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
     private final ModifyOnce<String> configClass;
     private final List<String> files;
     private final List<String> archives;
-
     private final List<Delete> deletes;
     private final List<Mkdir> mkdirs;
     private final List<Move> moves;
     private final List<Chmod> chmods;
     private final List<Touchz> touchzs;
     private final List<Chgrp> chgrps;
+    private final ModifyOnce<String> javaOpts;
+    private final List<String> args;
 
     /**
      * Creates and returns an empty builder.
@@ -71,13 +72,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         final ModifyOnce<String> configClass = new ModifyOnce<>();
         final List<String> files = new ArrayList<>();
         final List<String> archives = new ArrayList<>();
-
         final List<Delete> deletes = new ArrayList<>();
         final List<Mkdir> mkdirs = new ArrayList<>();
         final List<Move> moves = new ArrayList<>();
         final List<Chmod> chmods = new ArrayList<>();
         final List<Touchz> touchzs = new ArrayList<>();
         final List<Chgrp> chgrps = new ArrayList<>();
+        final ModifyOnce<String> javaOpts = new ModifyOnce<>();
+        final List<String> args = new ArrayList<>();
 
         return new ActionAttributesBuilder(
                 jobTracker,
@@ -90,13 +92,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 configClass,
                 files,
                 archives,
-
                 deletes,
                 mkdirs,
                 moves,
                 chmods,
                 touchzs,
-                chgrps);
+                chgrps,
+                javaOpts,
+                args);
     }
 
     /**
@@ -118,13 +121,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         final ModifyOnce<String> configClass = new ModifyOnce<>(attributes.getConfigClass());
         final List<String> files = new ArrayList<>(attributes.getFiles());
         final List<String> archives = new ArrayList<>(attributes.getArchives());
-
         final List<Delete> deletes = new ArrayList<>(attributes.getDeletes());
         final List<Mkdir> mkdirs = new ArrayList<>(attributes.getMkdirs());
         final List<Move> moves = new ArrayList<>(attributes.getMoves());
         final List<Chmod> chmods = new ArrayList<>(attributes.getChmods());
         final List<Touchz> touchzs = new ArrayList<>(attributes.getTouchzs());
         final List<Chgrp> chgrps = new ArrayList<>(attributes.getChgrps());
+        final ModifyOnce<String> javaOpts = new ModifyOnce<>(attributes.getJavaOpts());
+        final List<String> args = new ArrayList<>(attributes.getArgs());
 
         return new ActionAttributesBuilder(
                 jobTracker,
@@ -137,13 +141,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 configClass,
                 files,
                 archives,
-
                 deletes,
                 mkdirs,
                 moves,
                 chmods,
                 touchzs,
-                chgrps);
+                chgrps,
+                javaOpts,
+                args);
     }
 
     private ActionAttributesBuilder(final ModifyOnce<String> jobTracker,
@@ -156,13 +161,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                                     final ModifyOnce<String> configClass,
                                     final List<String> files,
                                     final List<String> archives,
-
                                     final List<Delete> deletes,
                                     final List<Mkdir> mkdirs,
                                     final List<Move> moves,
                                     final List<Chmod> chmods,
                                     final List<Touchz> touchzs,
-                                    final List<Chgrp> chgrps) {
+                                    final List<Chgrp> chgrps,
+                                    final ModifyOnce<String> javaOpts,
+                                    final List<String> args) {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
         this.prepare = prepare;
@@ -173,13 +179,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         this.configClass = configClass;
         this.files = files;
         this.archives = archives;
-
         this.deletes = deletes;
         this.mkdirs = mkdirs;
         this.moves = moves;
         this.chmods = chmods;
         this.touchzs = touchzs;
         this.chgrps = chgrps;
+        this.javaOpts = javaOpts;
+        this.args = args;
     }
 
     /**
@@ -461,6 +468,22 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         chgrps.clear();
     }
 
+    void withJavaOpts(final String javaOpts) {
+        this.javaOpts.set(javaOpts);
+    }
+
+    void withArg(final String arg) {
+        this.args.add(arg);
+    }
+
+    void withoutArg(final String arg) {
+        this.args.remove(arg);
+    }
+
+    void clearArgs() {
+        args.clear();
+    }
+
     /**
      * Creates a new {@link ActionAttributes} object with the properties stores in this builder.
      * The new {@link ActionAttributes} object is independent of this builder and the builder can be used to build
@@ -479,14 +502,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 configClass.get(),
                 ImmutableList.copyOf(files),
                 ImmutableList.copyOf(archives),
-
                 ImmutableList.copyOf(deletes),
                 ImmutableList.copyOf(mkdirs),
                 ImmutableList.copyOf(moves),
                 ImmutableList.copyOf(chmods),
                 ImmutableList.copyOf(touchzs),
-                ImmutableList.copyOf(chgrps)
-        );
+                ImmutableList.copyOf(chgrps),
+                javaOpts.get(),
+                ImmutableList.copyOf(args));
     }
 
     static Map<String, ModifyOnce<String>> convertToModifyOnceMap(final Map<String, String> configurationMap) {

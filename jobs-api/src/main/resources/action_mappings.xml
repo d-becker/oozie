@@ -179,6 +179,41 @@
     </mapping>
 
     <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.DistcpAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.action.distcp.ACTION</class-b>
+
+        <field>
+            <a>jobTracker</a>
+            <b>jobTracker</b>
+        </field>
+
+        <field>
+            <a>nameNode</a>
+            <b>nameNode</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.DistcpPrepareConverter">
+            <a>prepare</a>
+            <b>prepare</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.DistcpConfigurationConverter">
+            <a>configuration</a>
+            <b>configuration</b>
+        </field>
+
+        <field>
+            <a>javaOpts</a>
+            <b>javaOpts</b>
+        </field>
+
+        <field>
+            <a>args</a>
+            <b>arg</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
         <class-a>org.apache.oozie.jobs.api.action.EmailAction</class-a>
         <class-b>org.apache.oozie.jobs.api.generated.action.email.ACTION</class-b>
 
