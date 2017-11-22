@@ -56,6 +56,8 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
     private final List<Chgrp> chgrps;
     private final ModifyOnce<String> javaOpts;
     private final List<String> args;
+    private final ModifyOnce<String> resourceManager;
+    private final ModifyOnce<Launcher> launcher;
 
     /**
      * Creates and returns an empty builder.
@@ -80,6 +82,8 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         final List<Chgrp> chgrps = new ArrayList<>();
         final ModifyOnce<String> javaOpts = new ModifyOnce<>();
         final List<String> args = new ArrayList<>();
+        final ModifyOnce<String> resourceManager = new ModifyOnce<>();
+        final ModifyOnce<Launcher> launcher = new ModifyOnce<>();
 
         return new ActionAttributesBuilder(
                 jobTracker,
@@ -99,7 +103,9 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 touchzs,
                 chgrps,
                 javaOpts,
-                args);
+                args,
+                resourceManager,
+                launcher);
     }
 
     /**
@@ -129,6 +135,8 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         final List<Chgrp> chgrps = new ArrayList<>(attributes.getChgrps());
         final ModifyOnce<String> javaOpts = new ModifyOnce<>(attributes.getJavaOpts());
         final List<String> args = new ArrayList<>(attributes.getArgs());
+        final ModifyOnce<String> resourceManager = new ModifyOnce<>(attributes.getResourceManager());
+        final ModifyOnce<Launcher> launcher = new ModifyOnce<>(attributes.getLauncher());
 
         return new ActionAttributesBuilder(
                 jobTracker,
@@ -148,7 +156,9 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 touchzs,
                 chgrps,
                 javaOpts,
-                args);
+                args,
+                resourceManager,
+                launcher);
     }
 
     private ActionAttributesBuilder(final ModifyOnce<String> jobTracker,
@@ -168,7 +178,9 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                                     final List<Touchz> touchzs,
                                     final List<Chgrp> chgrps,
                                     final ModifyOnce<String> javaOpts,
-                                    final List<String> args) {
+                                    final List<String> args,
+                                    final ModifyOnce<String> resourceManager,
+                                    final ModifyOnce<Launcher> launcher) {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
         this.prepare = prepare;
@@ -187,6 +199,8 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         this.chgrps = chgrps;
         this.javaOpts = javaOpts;
         this.args = args;
+        this.resourceManager = resourceManager;
+        this.launcher = launcher;
     }
 
     /**
@@ -484,6 +498,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         args.clear();
     }
 
+    void withResourceManager(final String resourceManager) {
+        this.resourceManager.set(resourceManager);
+    }
+
+    void withLauncher(final Launcher launcher) {
+        this.launcher.set(launcher);
+    }
+
     /**
      * Creates a new {@link ActionAttributes} object with the properties stores in this builder.
      * The new {@link ActionAttributes} object is independent of this builder and the builder can be used to build
@@ -509,7 +531,9 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 ImmutableList.copyOf(touchzs),
                 ImmutableList.copyOf(chgrps),
                 javaOpts.get(),
-                ImmutableList.copyOf(args));
+                ImmutableList.copyOf(args),
+                resourceManager.get(),
+                launcher.get());
     }
 
     static Map<String, ModifyOnce<String>> convertToModifyOnceMap(final Map<String, String> configurationMap) {

@@ -97,6 +97,17 @@ public class TestActionAttributesBuilder {
             new ChgrpBuilder().withGroup("user3").build()
     };
 
+    private static final String RESOURCE_MANAGER = "${jobTracker}";
+
+    private static final Launcher LAUNCHER = new LauncherBuilder()
+            .withMemoryMb(1024)
+            .withVCores(2)
+            .withQueue(DEFAULT)
+            .withSharelib(DEFAULT)
+            .withViewAcl(DEFAULT)
+            .withModifyAcl(DEFAULT)
+            .build();
+
     private ActionAttributesBuilder getBuilderInstance() {
         return ActionAttributesBuilder.create();
     }
@@ -683,5 +694,28 @@ public class TestActionAttributesBuilder {
         final ActionAttributes attributes = builder.build();
 
         assertTrue(attributes.getChgrps().isEmpty());
+    }
+
+    @Test
+    public void testResourceManagerAdded() {
+        final ActionAttributesBuilder builder = getBuilderInstance();
+        builder.withResourceManager(RESOURCE_MANAGER);
+
+        final ActionAttributes attributes = builder.build();
+        assertEquals(RESOURCE_MANAGER, attributes.getResourceManager());
+    }
+
+    @Test
+    public void testLauncherAdded() {
+        final ActionAttributesBuilder builder = getBuilderInstance();
+        builder.withLauncher(LAUNCHER);
+
+        final ActionAttributes attributes = builder.build();
+        assertEquals(LAUNCHER.getMemoryMb(), attributes.getLauncher().getMemoryMb());
+        assertEquals(LAUNCHER.getVCores(), attributes.getLauncher().getVCores());
+        assertEquals(LAUNCHER.getQueue(), attributes.getLauncher().getQueue());
+        assertEquals(LAUNCHER.getSharelib(), attributes.getLauncher().getSharelib());
+        assertEquals(LAUNCHER.getViewAcl(), attributes.getLauncher().getViewAcl());
+        assertEquals(LAUNCHER.getModifyAcl(), attributes.getLauncher().getModifyAcl());
     }
 }

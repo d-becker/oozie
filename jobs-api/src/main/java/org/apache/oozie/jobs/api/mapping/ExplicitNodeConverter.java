@@ -50,7 +50,8 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
                 .put(SubWorkflowAction.class, SUBWORKFLOW.class)
                 .put(FSAction.class, FS.class)
                 .put(EmailAction.class, org.apache.oozie.jobs.api.generated.action.email.ACTION.class)
-                .put(DistcpAction.class, org.apache.oozie.jobs.api.generated.action.distcp.ACTION.class);
+                .put(DistcpAction.class, org.apache.oozie.jobs.api.generated.action.distcp.ACTION.class)
+                .put(Hive2Action.class, org.apache.oozie.jobs.api.generated.action.hive2.ACTION.class);
 
         return builder.build();
     }
@@ -136,6 +137,9 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
         else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.distcp.ACTION) {
             setDistcp((org.apache.oozie.jobs.api.generated.action.distcp.ACTION) actionTypeObject, destination);
         }
+        else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.hive2.ACTION) {
+            setHive2((org.apache.oozie.jobs.api.generated.action.hive2.ACTION) actionTypeObject, destination);
+        }
     }
 
     private void setEmail(final org.apache.oozie.jobs.api.generated.action.email.ACTION source, final ACTION destination) {
@@ -148,6 +152,14 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
     private void setDistcp(final org.apache.oozie.jobs.api.generated.action.distcp.ACTION source, final ACTION destination) {
         final JAXBElement<org.apache.oozie.jobs.api.generated.action.distcp.ACTION> jaxbElement
                 = new org.apache.oozie.jobs.api.generated.action.distcp.ObjectFactory().createDistcp(
+                source);
+
+        destination.setOther(jaxbElement);
+    }
+
+    private void setHive2(final org.apache.oozie.jobs.api.generated.action.hive2.ACTION source, final ACTION destination) {
+        final JAXBElement<org.apache.oozie.jobs.api.generated.action.hive2.ACTION> jaxbElement
+                = new org.apache.oozie.jobs.api.generated.action.hive2.ObjectFactory().createHive2(
                 source);
 
         destination.setOther(jaxbElement);

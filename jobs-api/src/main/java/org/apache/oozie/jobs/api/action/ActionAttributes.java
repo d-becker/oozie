@@ -44,6 +44,8 @@ public class ActionAttributes {
     private final ImmutableList<Chgrp> chgrps;
     private final String javaOpts;
     private final ImmutableList<String> args;
+    private final String resourceManager;
+    private final Launcher launcher;
 
     ActionAttributes(final String jobTracker,
                      final String nameNode,
@@ -62,7 +64,9 @@ public class ActionAttributes {
                      final ImmutableList<Touchz> touchzs,
                      final ImmutableList<Chgrp> chgrps,
                      final String javaOpts,
-                     final ImmutableList<String> args) {
+                     final ImmutableList<String> args,
+                     final String resourceManager,
+                     final Launcher launcher) {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
         this.prepare = prepare;
@@ -81,6 +85,8 @@ public class ActionAttributes {
         this.chgrps = chgrps;
         this.javaOpts = javaOpts;
         this.args = args;
+        this.resourceManager = resourceManager;
+        this.launcher = launcher;
     }
 
     /**
@@ -217,5 +223,13 @@ public class ActionAttributes {
 
     public ImmutableList<String> getArgs() {
         return args;
+    }
+
+    public String getResourceManager() {
+        return resourceManager;
+    }
+
+    public Launcher getLauncher() {
+        return launcher;
     }
 }
