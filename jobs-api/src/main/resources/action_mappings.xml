@@ -294,6 +294,91 @@
     </mapping>
 
     <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.SparkAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.action.spark.ACTION</class-b>
+
+        <field>
+            <a>jobTracker</a>
+            <b>jobTracker</b>
+        </field>
+
+        <field>
+            <a>resourceManager</a>
+            <b>resourceManager</b>
+        </field>
+
+        <field>
+            <a>nameNode</a>
+            <b>nameNode</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.SparkPrepareConverter">
+            <a>prepare</a>
+            <b>prepare</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.SparkLauncherConverter">
+            <a>launcher</a>
+            <b>launcher</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.SparkConfigurationConverter">
+            <a>configuration</a>
+            <b>configuration</b>
+        </field>
+
+        <field>
+            <a>jobXmls</a>
+            <b>jobXml</b>
+        </field>
+
+        <field>
+            <a>master</a>
+            <b>master</b>
+        </field>
+
+        <field>
+            <a>mode</a>
+            <b>mode</b>
+        </field>
+
+        <field>
+            <a>actionName</a>
+            <b>name</b>
+        </field>
+
+        <field>
+            <a>actionClass</a>
+            <b>clazz</b>
+        </field>
+
+        <field>
+            <a>jar</a>
+            <b>jar</b>
+        </field>
+
+        <field>
+            <a>sparkOpts</a>
+            <b>sparkOpts</b>
+        </field>
+
+        <field>
+            <a>args</a>
+            <b>arg</b>
+        </field>
+
+        <field>
+            <a>files</a>
+            <b>file</b>
+        </field>
+
+        <field>
+            <a>archives</a>
+            <b>archive</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
         <class-a>org.apache.oozie.jobs.api.action.EmailAction</class-a>
         <class-b>org.apache.oozie.jobs.api.generated.action.email.ACTION</class-b>
 

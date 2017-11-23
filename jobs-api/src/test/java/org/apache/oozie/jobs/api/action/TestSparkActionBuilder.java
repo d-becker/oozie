@@ -9,8 +9,8 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action, Hive2ActionBuilder> {
-    private static final String NAME = "hive2-name";
+public class TestSparkActionBuilder extends TestNodeBuilderBaseImpl<SparkAction, SparkActionBuilder> {
+    private static final String NAME = "spark-name";
     private static final String JOB_TRACKER = "${jobTracker}";
     private static final String NAME_NODE = "${nameNode}";
     private static final String EXAMPLE_DIR = "/path/to/directory";
@@ -22,54 +22,54 @@ public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action,
     private static final String PATH_TO_MKDIR = "/path/to/mkdir";
 
     @Override
-    protected Hive2ActionBuilder getBuilderInstance() {
-        return Hive2ActionBuilder.create();
+    protected SparkActionBuilder getBuilderInstance() {
+        return SparkActionBuilder.create();
     }
 
     @Override
-    protected Hive2ActionBuilder getBuilderInstance(final Hive2Action action) {
-        return Hive2ActionBuilder.createFromExistingAction(action);
+    protected SparkActionBuilder getBuilderInstance(final SparkAction action) {
+        return SparkActionBuilder.createFromExistingAction(action);
     }
 
     @Test
     public void testJobTrackerAdded() {
-        final Hive2ActionBuilder builder = getBuilderInstance();
+        final SparkActionBuilder builder = getBuilderInstance();
         builder.withJobTracker(JOB_TRACKER);
 
-        final Hive2Action action = builder.build();
+        final SparkAction action = builder.build();
         assertEquals(JOB_TRACKER, action.getJobTracker());
     }
 
     @Test
     public void testResourceManagerAdded() {
-        final Hive2ActionBuilder builder = getBuilderInstance();
+        final SparkActionBuilder builder = getBuilderInstance();
         builder.withResourceManager(JOB_TRACKER);
 
-        final Hive2Action action = builder.build();
+        final SparkAction action = builder.build();
         assertEquals(JOB_TRACKER, action.getResourceManager());
     }
 
     @Test
     public void testNameNodeAdded() {
-        final Hive2ActionBuilder builder = getBuilderInstance();
+        final SparkActionBuilder builder = getBuilderInstance();
         builder.withNameNode(NAME_NODE);
 
-        final Hive2Action action = builder.build();
+        final SparkAction action = builder.build();
         assertEquals(NAME_NODE, action.getNameNode());
     }
 
     @Test
     public void testPrepareAdded() {
-        final Hive2ActionBuilder builder = getBuilderInstance();
+        final SparkActionBuilder builder = getBuilderInstance();
         builder.withPrepare(new PrepareBuilder().withDelete(EXAMPLE_DIR).build());
 
-        final Hive2Action action = builder.build();
+        final SparkAction action = builder.build();
         assertEquals(EXAMPLE_DIR, action.getPrepare().getDeletes().get(0).getPath());
     }
 
     @Test
     public void testSameConfigPropertyAddedTwiceThrows() {
-        final Hive2ActionBuilder builder = getBuilderInstance();
+        final SparkActionBuilder builder = getBuilderInstance();
         builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
 
         expectedException.expect(IllegalStateException.class);
@@ -78,13 +78,13 @@ public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action,
 
     @Test
     public void testSeveralArgsAdded() {
-        final Hive2ActionBuilder builder = getBuilderInstance();
+        final SparkActionBuilder builder = getBuilderInstance();
 
         for (final String arg : ARGS) {
             builder.withArg(arg);
         }
 
-        final Hive2Action action = builder.build();
+        final SparkAction action = builder.build();
 
         final List<String> argList = action.getArgs();
         assertEquals(ARGS.length, argList.size());
@@ -96,7 +96,7 @@ public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action,
 
     @Test
     public void testRemoveArgs() {
-        final Hive2ActionBuilder builder = getBuilderInstance();
+        final SparkActionBuilder builder = getBuilderInstance();
 
         for (final String file : ARGS) {
             builder.withArg(file);
@@ -104,7 +104,7 @@ public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action,
 
         builder.withoutArg(ARGS[0]);
 
-        final Hive2Action action = builder.build();
+        final SparkAction action = builder.build();
 
         final List<String> argList = action.getArgs();
         final String[] remainingArgs = Arrays.copyOfRange(ARGS, 1, ARGS.length);
@@ -117,7 +117,7 @@ public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action,
 
     @Test
     public void testClearArgs() {
-        final Hive2ActionBuilder builder = getBuilderInstance();
+        final SparkActionBuilder builder = getBuilderInstance();
 
         for (final String file : ARGS) {
             builder.withArg(file);
@@ -125,15 +125,15 @@ public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action,
 
         builder.clearArgs();
 
-        final Hive2Action action = builder.build();
+        final SparkAction action = builder.build();
 
         final List<String> argList = action.getArgs();
         assertEquals(0, argList.size());
     }
 
     @Test
-    public void testFromExistingHive2Action() {
-        final Hive2ActionBuilder builder = getBuilderInstance();
+    public void testFromExistingSparkAction() {
+        final SparkActionBuilder builder = getBuilderInstance();
 
         builder.withName(NAME)
                 .withResourceManager(RESOURCE_MANAGER)
@@ -153,22 +153,25 @@ public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action,
                         .build())
                 .withArg(ARGS[0])
                 .withArg(ARGS[1])
-                .withJdbcUrl(DEFAULT)
-                .withPassword(DEFAULT)
-                .withQuery(DEFAULT)
+                .withMaster(DEFAULT)
+                .withMode(DEFAULT)
+                .withActionName(DEFAULT)
+                .withActionClass(DEFAULT)
+                .withJar(DEFAULT)
+                .withSparkOpts(DEFAULT)
                 .withArchive(DEFAULT)
                 .withFile(DEFAULT);
 
-        final Hive2Action action = builder.build();
+        final SparkAction action = builder.build();
 
-        final Hive2ActionBuilder fromExistingBuilder = getBuilderInstance(action);
+        final SparkActionBuilder fromExistingBuilder = getBuilderInstance(action);
 
         final String newName = "fromExisting_" + NAME;
         fromExistingBuilder.withName(newName)
                 .withoutArg(ARGS[1])
                 .withArg(ARGS[2]);
 
-        final Hive2Action modifiedAction = fromExistingBuilder.build();
+        final SparkAction modifiedAction = fromExistingBuilder.build();
 
         assertEquals(newName, modifiedAction.getName());
         assertEquals(action.getNameNode(), modifiedAction.getNameNode());
@@ -189,9 +192,11 @@ public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action,
         assertEquals(DEFAULT, modifiedAction.getLauncher().getViewAcl());
         assertEquals(DEFAULT, modifiedAction.getLauncher().getModifyAcl());
 
-        assertEquals(action.getJdbcUrl(), modifiedAction.getJdbcUrl());
-        assertEquals(action.getPassword(), modifiedAction.getPassword());
-        assertEquals(action.getScript(), modifiedAction.getScript());
-        assertEquals(action.getQuery(), modifiedAction.getQuery());
+        assertEquals(action.getMaster(), modifiedAction.getMaster());
+        assertEquals(action.getMode(), modifiedAction.getMode());
+        assertEquals(action.getActionName(), modifiedAction.getActionName());
+        assertEquals(action.getActionClass(), modifiedAction.getActionClass());
+        assertEquals(action.getJar(), modifiedAction.getJar());
+        assertEquals(action.getSparkOpts(), modifiedAction.getSparkOpts());
     }
 }

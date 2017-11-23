@@ -3,29 +3,32 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-public class Hive2Action extends Node {
+public class SparkAction extends Node {
     private final ActionAttributes attributes;
-    private final String jdbcUrl;
-    private final String password;
-    private final String script;
-    private final String query;
-    private final ImmutableList<String> params;
+    private final String master;
+    private final String mode;
+    private final String actionName;
+    private final String actionClass;
+    private final String jar;
+    private final String sparkOpts;
 
-    public Hive2Action(final ConstructionData constructionData,
+    public SparkAction(final ConstructionData constructionData,
                        final ActionAttributes attributes,
-                       final String jdbcUrl,
-                       final String password,
-                       final String script,
-                       final String query,
-                       final ImmutableList<String> params) {
+                       final String master,
+                       final String mode,
+                       final String actionName,
+                       final String actionClass,
+                       final String jar,
+                       final String sparkOpts) {
         super(constructionData);
 
         this.attributes = attributes;
-        this.jdbcUrl = jdbcUrl;
-        this.password = password;
-        this.script = script;
-        this.query = query;
-        this.params = params;
+        this.master = master;
+        this.mode = mode;
+        this.actionName = actionName;
+        this.actionClass = actionClass;
+        this.jar = jar;
+        this.sparkOpts = sparkOpts;
     }
 
     public String getJobTracker() {
@@ -60,24 +63,28 @@ public class Hive2Action extends Node {
         return attributes.getConfiguration();
     }
 
-    public String getJdbcUrl() {
-        return jdbcUrl;
+    public String getMaster() {
+        return master;
     }
 
-    public String getPassword() {
-        return password;
+    public String getMode() {
+        return mode;
     }
 
-    public String getScript() {
-        return script;
+    public String getActionName() {
+        return actionName;
     }
 
-    public String getQuery() {
-        return query;
+    public String getActionClass() {
+        return actionClass;
     }
 
-    public ImmutableList<String> getParams() {
-        return params;
+    public String getJar() {
+        return jar;
+    }
+
+    public String getSparkOpts() {
+        return sparkOpts;
     }
 
     public ImmutableList<String> getArgs() {
