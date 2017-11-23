@@ -27,11 +27,12 @@ import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
 import org.apache.oozie.test.TestWorkflow;
+import org.apache.oozie.test.WorkflowTestCase;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestDistcpAction extends TestWorkflow {
+public class TestDistcpAction extends WorkflowTestCase {
     public void testForkedDistcpActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
                 .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
@@ -77,6 +78,6 @@ public class TestDistcpAction extends TestWorkflow {
 
         log.debug("Workflow XML is:\n{0}", xml);
 
-        submitAndAssert(xml, WorkflowJob.Status.KILLED);
+        validate(xml);
     }
 }

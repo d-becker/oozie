@@ -28,11 +28,12 @@ import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
 import org.apache.oozie.test.TestWorkflow;
+import org.apache.oozie.test.WorkflowTestCase;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestEmailAction extends TestWorkflow {
+public class TestEmailAction extends WorkflowTestCase {
 
     public void testForkedEmailActions() throws JAXBException, IOException, OozieClientException {
         final Node parent = EmailActionBuilder.create()
@@ -70,6 +71,6 @@ public class TestEmailAction extends TestWorkflow {
 
         log.debug("Workflow XML is:\n{0}", xml);
 
-        submitAndAssert(xml, WorkflowJob.Status.KILLED);
+        validate(xml);
     }
 }

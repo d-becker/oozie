@@ -19,19 +19,22 @@
 package org.apache.oozie.jobs.api.examples;
 
 import org.apache.oozie.client.OozieClientException;
-import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.jobs.api.GraphVisualization;
-import org.apache.oozie.jobs.api.action.*;
+import org.apache.oozie.jobs.api.action.Hive2Action;
+import org.apache.oozie.jobs.api.action.Hive2ActionBuilder;
+import org.apache.oozie.jobs.api.action.Prepare;
+import org.apache.oozie.jobs.api.action.PrepareBuilder;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
 import org.apache.oozie.test.TestWorkflow;
+import org.apache.oozie.test.WorkflowTestCase;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestHive2Action extends TestWorkflow {
+public class TestHive2Action extends WorkflowTestCase {
     public void testForkedHive2Actions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
                 .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
@@ -79,6 +82,6 @@ public class TestHive2Action extends TestWorkflow {
 
         log.debug("Workflow XML is:\n{0}", xml);
 
-        submitAndAssert(xml, WorkflowJob.Status.KILLED);
+        validate(xml);
     }
 }

@@ -2186,7 +2186,7 @@ public class OozieClient {
         String file = null;
 
         ValidateXML(String file, String user) {
-            super("POST", RestConstants.VALIDATE, "",
+            super("POST", WS_PROTOCOL_VERSION, RestConstants.VALIDATE, "",
                     prepareParams(RestConstants.FILE_PARAM, file, RestConstants.USER_PARAM, user));
             this.file = file;
         }

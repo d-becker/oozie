@@ -30,12 +30,13 @@ import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
 import org.apache.oozie.test.TestWorkflow;
+import org.apache.oozie.test.WorkflowTestCase;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Date;
 
-public class TestFSAction extends TestWorkflow {
+public class TestFSAction extends WorkflowTestCase {
 
     public void testTwoFSActions() throws JAXBException, IOException, OozieClientException {
         final String hdfsPath = getFsTestCaseDir() + "/user/${wf:user()}/examples/output_" + new Date().getTime();
@@ -70,6 +71,6 @@ public class TestFSAction extends TestWorkflow {
 
         GraphVisualization.graphToPng(intermediateGraph, "simple-fs-example-graph.png");
 
-        submitAndAssert(xml, WorkflowJob.Status.SUCCEEDED);
+        validate(xml);
     }
 }

@@ -30,11 +30,12 @@ import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
 import org.apache.oozie.test.TestWorkflow;
+import org.apache.oozie.test.WorkflowTestCase;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestMapReduceAction extends TestWorkflow {
+public class TestMapReduceAction extends WorkflowTestCase {
     public void testForkedMapReduceActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
                 .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
@@ -75,6 +76,6 @@ public class TestMapReduceAction extends TestWorkflow {
 
         GraphVisualization.graphToPng(intermediateGraph, "simple-map-reduce-example-graph.png");
 
-        submitAndAssert(xml, WorkflowJob.Status.KILLED);
+        validate(xml);
     }
 }
