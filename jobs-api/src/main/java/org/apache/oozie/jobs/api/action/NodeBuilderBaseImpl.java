@@ -156,7 +156,9 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
             parents.remove(parent);
         } else {
             int index = indexOfParentAmongParentsWithConditions(parent);
-            parentsWithConditions.remove(index);
+            if (index >= 0) {
+                parentsWithConditions.remove(index);
+            }
         }
 
         return ensureRuntimeSelfReference();

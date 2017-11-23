@@ -6,12 +6,9 @@ import org.apache.oozie.jobs.api.ModifyOnce;
 import java.util.List;
 
 public class Hive2ActionBuilder extends NodeBuilderBaseImpl<Hive2ActionBuilder> implements Builder<Hive2Action> {
-    private final ActionAttributesBuilder attributesBuilder;
+    private final HiveActionBuilder delegate;
     private final ModifyOnce<String> jdbcUrl;
     private final ModifyOnce<String> password;
-    private final ModifyOnce<String> script;
-    private final ModifyOnce<String> query;
-    private final List<String> params;
 
     public static Hive2ActionBuilder create() {
         final ActionAttributesBuilder builder = ActionAttributesBuilder.create();
@@ -57,56 +54,128 @@ public class Hive2ActionBuilder extends NodeBuilderBaseImpl<Hive2ActionBuilder> 
                        final List<String> params) {
         super(action);
 
-        this.attributesBuilder = attributesBuilder;
+        this.delegate = new HiveActionBuilder(action,
+                attributesBuilder,
+                script,
+                query,
+                params);
+
         this.jdbcUrl = jdbcUrl;
         this.password = password;
-        this.script = script;
-        this.query = query;
-        this.params = params;
     }
 
     public Hive2ActionBuilder withJobTracker(final String jobTracker) {
-        this.attributesBuilder.withJobTracker(jobTracker);
+        delegate.withJobTracker(jobTracker);
         return this;
     }
 
     public Hive2ActionBuilder withResourceManager(final String resourceManager) {
-        this.attributesBuilder.withResourceManager(resourceManager);
+        delegate.withResourceManager(resourceManager);
         return this;
     }
 
     public Hive2ActionBuilder withNameNode(final String nameNode) {
-        this.attributesBuilder.withNameNode(nameNode);
+        delegate.withNameNode(nameNode);
         return this;
     }
 
     public Hive2ActionBuilder withPrepare(final Prepare prepare) {
-        this.attributesBuilder.withPrepare(prepare);
+        delegate.withPrepare(prepare);
         return this;
     }
 
     public Hive2ActionBuilder withLauncher(final Launcher launcher) {
-        this.attributesBuilder.withLauncher(launcher);
+        delegate.withLauncher(launcher);
         return this;
     }
 
     public Hive2ActionBuilder withJobXml(final String jobXml) {
-        this.attributesBuilder.withJobXml(jobXml);
+        delegate.withJobXml(jobXml);
         return this;
     }
 
     public Hive2ActionBuilder withoutJobXml(final String jobXml) {
-        this.attributesBuilder.withoutJobXml(jobXml);
+        delegate.withoutJobXml(jobXml);
         return this;
     }
 
     public Hive2ActionBuilder clearJobXmls() {
-        this.attributesBuilder.clearJobXmls();
+        delegate.clearJobXmls();
         return this;
     }
 
     public Hive2ActionBuilder withConfigProperty(final String key, final String value) {
-        this.attributesBuilder.withConfigProperty(key, value);
+        delegate.withConfigProperty(key, value);
+        return this;
+    }
+
+    public Hive2ActionBuilder withScript(final String script) {
+        delegate.withScript(script);
+        return this;
+    }
+
+    public Hive2ActionBuilder withQuery(final String query) {
+        delegate.withQuery(query);
+        return this;
+    }
+
+    public Hive2ActionBuilder withParam(final String param) {
+        delegate.withParam(param);
+        return this;
+    }
+
+    public Hive2ActionBuilder withoutParam(final String param) {
+        delegate.withoutParam(param);
+        return this;
+    }
+
+    public Hive2ActionBuilder clearParams() {
+        delegate.clearParams();
+        return this;
+    }
+
+    public Hive2ActionBuilder withArg(final String arg) {
+        delegate.withArg(arg);
+        return this;
+    }
+
+    public Hive2ActionBuilder withoutArg(final String arg) {
+        delegate.withoutArg(arg);
+        return this;
+    }
+
+    public Hive2ActionBuilder clearArgs() {
+        delegate.clearArgs();
+        return this;
+    }
+
+    public Hive2ActionBuilder withFile(final String file) {
+        delegate.withFile(file);
+        return this;
+    }
+
+    public Hive2ActionBuilder withoutFile(final String file) {
+        delegate.withoutFile(file);
+        return this;
+    }
+
+    public Hive2ActionBuilder clearFiles() {
+        delegate.clearFiles();
+        return this;
+    }
+
+    public Hive2ActionBuilder withArchive(final String archive) {
+        delegate.withArchive(archive);
+        return this;
+    }
+
+    public Hive2ActionBuilder withoutArchive(final String archive) {
+        delegate.withoutArchive(archive);
+        return this;
+    }
+
+    public Hive2ActionBuilder clearArchives() {
+        delegate.clearArchives();
         return this;
     }
 
@@ -120,88 +189,18 @@ public class Hive2ActionBuilder extends NodeBuilderBaseImpl<Hive2ActionBuilder> 
         return this;
     }
 
-    public Hive2ActionBuilder withScript(final String script) {
-        this.script.set(script);
-        return this;
-    }
-
-    public Hive2ActionBuilder withQuery(final String query) {
-        this.script.set(query);
-        return this;
-    }
-
-    public Hive2ActionBuilder withParam(final String param) {
-        this.params.add(param);
-        return this;
-    }
-
-    public Hive2ActionBuilder withoutParam(final String param) {
-        this.params.remove(param);
-        return this;
-    }
-
-    public Hive2ActionBuilder clearParams() {
-        this.params.clear();
-        return this;
-    }
-
-    public Hive2ActionBuilder withArg(final String arg) {
-        this.attributesBuilder.withArg(arg);
-        return this;
-    }
-
-    public Hive2ActionBuilder withoutArg(final String arg) {
-        this.attributesBuilder.withoutArg(arg);
-        return this;
-    }
-
-    public Hive2ActionBuilder clearArgs() {
-        this.attributesBuilder.clearArgs();
-        return this;
-    }
-
-    public Hive2ActionBuilder withFile(final String file) {
-        this.attributesBuilder.withFile(file);
-        return this;
-    }
-
-    public Hive2ActionBuilder withoutFile(final String file) {
-        this.attributesBuilder.withoutFile(file);
-        return this;
-    }
-
-    public Hive2ActionBuilder clearFiles() {
-        this.attributesBuilder.clearFiles();
-        return this;
-    }
-
-    public Hive2ActionBuilder withArchive(final String archive) {
-        this.attributesBuilder.withArchive(archive);
-        return this;
-    }
-
-    public Hive2ActionBuilder withoutArchive(final String archive) {
-        this.attributesBuilder.withoutArchive(archive);
-        return this;
-    }
-
-    public Hive2ActionBuilder clearArchive() {
-        this.attributesBuilder.clearArchives();
-        return this;
-    }
-
     @Override
     public Hive2Action build() {
         final Node.ConstructionData constructionData = getConstructionData();
 
         final Hive2Action instance = new Hive2Action(
                 constructionData,
-                attributesBuilder.build(),
+                delegate.attributesBuilder.build(),
                 jdbcUrl.get(),
                 password.get(),
-                script.get(),
-                query.get(),
-                ImmutableList.copyOf(params));
+                delegate.script.get(),
+                delegate.query.get(),
+                ImmutableList.copyOf(delegate.params));
 
         addAsChildToAllParents(instance);
 
