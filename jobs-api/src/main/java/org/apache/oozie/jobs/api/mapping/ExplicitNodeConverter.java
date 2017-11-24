@@ -53,6 +53,7 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
                 .put(DistcpAction.class, org.apache.oozie.jobs.api.generated.action.distcp.ACTION.class)
                 .put(HiveAction.class, org.apache.oozie.jobs.api.generated.action.hive.ACTION.class)
                 .put(Hive2Action.class, org.apache.oozie.jobs.api.generated.action.hive2.ACTION.class)
+                .put(JavaAction.class, org.apache.oozie.jobs.api.generated.workflow.JAVA.class)
                 .put(SparkAction.class, org.apache.oozie.jobs.api.generated.action.spark.ACTION.class);
 
         return builder.build();
@@ -145,46 +146,51 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
         else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.hive2.ACTION) {
             setHive2((org.apache.oozie.jobs.api.generated.action.hive2.ACTION) actionTypeObject, destination);
         }
+        else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.workflow.JAVA) {
+            setJava((org.apache.oozie.jobs.api.generated.workflow.JAVA) actionTypeObject, destination);
+        }
         else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.spark.ACTION) {
-                setSpark((org.apache.oozie.jobs.api.generated.action.spark.ACTION) actionTypeObject, destination);
+            setSpark((org.apache.oozie.jobs.api.generated.action.spark.ACTION) actionTypeObject, destination);
         }
     }
 
     private void setEmail(final org.apache.oozie.jobs.api.generated.action.email.ACTION source, final ACTION destination) {
-        final JAXBElement jaxbElement
-                = new org.apache.oozie.jobs.api.generated.action.email.ObjectFactory().createEmail(
-                source);
+        final JAXBElement jaxbElement =
+                new org.apache.oozie.jobs.api.generated.action.email.ObjectFactory().createEmail(source);
         destination.setOther(jaxbElement);
     }
 
     private void setDistcp(final org.apache.oozie.jobs.api.generated.action.distcp.ACTION source, final ACTION destination) {
-        final JAXBElement<org.apache.oozie.jobs.api.generated.action.distcp.ACTION> jaxbElement
-                = new org.apache.oozie.jobs.api.generated.action.distcp.ObjectFactory().createDistcp(
-                source);
+        final JAXBElement<org.apache.oozie.jobs.api.generated.action.distcp.ACTION> jaxbElement =
+                new org.apache.oozie.jobs.api.generated.action.distcp.ObjectFactory().createDistcp(source);
 
         destination.setOther(jaxbElement);
     }
 
     private void setHive(final org.apache.oozie.jobs.api.generated.action.hive.ACTION source, final ACTION destination) {
-        final JAXBElement<org.apache.oozie.jobs.api.generated.action.hive.ACTION> jaxbElement
-                = new org.apache.oozie.jobs.api.generated.action.hive.ObjectFactory().createHive(
-                source);
+        final JAXBElement<org.apache.oozie.jobs.api.generated.action.hive.ACTION> jaxbElement =
+                new org.apache.oozie.jobs.api.generated.action.hive.ObjectFactory().createHive(source);
 
         destination.setOther(jaxbElement);
     }
 
     private void setHive2(final org.apache.oozie.jobs.api.generated.action.hive2.ACTION source, final ACTION destination) {
-        final JAXBElement<org.apache.oozie.jobs.api.generated.action.hive2.ACTION> jaxbElement
-                = new org.apache.oozie.jobs.api.generated.action.hive2.ObjectFactory().createHive2(
-                source);
+        final JAXBElement<org.apache.oozie.jobs.api.generated.action.hive2.ACTION> jaxbElement =
+                new org.apache.oozie.jobs.api.generated.action.hive2.ObjectFactory().createHive2(source);
+
+        destination.setOther(jaxbElement);
+    }
+
+    private void setJava(final org.apache.oozie.jobs.api.generated.workflow.JAVA source, final ACTION destination) {
+        final JAXBElement<org.apache.oozie.jobs.api.generated.workflow.JAVA> jaxbElement =
+                new org.apache.oozie.jobs.api.generated.workflow.ObjectFactory().createJava(source);
 
         destination.setOther(jaxbElement);
     }
 
     private void setSpark(final org.apache.oozie.jobs.api.generated.action.spark.ACTION source, final ACTION destination) {
-        final JAXBElement<org.apache.oozie.jobs.api.generated.action.spark.ACTION> jaxbElement
-                = new org.apache.oozie.jobs.api.generated.action.spark.ObjectFactory().createSpark(
-                source);
+        final JAXBElement<org.apache.oozie.jobs.api.generated.action.spark.ACTION> jaxbElement =
+                new org.apache.oozie.jobs.api.generated.action.spark.ObjectFactory().createSpark(source);
 
         destination.setOther(jaxbElement);
     }

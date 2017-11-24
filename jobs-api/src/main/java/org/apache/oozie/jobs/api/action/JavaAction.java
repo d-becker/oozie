@@ -3,23 +3,27 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-public class HiveAction extends Node {
+public class JavaAction extends Node {
     private final ActionAttributes attributes;
-    private final String script;
-    private final String query;
-    private final ImmutableList<String> params;
+    private final String mainClass;
+    private final String javaOptsString;
+    private final ImmutableList<String> javaOpts;
+    private final boolean captureOutput;
 
-    HiveAction(final ConstructionData constructionData,
+
+    JavaAction(final ConstructionData constructionData,
                final ActionAttributes attributes,
-               final String script,
-               final String query,
-               final ImmutableList<String> params) {
+               final String mainClass,
+               final String javaOptsString,
+               final ImmutableList<String> javaOpts,
+               final boolean captureOutput) {
         super(constructionData);
 
         this.attributes = attributes;
-        this.script = script;
-        this.query = query;
-        this.params = params;
+        this.mainClass = mainClass;
+        this.javaOptsString = javaOptsString;
+        this.javaOpts = javaOpts;
+        this.captureOutput = captureOutput;
     }
 
     public String getJobTracker() {
@@ -54,16 +58,16 @@ public class HiveAction extends Node {
         return attributes.getConfiguration();
     }
 
-    public String getScript() {
-        return script;
+    public String getMainClass() {
+        return mainClass;
     }
 
-    public String getQuery() {
-        return query;
+    public String getJavaOptsString() {
+        return javaOptsString;
     }
 
-    public ImmutableList<String> getParams() {
-        return params;
+    public ImmutableList<String> getJavaOpts() {
+        return javaOpts;
     }
 
     public ImmutableList<String> getArgs() {
@@ -76,6 +80,10 @@ public class HiveAction extends Node {
 
     public ImmutableList<String> getArchives() {
         return attributes.getArchives();
+    }
+
+    public boolean isCaptureOutput() {
+        return captureOutput;
     }
 
     ActionAttributes getAttributes() {

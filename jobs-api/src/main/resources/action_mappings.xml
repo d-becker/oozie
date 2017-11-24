@@ -364,6 +364,81 @@
     </mapping>
 
     <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.JavaAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.workflow.JAVA</class-b>
+
+        <field>
+            <a>jobTracker</a>
+            <b>jobTracker</b>
+        </field>
+
+        <field>
+            <a>resourceManager</a>
+            <b>resourceManager</b>
+        </field>
+
+        <field>
+            <a>nameNode</a>
+            <b>nameNode</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.InlineWorkflowPrepareConverter">
+            <a>prepare</a>
+            <b>prepare</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.InlineWorkflowLauncherConverter">
+            <a>launcher</a>
+            <b>launcher</b>
+        </field>
+
+        <field>
+            <a>jobXmls</a>
+            <b>jobXml</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.InlineWorkflowConfigurationConverter">
+            <a>configuration</a>
+            <b>configuration</b>
+        </field>
+
+        <field>
+            <a>mainClass</a>
+            <b>mainClass</b>
+        </field>
+
+        <field>
+            <a>javaOptsString</a>
+            <b>javaOpts</b>
+        </field>
+
+        <field>
+            <a>javaOpts</a>
+            <b>javaOpt</b>
+        </field>
+
+        <field>
+            <a>args</a>
+            <b>arg</b>
+        </field>
+
+        <field>
+            <a>files</a>
+            <b>file</b>
+        </field>
+
+        <field>
+            <a>archives</a>
+            <b>archive</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.BooleanToFLAGConverter">
+            <a get-method="isCaptureOutput">captureOutput</a>
+            <b>captureOutput</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
         <class-a>org.apache.oozie.jobs.api.action.SparkAction</class-a>
         <class-b>org.apache.oozie.jobs.api.generated.action.spark.ACTION</class-b>
 

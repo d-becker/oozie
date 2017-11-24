@@ -3,6 +3,7 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import org.apache.oozie.jobs.api.ModifyOnce;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HiveActionBuilder extends NodeBuilderBaseImpl<HiveActionBuilder> implements Builder<HiveAction> {
@@ -15,7 +16,7 @@ public class HiveActionBuilder extends NodeBuilderBaseImpl<HiveActionBuilder> im
         final ActionAttributesBuilder builder = ActionAttributesBuilder.create();
         final ModifyOnce<String> script = new ModifyOnce<>();
         final ModifyOnce<String> query = new ModifyOnce<>();
-        final List<String> params = ImmutableList.of();
+        final List<String> params = new ArrayList<>();
 
         return new HiveActionBuilder(
                 null,
@@ -29,7 +30,7 @@ public class HiveActionBuilder extends NodeBuilderBaseImpl<HiveActionBuilder> im
         final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromExisting(action.getAttributes());
         final ModifyOnce<String> script = new ModifyOnce<>(action.getScript());
         final ModifyOnce<String> query = new ModifyOnce<>(action.getQuery());
-        final List<String> params = ImmutableList.copyOf(action.getParams());
+        final List<String> params = new ArrayList<>(action.getParams());
 
         return new HiveActionBuilder(action,
                 builder,
