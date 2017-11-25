@@ -9,8 +9,8 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestHiveActionBuilder extends TestNodeBuilderBaseImpl<HiveAction, HiveActionBuilder> {
-    private static final String NAME = "hive-name";
+public class TestPigActionBuilder extends TestNodeBuilderBaseImpl<PigAction, PigActionBuilder> {
+    private static final String NAME = "pig-name";
     private static final String JOB_TRACKER = "${jobTracker}";
     private static final String NAME_NODE = "${nameNode}";
     private static final String EXAMPLE_DIR = "/path/to/directory";
@@ -22,54 +22,54 @@ public class TestHiveActionBuilder extends TestNodeBuilderBaseImpl<HiveAction, H
     private static final String PATH_TO_MKDIR = "/path/to/mkdir";
 
     @Override
-    protected HiveActionBuilder getBuilderInstance() {
-        return HiveActionBuilder.create();
+    protected PigActionBuilder getBuilderInstance() {
+        return PigActionBuilder.create();
     }
 
     @Override
-    protected HiveActionBuilder getBuilderInstance(final HiveAction action) {
-        return HiveActionBuilder.createFromExistingAction(action);
+    protected PigActionBuilder getBuilderInstance(final PigAction action) {
+        return PigActionBuilder.createFromExistingAction(action);
     }
 
     @Test
     public void testJobTrackerAdded() {
-        final HiveActionBuilder builder = getBuilderInstance();
+        final PigActionBuilder builder = getBuilderInstance();
         builder.withJobTracker(JOB_TRACKER);
 
-        final HiveAction action = builder.build();
+        final PigAction action = builder.build();
         assertEquals(JOB_TRACKER, action.getJobTracker());
     }
 
     @Test
     public void testResourceManagerAdded() {
-        final HiveActionBuilder builder = getBuilderInstance();
+        final PigActionBuilder builder = getBuilderInstance();
         builder.withResourceManager(JOB_TRACKER);
 
-        final HiveAction action = builder.build();
+        final PigAction action = builder.build();
         assertEquals(JOB_TRACKER, action.getResourceManager());
     }
 
     @Test
     public void testNameNodeAdded() {
-        final HiveActionBuilder builder = getBuilderInstance();
+        final PigActionBuilder builder = getBuilderInstance();
         builder.withNameNode(NAME_NODE);
 
-        final HiveAction action = builder.build();
+        final PigAction action = builder.build();
         assertEquals(NAME_NODE, action.getNameNode());
     }
 
     @Test
     public void testPrepareAdded() {
-        final HiveActionBuilder builder = getBuilderInstance();
+        final PigActionBuilder builder = getBuilderInstance();
         builder.withPrepare(new PrepareBuilder().withDelete(EXAMPLE_DIR).build());
 
-        final HiveAction action = builder.build();
+        final PigAction action = builder.build();
         assertEquals(EXAMPLE_DIR, action.getPrepare().getDeletes().get(0).getPath());
     }
 
     @Test
     public void testSameConfigPropertyAddedTwiceThrows() {
-        final HiveActionBuilder builder = getBuilderInstance();
+        final PigActionBuilder builder = getBuilderInstance();
         builder.withConfigProperty(MAPRED_JOB_QUEUE_NAME, DEFAULT);
 
         expectedException.expect(IllegalStateException.class);
@@ -78,13 +78,13 @@ public class TestHiveActionBuilder extends TestNodeBuilderBaseImpl<HiveAction, H
 
     @Test
     public void testSeveralArgsAdded() {
-        final HiveActionBuilder builder = getBuilderInstance();
+        final PigActionBuilder builder = getBuilderInstance();
 
         for (final String arg : ARGS) {
             builder.withArg(arg);
         }
 
-        final HiveAction action = builder.build();
+        final PigAction action = builder.build();
 
         final List<String> argList = action.getArgs();
         assertEquals(ARGS.length, argList.size());
@@ -96,7 +96,7 @@ public class TestHiveActionBuilder extends TestNodeBuilderBaseImpl<HiveAction, H
 
     @Test
     public void testRemoveArgs() {
-        final HiveActionBuilder builder = getBuilderInstance();
+        final PigActionBuilder builder = getBuilderInstance();
 
         for (final String file : ARGS) {
             builder.withArg(file);
@@ -104,7 +104,7 @@ public class TestHiveActionBuilder extends TestNodeBuilderBaseImpl<HiveAction, H
 
         builder.withoutArg(ARGS[0]);
 
-        final HiveAction action = builder.build();
+        final PigAction action = builder.build();
 
         final List<String> argList = action.getArgs();
         final String[] remainingArgs = Arrays.copyOfRange(ARGS, 1, ARGS.length);
@@ -117,7 +117,7 @@ public class TestHiveActionBuilder extends TestNodeBuilderBaseImpl<HiveAction, H
 
     @Test
     public void testClearArgs() {
-        final HiveActionBuilder builder = getBuilderInstance();
+        final PigActionBuilder builder = getBuilderInstance();
 
         for (final String file : ARGS) {
             builder.withArg(file);
@@ -125,15 +125,15 @@ public class TestHiveActionBuilder extends TestNodeBuilderBaseImpl<HiveAction, H
 
         builder.clearArgs();
 
-        final HiveAction action = builder.build();
+        final PigAction action = builder.build();
 
         final List<String> argList = action.getArgs();
         assertEquals(0, argList.size());
     }
 
     @Test
-    public void testFromExistingHiveAction() {
-        final HiveActionBuilder builder = getBuilderInstance();
+    public void testFromExistingPigAction() {
+        final PigActionBuilder builder = getBuilderInstance();
 
         builder.withName(NAME)
                 .withResourceManager(RESOURCE_MANAGER)
@@ -153,20 +153,19 @@ public class TestHiveActionBuilder extends TestNodeBuilderBaseImpl<HiveAction, H
                         .build())
                 .withArg(ARGS[0])
                 .withArg(ARGS[1])
-                .withQuery(DEFAULT)
                 .withArchive(DEFAULT)
                 .withFile(DEFAULT);
 
-        final HiveAction action = builder.build();
+        final PigAction action = builder.build();
 
-        final HiveActionBuilder fromExistingBuilder = getBuilderInstance(action);
+        final PigActionBuilder fromExistingBuilder = getBuilderInstance(action);
 
         final String newName = "fromExisting_" + NAME;
         fromExistingBuilder.withName(newName)
                 .withoutArg(ARGS[1])
                 .withArg(ARGS[2]);
 
-        final HiveAction modifiedAction = fromExistingBuilder.build();
+        final PigAction modifiedAction = fromExistingBuilder.build();
 
         assertEquals(newName, modifiedAction.getName());
         assertEquals(action.getNameNode(), modifiedAction.getNameNode());
@@ -188,6 +187,5 @@ public class TestHiveActionBuilder extends TestNodeBuilderBaseImpl<HiveAction, H
         assertEquals(DEFAULT, modifiedAction.getLauncher().getModifyAcl());
 
         assertEquals(action.getScript(), modifiedAction.getScript());
-        assertEquals(action.getQuery(), modifiedAction.getQuery());
     }
 }

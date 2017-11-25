@@ -30,49 +30,49 @@ import org.apache.oozie.test.WorkflowTestCase;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestHiveAction extends WorkflowTestCase {
-    public void testForkedHiveActions() throws IOException, JAXBException, OozieClientException {
+public class TestPigAction extends WorkflowTestCase {
+    public void testForkedPigActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
                 .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
                 .build();
 
-        final HiveAction parent = HiveActionBuilder.create()
+        final PigAction parent = PigActionBuilder.create()
                 .withName("parent")
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
                 .withConfigProperty("mapred.job.queue.name", "default")
                 .withArg("arg1")
-                .withScript("hive2.sql")
+                .withScript("pig.sql")
                 .build();
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
-        final HiveAction leftChild = HiveActionBuilder.createFromExistingAction(parent)
+        final PigAction leftChild = PigActionBuilder.createFromExistingAction(parent)
                 .withName("leftChild")
                 .withParent(parent)
                 .withoutArg("arg1")
                 .withArg("arg2")
                 .build();
 
-        final HiveAction rightChild = HiveActionBuilder.createFromExistingAction(leftChild)
+        final PigAction rightChild = PigActionBuilder.createFromExistingAction(leftChild)
                 .withName("rightChild")
                 .withoutArg("arg2")
                 .withArg("arg3")
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-hive-example")
+                .withName("simple-pig-example")
                 .withDagContainingNode(parent).build();
 
         final String xml = Serializer.serialize(workflow);
 
         System.out.println(xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-hive-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "simple-pig-example-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-hive-example-graph.png");
+        GraphVisualization.graphToPng(intermediateGraph, "simple-pig-example-graph.png");
 
         log.debug("Workflow XML is:\n{0}", xml);
 

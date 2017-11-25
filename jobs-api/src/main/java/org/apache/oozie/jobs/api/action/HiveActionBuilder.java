@@ -7,10 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HiveActionBuilder extends NodeBuilderBaseImpl<HiveActionBuilder> implements Builder<HiveAction> {
-    protected final ActionAttributesBuilder attributesBuilder;
-    protected final ModifyOnce<String> script;
+    private final PigActionBuilder delegate;
     protected final ModifyOnce<String> query;
-    protected final List<String> params;
 
     public static HiveActionBuilder create() {
         final ActionAttributesBuilder builder = ActionAttributesBuilder.create();
@@ -46,125 +44,139 @@ public class HiveActionBuilder extends NodeBuilderBaseImpl<HiveActionBuilder> im
                       final List<String> params) {
         super(action);
 
-        this.attributesBuilder = attributesBuilder;
-        this.script = script;
+        this.delegate = new PigActionBuilder(action,
+                                             attributesBuilder,
+                                             script,
+                                             params);
+
         this.query = query;
-        this.params = params;
     }
 
     public HiveActionBuilder withJobTracker(final String jobTracker) {
-        this.attributesBuilder.withJobTracker(jobTracker);
+        this.delegate.withJobTracker(jobTracker);
         return this;
     }
 
     public HiveActionBuilder withResourceManager(final String resourceManager) {
-        this.attributesBuilder.withResourceManager(resourceManager);
+        this.delegate.withResourceManager(resourceManager);
         return this;
     }
 
     public HiveActionBuilder withNameNode(final String nameNode) {
-        this.attributesBuilder.withNameNode(nameNode);
+        this.delegate.withNameNode(nameNode);
         return this;
     }
 
     public HiveActionBuilder withPrepare(final Prepare prepare) {
-        this.attributesBuilder.withPrepare(prepare);
+        this.delegate.withPrepare(prepare);
         return this;
     }
 
     public HiveActionBuilder withLauncher(final Launcher launcher) {
-        this.attributesBuilder.withLauncher(launcher);
+        this.delegate.withLauncher(launcher);
         return this;
     }
 
     public HiveActionBuilder withJobXml(final String jobXml) {
-        this.attributesBuilder.withJobXml(jobXml);
+        this.delegate.withJobXml(jobXml);
         return this;
     }
 
     public HiveActionBuilder withoutJobXml(final String jobXml) {
-        this.attributesBuilder.withoutJobXml(jobXml);
+        this.delegate.withoutJobXml(jobXml);
         return this;
     }
 
     public HiveActionBuilder clearJobXmls() {
-        this.attributesBuilder.clearJobXmls();
+        this.delegate.clearJobXmls();
         return this;
     }
 
     public HiveActionBuilder withConfigProperty(final String key, final String value) {
-        this.attributesBuilder.withConfigProperty(key, value);
+        this.delegate.withConfigProperty(key, value);
         return this;
     }
 
     public HiveActionBuilder withScript(final String script) {
-        this.script.set(script);
+        this.delegate.withScript(script);
         return this;
     }
 
     public HiveActionBuilder withQuery(final String query) {
-        this.script.set(query);
+        this.query.set(query);
         return this;
     }
 
     public HiveActionBuilder withParam(final String param) {
-        this.params.add(param);
+        this.delegate.withParam(param);
         return this;
     }
 
     public HiveActionBuilder withoutParam(final String param) {
-        this.params.remove(param);
+        this.delegate.withoutParam(param);
         return this;
     }
 
     public HiveActionBuilder clearParams() {
-        this.params.clear();
+        this.delegate.clearParams();
         return this;
     }
 
     public HiveActionBuilder withArg(final String arg) {
-        this.attributesBuilder.withArg(arg);
+        this.delegate.withArg(arg);
         return this;
     }
 
     public HiveActionBuilder withoutArg(final String arg) {
-        this.attributesBuilder.withoutArg(arg);
+        this.delegate.withoutArg(arg);
         return this;
     }
 
     public HiveActionBuilder clearArgs() {
-        this.attributesBuilder.clearArgs();
+        this.delegate.clearArgs();
         return this;
     }
 
     public HiveActionBuilder withFile(final String file) {
-        this.attributesBuilder.withFile(file);
+        this.delegate.withFile(file);
         return this;
     }
 
     public HiveActionBuilder withoutFile(final String file) {
-        this.attributesBuilder.withoutFile(file);
+        this.delegate.withoutFile(file);
         return this;
     }
 
     public HiveActionBuilder clearFiles() {
-        this.attributesBuilder.clearFiles();
+        this.delegate.clearFiles();
         return this;
     }
 
     public HiveActionBuilder withArchive(final String archive) {
-        this.attributesBuilder.withArchive(archive);
+        this.delegate.withArchive(archive);
         return this;
     }
 
     public HiveActionBuilder withoutArchive(final String archive) {
-        this.attributesBuilder.withoutArchive(archive);
+        this.delegate.withoutArchive(archive);
         return this;
     }
 
     public HiveActionBuilder clearArchives() {
-        this.attributesBuilder.clearArchives();
+        this.delegate.clearArchives();
         return this;
+    }
+
+    ActionAttributesBuilder getAttributesBuilder() {
+        return delegate.attributesBuilder;
+    }
+
+    ModifyOnce<String> getScript() {
+        return delegate.script;
+    }
+
+    List<String> getParams() {
+        return delegate.params;
     }
 
     @Override
@@ -173,10 +185,10 @@ public class HiveActionBuilder extends NodeBuilderBaseImpl<HiveActionBuilder> im
 
         final HiveAction instance = new HiveAction(
                 constructionData,
-                attributesBuilder.build(),
-                script.get(),
+                getAttributesBuilder().build(),
+                getScript().get(),
                 query.get(),
-                ImmutableList.copyOf(params));
+                ImmutableList.copyOf(getParams()));
 
         addAsChildToAllParents(instance);
 

@@ -195,12 +195,12 @@ public class Hive2ActionBuilder extends NodeBuilderBaseImpl<Hive2ActionBuilder> 
 
         final Hive2Action instance = new Hive2Action(
                 constructionData,
-                delegate.attributesBuilder.build(),
+                delegate.getAttributesBuilder().build(),
                 jdbcUrl.get(),
                 password.get(),
-                delegate.script.get(),
+                delegate.getScript().get(),
                 delegate.query.get(),
-                ImmutableList.copyOf(delegate.params));
+                ImmutableList.copyOf(delegate.getParams()));
 
         addAsChildToAllParents(instance);
 
