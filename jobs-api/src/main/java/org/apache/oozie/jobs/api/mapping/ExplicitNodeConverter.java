@@ -56,7 +56,8 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
                 .put(JavaAction.class, org.apache.oozie.jobs.api.generated.workflow.JAVA.class)
                 .put(PigAction.class, org.apache.oozie.jobs.api.generated.workflow.PIG.class)
                 .put(ShellAction.class, org.apache.oozie.jobs.api.generated.action.shell.ACTION.class)
-                .put(SparkAction.class, org.apache.oozie.jobs.api.generated.action.spark.ACTION.class);
+                .put(SparkAction.class, org.apache.oozie.jobs.api.generated.action.spark.ACTION.class)
+                .put(SqoopAction.class, org.apache.oozie.jobs.api.generated.action.sqoop.ACTION.class);
 
         return builder.build();
     }
@@ -160,6 +161,9 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
         else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.spark.ACTION) {
             setSpark((org.apache.oozie.jobs.api.generated.action.spark.ACTION) actionTypeObject, destination);
         }
+        else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.sqoop.ACTION) {
+            setSqoop((org.apache.oozie.jobs.api.generated.action.sqoop.ACTION) actionTypeObject, destination);
+        }
     }
 
     private void setEmail(final org.apache.oozie.jobs.api.generated.action.email.ACTION source, final ACTION destination) {
@@ -213,6 +217,13 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
     private void setSpark(final org.apache.oozie.jobs.api.generated.action.spark.ACTION source, final ACTION destination) {
         final JAXBElement<org.apache.oozie.jobs.api.generated.action.spark.ACTION> jaxbElement =
                 new org.apache.oozie.jobs.api.generated.action.spark.ObjectFactory().createSpark(source);
+
+        destination.setOther(jaxbElement);
+    }
+
+    private void setSqoop(final org.apache.oozie.jobs.api.generated.action.sqoop.ACTION source, final ACTION destination) {
+        final JAXBElement<org.apache.oozie.jobs.api.generated.action.sqoop.ACTION> jaxbElement =
+                new org.apache.oozie.jobs.api.generated.action.sqoop.ObjectFactory().createSqoop(source);
 
         destination.setOther(jaxbElement);
     }

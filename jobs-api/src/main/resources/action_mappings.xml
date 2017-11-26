@@ -659,6 +659,66 @@
     </mapping>
 
     <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.SqoopAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.action.sqoop.ACTION</class-b>
+
+        <field>
+            <a>jobTracker</a>
+            <b>jobTracker</b>
+        </field>
+
+        <field>
+            <a>resourceManager</a>
+            <b>resourceManager</b>
+        </field>
+
+        <field>
+            <a>nameNode</a>
+            <b>nameNode</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.SqoopPrepareConverter">
+            <a>prepare</a>
+            <b>prepare</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.SqoopLauncherConverter">
+            <a>launcher</a>
+            <b>launcher</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.SqoopConfigurationConverter">
+            <a>configuration</a>
+            <b>configuration</b>
+        </field>
+
+        <field>
+            <a>jobXmls</a>
+            <b>jobXml</b>
+        </field>
+
+        <field>
+            <a>command</a>
+            <b>command</b>
+        </field>
+
+        <field>
+            <a>arguments</a>
+            <b>arg</b>
+        </field>
+
+        <field>
+            <a>files</a>
+            <b>file</b>
+        </field>
+
+        <field>
+            <a>archives</a>
+            <b>archive</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
         <class-a>org.apache.oozie.jobs.api.action.EmailAction</class-a>
         <class-b>org.apache.oozie.jobs.api.generated.action.email.ACTION</class-b>
 
