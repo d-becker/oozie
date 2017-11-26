@@ -11,22 +11,19 @@ public class JavaActionBuilder extends NodeBuilderBaseImpl<JavaActionBuilder> im
     private final ModifyOnce<String> mainClass;
     private final ModifyOnce<String> javaOptsString;
     private final List<String> javaOpts;
-    private final ModifyOnce<Boolean> captureOutput;
 
     public static JavaActionBuilder create() {
         final ActionAttributesBuilder builder = ActionAttributesBuilder.create();
         final ModifyOnce<String> mainClass = new ModifyOnce<>();
         final ModifyOnce<String> javaOptsString = new ModifyOnce<>();
         final List<String> javaOpts = new ArrayList<>();
-        final ModifyOnce<Boolean> captureOutput = new ModifyOnce<>(false);
 
         return new JavaActionBuilder(
                 null,
                 builder,
                 mainClass,
                 javaOptsString,
-                javaOpts,
-                captureOutput);
+                javaOpts);
     }
 
     public static JavaActionBuilder createFromExistingAction(final JavaAction action) {
@@ -34,29 +31,25 @@ public class JavaActionBuilder extends NodeBuilderBaseImpl<JavaActionBuilder> im
         final ModifyOnce<String> mainClass = new ModifyOnce<>(action.getMainClass());
         final ModifyOnce<String> javaOptsString = new ModifyOnce<>(action.getJavaOptsString());
         final List<String> javaOpts = new ArrayList<>(action.getJavaOpts());
-        final ModifyOnce<Boolean> captureOutput = new ModifyOnce<>(action.isCaptureOutput());
 
         return new JavaActionBuilder(action,
                 builder,
                 mainClass,
                 javaOptsString,
-                javaOpts,
-                captureOutput);
+                javaOpts);
     }
 
     private JavaActionBuilder(final JavaAction action,
                               final ActionAttributesBuilder attributesBuilder,
                               final ModifyOnce<String> mainClass,
                               final ModifyOnce<String> javaOptsString,
-                              final List<String> javaOpts,
-                              final ModifyOnce<Boolean> captureOutput) {
+                              final List<String> javaOpts) {
         super(action);
 
         this.attributesBuilder = attributesBuilder;
         this.mainClass = mainClass;
         this.javaOptsString = javaOptsString;
         this.javaOpts = javaOpts;
-        this.captureOutput = captureOutput;
     }
 
     public JavaActionBuilder withJobTracker(final String jobTracker) {
@@ -174,8 +167,8 @@ public class JavaActionBuilder extends NodeBuilderBaseImpl<JavaActionBuilder> im
         return this;
     }
 
-    public JavaActionBuilder withCaptureOutput(final boolean captureOutput) {
-        this.captureOutput.set(captureOutput);
+    public JavaActionBuilder withCaptureOutput(final Boolean captureOutput) {
+        this.attributesBuilder.withCaptureOutput(captureOutput);
         return this;
     }
 
@@ -188,8 +181,7 @@ public class JavaActionBuilder extends NodeBuilderBaseImpl<JavaActionBuilder> im
                 attributesBuilder.build(),
                 mainClass.get(),
                 javaOptsString.get(),
-                ImmutableList.copyOf(javaOpts),
-                captureOutput.get());
+                ImmutableList.copyOf(javaOpts));
 
         addAsChildToAllParents(instance);
 

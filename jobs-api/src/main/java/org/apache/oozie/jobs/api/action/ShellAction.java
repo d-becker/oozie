@@ -3,24 +3,20 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-public class JavaAction extends Node {
+public class ShellAction extends Node {
     private final ActionAttributes attributes;
-    private final String mainClass;
-    private final String javaOptsString;
-    private final ImmutableList<String> javaOpts;
+    private final String executable;
+    private final ImmutableList<String> environmentVariables;
 
-
-    JavaAction(final ConstructionData constructionData,
-               final ActionAttributes attributes,
-               final String mainClass,
-               final String javaOptsString,
-               final ImmutableList<String> javaOpts) {
+    ShellAction(final ConstructionData constructionData,
+                final ActionAttributes attributes,
+                final String executable,
+                final ImmutableList<String> environmentVariables) {
         super(constructionData);
 
         this.attributes = attributes;
-        this.mainClass = mainClass;
-        this.javaOptsString = javaOptsString;
-        this.javaOpts = javaOpts;
+        this.executable = executable;
+        this.environmentVariables = environmentVariables;
     }
 
     public String getJobTracker() {
@@ -55,20 +51,16 @@ public class JavaAction extends Node {
         return attributes.getConfiguration();
     }
 
-    public String getMainClass() {
-        return mainClass;
+    public String getExecutable() {
+        return executable;
     }
 
-    public String getJavaOptsString() {
-        return javaOptsString;
-    }
-
-    public ImmutableList<String> getJavaOpts() {
-        return javaOpts;
-    }
-
-    public ImmutableList<String> getArgs() {
+    public ImmutableList<String> getArguments() {
         return attributes.getArgs();
+    }
+
+    public ImmutableList<String> getEnvironmentVariables() {
+        return environmentVariables;
     }
 
     public ImmutableList<String> getFiles() {

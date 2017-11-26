@@ -21,6 +21,7 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.oozie.jobs.api.ModifyOnce;
+import org.apache.xpath.operations.Bool;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -58,6 +59,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
     private final List<String> args;
     private final ModifyOnce<String> resourceManager;
     private final ModifyOnce<Launcher> launcher;
+    private final ModifyOnce<Boolean> captureOutput;
 
     /**
      * Creates and returns an empty builder.
@@ -84,6 +86,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         final List<String> args = new ArrayList<>();
         final ModifyOnce<String> resourceManager = new ModifyOnce<>();
         final ModifyOnce<Launcher> launcher = new ModifyOnce<>();
+        final ModifyOnce<Boolean> captureOutput = new ModifyOnce<>();
 
         return new ActionAttributesBuilder(
                 jobTracker,
@@ -105,7 +108,8 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 javaOpts,
                 args,
                 resourceManager,
-                launcher);
+                launcher,
+                captureOutput);
     }
 
     /**
@@ -137,6 +141,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         final List<String> args = new ArrayList<>(attributes.getArgs());
         final ModifyOnce<String> resourceManager = new ModifyOnce<>(attributes.getResourceManager());
         final ModifyOnce<Launcher> launcher = new ModifyOnce<>(attributes.getLauncher());
+        final ModifyOnce<Boolean> captureOutput = new ModifyOnce<>(attributes.isCaptureOutput());
 
         return new ActionAttributesBuilder(
                 jobTracker,
@@ -158,7 +163,8 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 javaOpts,
                 args,
                 resourceManager,
-                launcher);
+                launcher,
+                captureOutput);
     }
 
     private ActionAttributesBuilder(final ModifyOnce<String> jobTracker,
@@ -180,7 +186,8 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                                     final ModifyOnce<String> javaOpts,
                                     final List<String> args,
                                     final ModifyOnce<String> resourceManager,
-                                    final ModifyOnce<Launcher> launcher) {
+                                    final ModifyOnce<Launcher> launcher,
+                                    final ModifyOnce<Boolean> captureOutput) {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
         this.prepare = prepare;
@@ -201,6 +208,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         this.args = args;
         this.resourceManager = resourceManager;
         this.launcher = launcher;
+        this.captureOutput = captureOutput;
     }
 
     /**
@@ -506,6 +514,10 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         this.launcher.set(launcher);
     }
 
+    void withCaptureOutput(final Boolean captureOutput) {
+        this.captureOutput.set(captureOutput);
+    }
+
     /**
      * Creates a new {@link ActionAttributes} object with the properties stores in this builder.
      * The new {@link ActionAttributes} object is independent of this builder and the builder can be used to build
@@ -533,7 +545,8 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 javaOpts.get(),
                 ImmutableList.copyOf(args),
                 resourceManager.get(),
-                launcher.get());
+                launcher.get(),
+                captureOutput.get());
     }
 
     static Map<String, ModifyOnce<String>> convertToModifyOnceMap(final Map<String, String> configurationMap) {

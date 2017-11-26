@@ -504,6 +504,76 @@
     </mapping>
 
     <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.ShellAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.action.shell.ACTION</class-b>
+
+        <field>
+            <a>jobTracker</a>
+            <b>jobTracker</b>
+        </field>
+
+        <field>
+            <a>resourceManager</a>
+            <b>resourceManager</b>
+        </field>
+
+        <field>
+            <a>nameNode</a>
+            <b>nameNode</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.ShellPrepareConverter">
+            <a>prepare</a>
+            <b>prepare</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.ShellLauncherConverter">
+            <a>launcher</a>
+            <b>launcher</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.ShellConfigurationConverter">
+            <a>configuration</a>
+            <b>configuration</b>
+        </field>
+
+        <field>
+            <a>jobXmls</a>
+            <b>jobXml</b>
+        </field>
+
+        <field>
+            <a>executable</a>
+            <b>exec</b>
+        </field>
+
+        <field>
+            <a>environmentVariables</a>
+            <b>envVar</b>
+        </field>
+
+        <field>
+            <a>arguments</a>
+            <b>argument</b>
+        </field>
+
+        <field>
+            <a>files</a>
+            <b>file</b>
+        </field>
+
+        <field>
+            <a>archives</a>
+            <b>archive</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.BooleanToShellFLAGConverter">
+            <a get-method="isCaptureOutput">captureOutput</a>
+            <b>captureOutput</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
         <class-a>org.apache.oozie.jobs.api.action.SparkAction</class-a>
         <class-b>org.apache.oozie.jobs.api.generated.action.spark.ACTION</class-b>
 

@@ -46,6 +46,7 @@ public class ActionAttributes {
     private final ImmutableList<String> args;
     private final String resourceManager;
     private final Launcher launcher;
+    private final Boolean captureOutput;
 
     ActionAttributes(final String jobTracker,
                      final String nameNode,
@@ -66,7 +67,8 @@ public class ActionAttributes {
                      final String javaOpts,
                      final ImmutableList<String> args,
                      final String resourceManager,
-                     final Launcher launcher) {
+                     final Launcher launcher,
+                     final Boolean captureOutput) {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
         this.prepare = prepare;
@@ -87,6 +89,7 @@ public class ActionAttributes {
         this.args = args;
         this.resourceManager = resourceManager;
         this.launcher = launcher;
+        this.captureOutput = captureOutput;
     }
 
     /**
@@ -231,5 +234,9 @@ public class ActionAttributes {
 
     public Launcher getLauncher() {
         return launcher;
+    }
+
+    public Boolean isCaptureOutput() {
+        return captureOutput;
     }
 }

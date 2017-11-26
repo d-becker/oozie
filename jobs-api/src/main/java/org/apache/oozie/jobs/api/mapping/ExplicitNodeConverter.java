@@ -55,6 +55,7 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
                 .put(Hive2Action.class, org.apache.oozie.jobs.api.generated.action.hive2.ACTION.class)
                 .put(JavaAction.class, org.apache.oozie.jobs.api.generated.workflow.JAVA.class)
                 .put(PigAction.class, org.apache.oozie.jobs.api.generated.workflow.PIG.class)
+                .put(ShellAction.class, org.apache.oozie.jobs.api.generated.action.shell.ACTION.class)
                 .put(SparkAction.class, org.apache.oozie.jobs.api.generated.action.spark.ACTION.class);
 
         return builder.build();
@@ -153,6 +154,9 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
         else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.workflow.PIG) {
             setPig((org.apache.oozie.jobs.api.generated.workflow.PIG) actionTypeObject, destination);
         }
+        else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.shell.ACTION) {
+            setShell((org.apache.oozie.jobs.api.generated.action.shell.ACTION) actionTypeObject, destination);
+        }
         else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.spark.ACTION) {
             setSpark((org.apache.oozie.jobs.api.generated.action.spark.ACTION) actionTypeObject, destination);
         }
@@ -195,6 +199,13 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
     private void setPig(final org.apache.oozie.jobs.api.generated.workflow.PIG source, final ACTION destination) {
         final JAXBElement<org.apache.oozie.jobs.api.generated.workflow.PIG> jaxbElement =
                 new org.apache.oozie.jobs.api.generated.workflow.ObjectFactory().createPig(source);
+
+        destination.setOther(jaxbElement);
+    }
+
+    private void setShell(final org.apache.oozie.jobs.api.generated.action.shell.ACTION source, final ACTION destination) {
+        final JAXBElement<org.apache.oozie.jobs.api.generated.action.shell.ACTION> jaxbElement =
+                new org.apache.oozie.jobs.api.generated.action.shell.ObjectFactory().createShell(source);
 
         destination.setOther(jaxbElement);
     }
