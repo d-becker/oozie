@@ -10,7 +10,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public class TestJavaActionBuilder extends TestNodeBuilderBaseImpl<JavaAction, JavaActionBuilder> {
-    private static final String NAME = "hive2-name";
+    private static final String NAME = "ssh-name";
     private static final String JOB_TRACKER = "${jobTracker}";
     private static final String NAME_NODE = "${nameNode}";
     private static final String EXAMPLE_DIR = "/path/to/directory";

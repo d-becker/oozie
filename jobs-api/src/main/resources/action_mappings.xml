@@ -719,6 +719,31 @@
     </mapping>
 
     <mapping type="one-way">
+        <class-a>org.apache.oozie.jobs.api.action.SshAction</class-a>
+        <class-b>org.apache.oozie.jobs.api.generated.action.ssh.ACTION</class-b>
+
+        <field>
+            <a>host</a>
+            <b>host</b>
+        </field>
+
+        <field>
+            <a>command</a>
+            <b>command</b>
+        </field>
+
+        <field>
+            <a>args</a>
+            <b>args</b>
+        </field>
+
+        <field custom-converter="org.apache.oozie.jobs.api.mapping.BooleanToSshFLAGConverter">
+            <a get-method="isCaptureOutput">captureOutput</a>
+            <b>captureOutput</b>
+        </field>
+    </mapping>
+
+    <mapping type="one-way">
         <class-a>org.apache.oozie.jobs.api.action.EmailAction</class-a>
         <class-b>org.apache.oozie.jobs.api.generated.action.email.ACTION</class-b>
 

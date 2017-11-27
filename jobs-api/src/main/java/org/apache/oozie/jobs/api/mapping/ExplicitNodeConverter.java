@@ -57,7 +57,8 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
                 .put(PigAction.class, org.apache.oozie.jobs.api.generated.workflow.PIG.class)
                 .put(ShellAction.class, org.apache.oozie.jobs.api.generated.action.shell.ACTION.class)
                 .put(SparkAction.class, org.apache.oozie.jobs.api.generated.action.spark.ACTION.class)
-                .put(SqoopAction.class, org.apache.oozie.jobs.api.generated.action.sqoop.ACTION.class);
+                .put(SqoopAction.class, org.apache.oozie.jobs.api.generated.action.sqoop.ACTION.class)
+                .put(SshAction.class, org.apache.oozie.jobs.api.generated.action.ssh.ACTION.class);
 
         return builder.build();
     }
@@ -164,6 +165,9 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
         else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.sqoop.ACTION) {
             setSqoop((org.apache.oozie.jobs.api.generated.action.sqoop.ACTION) actionTypeObject, destination);
         }
+        else if (actionTypeObject instanceof org.apache.oozie.jobs.api.generated.action.ssh.ACTION) {
+            setSsh((org.apache.oozie.jobs.api.generated.action.ssh.ACTION) actionTypeObject, destination);
+        }
     }
 
     private void setEmail(final org.apache.oozie.jobs.api.generated.action.email.ACTION source, final ACTION destination) {
@@ -224,6 +228,13 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
     private void setSqoop(final org.apache.oozie.jobs.api.generated.action.sqoop.ACTION source, final ACTION destination) {
         final JAXBElement<org.apache.oozie.jobs.api.generated.action.sqoop.ACTION> jaxbElement =
                 new org.apache.oozie.jobs.api.generated.action.sqoop.ObjectFactory().createSqoop(source);
+
+        destination.setOther(jaxbElement);
+    }
+
+    private void setSsh(final org.apache.oozie.jobs.api.generated.action.ssh.ACTION source, final ACTION destination) {
+        final JAXBElement<org.apache.oozie.jobs.api.generated.action.ssh.ACTION> jaxbElement =
+                new org.apache.oozie.jobs.api.generated.action.ssh.ObjectFactory().createSsh(source);
 
         destination.setOther(jaxbElement);
     }
