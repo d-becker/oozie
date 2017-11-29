@@ -236,7 +236,7 @@ public class ActionAttributes {
         return launcher;
     }
 
-    public Boolean isCaptureOutput() {
-        return captureOutput;
+    public boolean isCaptureOutput() {
+        return captureOutput == null ? false : captureOutput;
     }
 }

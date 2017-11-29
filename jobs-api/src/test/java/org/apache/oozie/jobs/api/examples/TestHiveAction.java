@@ -37,7 +37,6 @@ public class TestHiveAction extends WorkflowTestCase {
                 .build();
 
         final HiveAction parent = HiveActionBuilder.create()
-                .withName("parent")
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
@@ -48,14 +47,12 @@ public class TestHiveAction extends WorkflowTestCase {
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
         final HiveAction leftChild = HiveActionBuilder.createFromExistingAction(parent)
-                .withName("leftChild")
                 .withParent(parent)
                 .withoutArg("arg1")
                 .withArg("arg2")
                 .build();
 
         final HiveAction rightChild = HiveActionBuilder.createFromExistingAction(leftChild)
-                .withName("rightChild")
                 .withoutArg("arg2")
                 .withArg("arg3")
                 .build();

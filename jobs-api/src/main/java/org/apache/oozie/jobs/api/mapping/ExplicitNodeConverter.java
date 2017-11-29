@@ -28,6 +28,7 @@ import org.apache.oozie.jobs.api.generated.workflow.MAPREDUCE;
 import org.apache.oozie.jobs.api.generated.workflow.ObjectFactory;
 import org.apache.oozie.jobs.api.generated.workflow.PIG;
 import org.apache.oozie.jobs.api.generated.workflow.SUBWORKFLOW;
+import org.apache.oozie.jobs.api.oozie.dag.DecisionJoin;
 import org.apache.oozie.jobs.api.oozie.dag.ExplicitNode;
 import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.dozer.DozerConverter;
@@ -106,10 +107,18 @@ public class ExplicitNodeConverter extends DozerConverter<ExplicitNode, ACTION> 
     private void mapTransitions(final ExplicitNode source, final ACTION destination) {
         // Error transitions are handled at the level of converting the Graph object to a WORKFLOWAPP object.
         final ACTIONTRANSITION ok = WORKFLOW_OBJECT_FACTORY.createACTIONTRANSITION();
-        final NodeBase child = source.getChild();
+        final NodeBase child = findNonDecisionNodeDescendant(source);
+
         ok.setTo(child == null ? "" : child.getName());
 
         destination.setOk(ok);
+    }
+
+    private NodeBase findNonDecisionNodeDescendant(final ExplicitNode source) {
+        if (source.getChild() instanceof DecisionJoin) {
+            return ((DecisionJoin) source.getChild()).getFirstNonDecisionJoinDescendant();
+        }
+        return source.getChild();
     }
 
     private void mapActionContent(final ExplicitNode source, final ACTION destination) {

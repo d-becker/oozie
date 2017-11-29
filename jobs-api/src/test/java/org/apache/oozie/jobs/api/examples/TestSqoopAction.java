@@ -37,7 +37,6 @@ public class TestSqoopAction extends WorkflowTestCase {
                 .build();
 
         final SqoopAction parent = SqoopActionBuilder.create()
-                .withName("parent")
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
@@ -47,13 +46,11 @@ public class TestSqoopAction extends WorkflowTestCase {
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
         final SqoopAction leftChild = SqoopActionBuilder.createFromExistingAction(parent)
-                .withName("leftChild")
                 .withParent(parent)
                 .withCommand("python3")
                 .build();
 
         final SqoopAction rightChild = SqoopActionBuilder.createFromExistingAction(leftChild)
-                .withName("rightChild")
                 .withoutArgument("arg2")
                 .withArgument("arg3")
                 .withCommand(null)

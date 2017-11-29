@@ -17,6 +17,10 @@ public class HiveConfigurationConverter extends DozerConverter<Map, CONFIGURATIO
 
     @Override
     public CONFIGURATION convertTo(final Map source, CONFIGURATION destination) {
+        if (source == null) {
+            return null;
+        }
+
         destination = ensureDestination(destination);
 
         mapEntries(source, destination);

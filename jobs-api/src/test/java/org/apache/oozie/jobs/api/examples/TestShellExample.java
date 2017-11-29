@@ -20,7 +20,10 @@ package org.apache.oozie.jobs.api.examples;
 
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.jobs.api.GraphVisualization;
-import org.apache.oozie.jobs.api.action.*;
+import org.apache.oozie.jobs.api.action.Prepare;
+import org.apache.oozie.jobs.api.action.PrepareBuilder;
+import org.apache.oozie.jobs.api.action.ShellAction;
+import org.apache.oozie.jobs.api.action.ShellActionBuilder;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
@@ -30,46 +33,44 @@ import org.apache.oozie.test.WorkflowTestCase;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestPigAction extends WorkflowTestCase {
-    public void testForkedPigActions() throws IOException, JAXBException, OozieClientException {
-        final Prepare prepare = new PrepareBuilder()
-                .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
+public class TestShellExample extends WorkflowTestCase {
+    public void testShellExample() throws IOException, JAXBException, OozieClientException {
+        final ShellAction parent = ShellActionBuilder.create()
+                .withName("parent")
+                .withJobTracker("${jobTracker}")
+                .withNameNode("${nameNode}")
+                .withConfigProperty("mapred.job.queue.name", "${queueName}")
+                .withArgument("my_output=Hello Oozie")
+                .withExecutable("echo")
+                .withCaptureOutput(true)
                 .build();
 
-        final PigAction parent = PigActionBuilder.create()
-                .withJobTracker(getJobTrackerUri())
-                .withNameNode(getNameNodeUri())
-                .withPrepare(prepare)
-                .withConfigProperty("mapred.job.queue.name", "default")
-                .withArg("arg1")
-                .withScript("pig.sql")
+        final ShellAction happyPath = ShellActionBuilder.createFromExistingAction(parent)
+                .withName("happy-path")
+                .withParentWithCondition(parent, "${wf:actionData('parent')['my_output'] eq 'Hello Oozie'}")
+                .withoutArgument("my_output=Hello Oozie")
+                .withArgument("Happy path")
                 .build();
 
-        //  We are reusing the definition of parent and only modifying and adding what is different.
-        final PigAction leftChild = PigActionBuilder.createFromExistingAction(parent)
-                .withParent(parent)
-                .withoutArg("arg1")
-                .withArg("arg2")
-                .build();
-
-        final PigAction rightChild = PigActionBuilder.createFromExistingAction(leftChild)
-                .withoutArg("arg2")
-                .withArg("arg3")
+        final ShellAction sadPath = ShellActionBuilder.createFromExistingAction(parent)
+                .withName("sad-path")
+                .withParentDefaultConditional(parent)
+                .withArgument("Sad path")
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-pig-example")
+                .withName("shell-example")
                 .withDagContainingNode(parent).build();
 
         final String xml = Serializer.serialize(workflow);
 
         System.out.println(xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-pig-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "shell-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-pig-example-graph.png");
+        GraphVisualization.graphToPng(intermediateGraph, "shell-graph.png");
 
         log.debug("Workflow XML is:\n{0}", xml);
 

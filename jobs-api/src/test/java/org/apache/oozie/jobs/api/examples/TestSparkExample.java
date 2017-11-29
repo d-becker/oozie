@@ -20,7 +20,10 @@ package org.apache.oozie.jobs.api.examples;
 
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.jobs.api.GraphVisualization;
-import org.apache.oozie.jobs.api.action.*;
+import org.apache.oozie.jobs.api.action.Prepare;
+import org.apache.oozie.jobs.api.action.PrepareBuilder;
+import org.apache.oozie.jobs.api.action.SparkAction;
+import org.apache.oozie.jobs.api.action.SparkActionBuilder;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
@@ -30,46 +33,39 @@ import org.apache.oozie.test.WorkflowTestCase;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestPigAction extends WorkflowTestCase {
-    public void testForkedPigActions() throws IOException, JAXBException, OozieClientException {
+public class TestSparkExample extends WorkflowTestCase {
+    public void testForkedSparkActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
-                .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
+                .withDelete("${nameNode}/user/${wf:user()}/${examplesRoot}/output-data/spark")
                 .build();
 
-        final PigAction parent = PigActionBuilder.create()
-                .withJobTracker(getJobTrackerUri())
-                .withNameNode(getNameNodeUri())
+        final SparkAction parent = SparkActionBuilder.create()
+                .withName("spark-file-copy")
+                .withJobTracker("${jobTracker}")
+                .withNameNode("${nameNode}")
                 .withPrepare(prepare)
-                .withConfigProperty("mapred.job.queue.name", "default")
-                .withArg("arg1")
-                .withScript("pig.sql")
-                .build();
-
-        //  We are reusing the definition of parent and only modifying and adding what is different.
-        final PigAction leftChild = PigActionBuilder.createFromExistingAction(parent)
-                .withParent(parent)
-                .withoutArg("arg1")
-                .withArg("arg2")
-                .build();
-
-        final PigAction rightChild = PigActionBuilder.createFromExistingAction(leftChild)
-                .withoutArg("arg2")
-                .withArg("arg3")
+                .withConfigProperty("mapred.job.queue.name", "${queueName}")
+                .withArg("${nameNode}/user/${wf:user()}/${examplesRoot}/input-data/text/data.txt")
+                .withArg("${nameNode}/user/${wf:user()}/${examplesRoot}/output-data/spark")
+                .withMaster("${master}")
+                .withActionName("Spark File Copy Example")
+                .withActionClass("org.apache.oozie.example.SparkFileCopy")
+                .withJar("${nameNode}/user/${wf:user()}/${examplesRoot}/apps/spark/lib/oozie-examples.jar")
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-pig-example")
+                .withName("spark-file-copy")
                 .withDagContainingNode(parent).build();
 
         final String xml = Serializer.serialize(workflow);
 
         System.out.println(xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-pig-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "spark-file-copy-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-pig-example-graph.png");
+        GraphVisualization.graphToPng(intermediateGraph, "spark-file-copy-graph.png");
 
         log.debug("Workflow XML is:\n{0}", xml);
 

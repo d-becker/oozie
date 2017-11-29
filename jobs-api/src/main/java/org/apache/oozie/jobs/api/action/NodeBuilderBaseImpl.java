@@ -19,6 +19,7 @@
 package org.apache.oozie.jobs.api.action;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.ModifyOnce;
@@ -62,7 +63,8 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
             errorHandler = new ModifyOnce<>();
         }
         else {
-            name = new ModifyOnce<>(node.getName());
+            // Names won't be copied as we need unique names within a workflow
+            name = new ModifyOnce<>();
             parents = new ArrayList<>(node.getParentsWithoutConditions());
             parentsWithConditions = new ArrayList<>(node.getParentsWithConditions());
             errorHandler = new ModifyOnce<>(node.getErrorHandler());
@@ -225,7 +227,7 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
     }
 
     Node.ConstructionData getConstructionData() {
-        final String nameStr = this.name.get();
+        final String nameStr = ensureName();
 
         final ImmutableList<Node> parentsList = new ImmutableList.Builder<Node>().addAll(parents).build();
         final ImmutableList<Node.NodeWithCondition> parentsWithConditionsList
@@ -237,6 +239,17 @@ public abstract class NodeBuilderBaseImpl <B extends NodeBuilderBaseImpl<B>> {
                 parentsWithConditionsList,
                 errorHandler.get()
         );
+    }
+
+    private String ensureName() {
+        if (Strings.isNullOrEmpty(this.name.get())) {
+            final String type = getRuntimeSelfReference().getClass().getSimpleName().toLowerCase().replaceAll("actionbuilder", "");
+            final int randomSuffix = Double.valueOf(Math.round(Math.random() * 1_000_000_000)).intValue();
+
+            this.name.set(String.format("%s-%d", type, randomSuffix));
+        }
+
+        return this.name.get();
     }
 
     protected abstract B getRuntimeSelfReference();

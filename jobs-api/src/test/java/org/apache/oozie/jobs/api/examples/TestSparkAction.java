@@ -38,7 +38,6 @@ public class TestSparkAction extends WorkflowTestCase {
                 .build();
 
         final SparkAction parent = SparkActionBuilder.create()
-                .withName("parent")
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
@@ -55,14 +54,12 @@ public class TestSparkAction extends WorkflowTestCase {
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
         final SparkAction leftChild = SparkActionBuilder.createFromExistingAction(parent)
-                .withName("leftChild")
                 .withParent(parent)
                 .withoutArg("value=1")
                 .withArg("value=3")
                 .build();
 
         final SparkAction rightChild = SparkActionBuilder.createFromExistingAction(leftChild)
-                .withName("rightChild")
                 .withoutArg("value=2")
                 .withArg("value=3")
                 .build();

@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.workflow;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import org.apache.oozie.jobs.api.ModifyOnce;
 import org.apache.oozie.jobs.api.action.Node;
@@ -49,6 +50,8 @@ public class WorkflowBuilder {
     }
 
     public Workflow build() {
+        ensureName();
+
         final Set<Node> nodes = new HashSet<>();
         for (final Node node : addedActions) {
             if (!nodes.contains(node)) {
@@ -60,6 +63,15 @@ public class WorkflowBuilder {
         builder.addAll(nodes);
 
         return new Workflow(name.get(), builder.build());
+    }
+
+    private void ensureName() {
+        if (Strings.isNullOrEmpty(this.name.get())) {
+            final String type = "workflow";
+            final int randomSuffix = Double.valueOf(Math.round(Math.random() * 1_000_000_000)).intValue();
+
+            this.name.set(String.format("%s-%d", type, randomSuffix));
+        }
     }
 
     private static Set<Node> getNodesInDag(final Node node) {

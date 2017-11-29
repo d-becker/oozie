@@ -17,6 +17,10 @@ public class DistcpConfigurationConverter extends DozerConverter<Map, CONFIGURAT
 
     @Override
     public CONFIGURATION convertTo(final Map source, CONFIGURATION destination) {
+        if (source == null) {
+            return null;
+        }
+
         destination = ensureDestination(destination);
 
         mapEntries(source, destination);

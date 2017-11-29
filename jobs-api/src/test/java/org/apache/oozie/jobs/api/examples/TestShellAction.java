@@ -37,7 +37,6 @@ public class TestShellAction extends WorkflowTestCase {
                 .build();
 
         final ShellAction parent = ShellActionBuilder.create()
-                .withName("parent")
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
@@ -50,7 +49,6 @@ public class TestShellAction extends WorkflowTestCase {
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
         final ShellAction leftChild = ShellActionBuilder.createFromExistingAction(parent)
-                .withName("leftChild")
                 .withParent(parent)
                 .withoutArgument("arg1")
                 .withArgument("arg2")
@@ -61,7 +59,6 @@ public class TestShellAction extends WorkflowTestCase {
                 .build();
 
         final ShellAction rightChild = ShellActionBuilder.createFromExistingAction(leftChild)
-                .withName("rightChild")
                 .withoutArgument("arg2")
                 .withArgument("arg3")
                 .withExecutable("python4")

@@ -34,4 +34,18 @@ public class DecisionJoin extends JoiningNodeBase<Decision> {
     public DecisionJoin(final String name, final Decision decision) {
         super(name, decision);
     }
+
+    public NodeBase getFirstNonDecisionJoinDescendant() {
+        NodeBase descendant = getChild();
+
+        while (descendant != null) {
+            if (!(descendant instanceof DecisionJoin)) {
+                return descendant;
+            }
+
+            descendant = ((DecisionJoin) descendant).getChild();
+        }
+
+        return null;
+    }
 }

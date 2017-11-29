@@ -40,7 +40,6 @@ public class TestJavaAction extends WorkflowTestCase {
                 .build();
 
         final JavaAction parent = JavaActionBuilder.create()
-                .withName("parent")
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
@@ -53,7 +52,6 @@ public class TestJavaAction extends WorkflowTestCase {
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
         final JavaAction leftChild = JavaActionBuilder.createFromExistingAction(parent)
-                .withName("leftChild")
                 .withParent(parent)
                 .withoutArg("arg1")
                 .withArg("arg2")
@@ -64,7 +62,6 @@ public class TestJavaAction extends WorkflowTestCase {
                 .build();
 
         final JavaAction rightChild = JavaActionBuilder.createFromExistingAction(leftChild)
-                .withName("rightChild")
                 .withoutArg("arg2")
                 .withArg("arg3")
                 .withJavaOptsString(null)

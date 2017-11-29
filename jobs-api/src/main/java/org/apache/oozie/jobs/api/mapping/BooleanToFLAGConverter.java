@@ -29,6 +29,10 @@ public class BooleanToFLAGConverter extends DozerConverter<Boolean, FLAG> {
 
     @Override
     public FLAG convertTo(final Boolean source, final FLAG destination) {
+        if (source == null) {
+            return null;
+        }
+
         if (source) {
             return new ObjectFactory().createFLAG();
         }

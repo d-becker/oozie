@@ -37,21 +37,20 @@ public class TestEmailAction extends WorkflowTestCase {
 
     public void testForkedEmailActions() throws JAXBException, IOException, OozieClientException {
         final Node parent = EmailActionBuilder.create()
-                .withName("parent")
                 .withRecipient("somebody@apache.org")
                 .withSubject("Subject")
                 .withBody("This is a wonderful e-mail.")
                 .build();
 
         final Node leftChild = EmailActionBuilder.create()
-                .withName("leftChild").withParent(parent)
+                .withParent(parent)
                 .withRecipient("somebody.else@apache.org")
                 .withSubject("Re: Subject")
                 .withBody("This is an even more wonderful e-mail.")
                 .build();
 
         final Node rightChild = EmailActionBuilder.create()
-                .withName("rightChild").withParent(parent)
+                .withParent(parent)
                 .withRecipient("somebody@apache.org")
                 .withSubject("Re: Subject")
                 .withBody("No, this is the most wonderful e-mail.")

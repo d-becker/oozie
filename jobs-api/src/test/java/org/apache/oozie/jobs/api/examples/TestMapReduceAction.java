@@ -42,7 +42,6 @@ public class TestMapReduceAction extends WorkflowTestCase {
                 .build();
 
         final MapReduceAction parent = MapReduceActionBuilder.create()
-                .withName("parent")
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
@@ -54,12 +53,10 @@ public class TestMapReduceAction extends WorkflowTestCase {
 
         //  We are reusing the definition of mrAction1 and only modifying and adding what is different.
         final MapReduceAction leftChild = MapReduceActionBuilder.createFromExistingAction(parent)
-                .withName("leftChild")
                 .withParent(parent)
                 .build();
 
         final MapReduceAction rightChild = MapReduceActionBuilder.createFromExistingAction(leftChild)
-                .withName("rightChild")
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()

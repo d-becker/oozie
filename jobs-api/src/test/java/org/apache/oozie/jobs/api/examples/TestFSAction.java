@@ -46,14 +46,12 @@ public class TestFSAction extends WorkflowTestCase {
         final Mkdir mkdir = new Mkdir(hdfsPath);
 
         final FSAction parent = FSActionBuilder.create()
-                .withName("parent")
                 .withNameNode(getNameNodeUri())
                 .withDelete(delete)
                 .withMkdir(mkdir)
                 .build();
 
         final FSAction child = FSActionBuilder.createFromExistingAction(parent)
-                .withName("child")
                 .withParent(parent)
                 .build();
 

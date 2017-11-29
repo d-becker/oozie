@@ -21,6 +21,10 @@ public class ShellPrepareConverter extends DozerConverter<Prepare, PREPARE> {
 
     @Override
     public PREPARE convertTo(final Prepare source, PREPARE destination) {
+        if (source == null) {
+            return null;
+        }
+
         destination = ensureDestination(destination);
 
         mapDeletes(source, destination);

@@ -39,7 +39,6 @@ public class TestDistcpAction extends WorkflowTestCase {
                 .build();
 
         final DistcpAction parent = DistcpActionBuilder.create()
-                .withName("parent")
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
@@ -50,14 +49,12 @@ public class TestDistcpAction extends WorkflowTestCase {
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
         final DistcpAction leftChild = DistcpActionBuilder.createFromExistingAction(parent)
-                .withName("leftChild")
                 .withParent(parent)
                 .withoutArg("arg1")
                 .withArg("arg2")
                 .build();
 
         final DistcpAction rightChild = DistcpActionBuilder.createFromExistingAction(leftChild)
-                .withName("rightChild")
                 .withoutArg("arg2")
                 .withArg("arg3")
                 .build();
@@ -65,6 +62,13 @@ public class TestDistcpAction extends WorkflowTestCase {
         final Workflow workflow = new WorkflowBuilder()
                 .withName("simple-distcp-example")
                 .withDagContainingNode(parent).build();
+
+        final SshAction grandChild = SshActionBuilder.create()
+                .withParent(leftChild)
+                .withParent(rightChild)
+                .withHost("localhost")
+                .withCommand("pwd")
+                .build();
 
         final String xml = Serializer.serialize(workflow);
 

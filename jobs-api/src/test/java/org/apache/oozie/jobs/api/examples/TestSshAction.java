@@ -33,7 +33,6 @@ import java.io.IOException;
 public class TestSshAction extends WorkflowTestCase {
     public void testForkedSshActions() throws IOException, JAXBException, OozieClientException {
         final SshAction parent = SshActionBuilder.create()
-                .withName("parent")
                 .withArg("\"Hello Oozie!\"")
                 .withHost("localhost")
                 .withCommand("echo")
@@ -42,7 +41,6 @@ public class TestSshAction extends WorkflowTestCase {
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
         final SshAction leftChild = SshActionBuilder.createFromExistingAction(parent)
-                .withName("leftChild")
                 .withParent(parent)
                 .withoutArg("\"Hello Oozie!\"")
                 .withArg("\"Hello Oozie!!\"")
@@ -50,7 +48,6 @@ public class TestSshAction extends WorkflowTestCase {
                 .build();
 
         final SshAction rightChild = SshActionBuilder.createFromExistingAction(leftChild)
-                .withName("rightChild")
                 .withoutArg("\"Hello Oozie!!\"")
                 .withArg("\"Hello Oozie!!!\"")
                 .build();

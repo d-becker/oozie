@@ -14,6 +14,10 @@ public class ShellLauncherConverter extends DozerConverter<Launcher, LAUNCHER> {
 
     @Override
     public LAUNCHER convertTo(final Launcher source, LAUNCHER destination) {
+        if (source == null) {
+            return null;
+        }
+
         destination = ensureDestination(destination);
 
         mapAttributes(source, destination);
