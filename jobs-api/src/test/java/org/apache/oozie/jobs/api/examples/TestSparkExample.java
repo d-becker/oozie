@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.examples;
 
+import junit.framework.TestCase;
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.jobs.api.GraphVisualization;
 import org.apache.oozie.jobs.api.action.Prepare;
@@ -29,11 +30,14 @@ import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
 import org.apache.oozie.test.WorkflowTestCase;
+import org.apache.oozie.util.XLog;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestSparkExample extends WorkflowTestCase {
+public class TestSparkExample extends TestCase {
+    private static final XLog log = XLog.getLog(TestSparkExample.class);
+
     public void testForkedSparkActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
                 .withDelete("${nameNode}/user/${wf:user()}/${examplesRoot}/output-data/spark")
@@ -59,16 +63,12 @@ public class TestSparkExample extends WorkflowTestCase {
 
         final String xml = Serializer.serialize(workflow);
 
-        System.out.println(xml);
-
         GraphVisualization.workflowToPng(workflow, "spark-file-copy-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
         GraphVisualization.graphToPng(intermediateGraph, "spark-file-copy-graph.png");
 
-        log.debug("Workflow XML is:\n{0}", xml);
-
-        validate(xml);
+        log.info("Workflow XML is:\n{0}", xml);
     }
 }

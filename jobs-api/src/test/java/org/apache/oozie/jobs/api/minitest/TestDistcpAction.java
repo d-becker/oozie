@@ -16,60 +16,69 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.examples;
+package org.apache.oozie.jobs.api.minitest;
 
 import org.apache.oozie.client.OozieClientException;
+import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.jobs.api.GraphVisualization;
 import org.apache.oozie.jobs.api.action.*;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
+import org.apache.oozie.test.TestWorkflow;
 import org.apache.oozie.test.WorkflowTestCase;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestHiveAction extends WorkflowTestCase {
-    public void testForkedHiveActions() throws IOException, JAXBException, OozieClientException {
+public class TestDistcpAction extends WorkflowTestCase {
+    public void testForkedDistcpActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
                 .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
                 .build();
 
-        final HiveAction parent = HiveActionBuilder.create()
+        final DistcpAction parent = DistcpActionBuilder.create()
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
                 .withConfigProperty("mapred.job.queue.name", "default")
+                .withJavaOpts("-Dopt1 -Dopt2")
                 .withArg("arg1")
-                .withScript("hive2.sql")
                 .build();
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
-        final HiveAction leftChild = HiveActionBuilder.createFromExistingAction(parent)
+        final DistcpAction leftChild = DistcpActionBuilder.createFromExistingAction(parent)
                 .withParent(parent)
                 .withoutArg("arg1")
                 .withArg("arg2")
                 .build();
 
-        final HiveAction rightChild = HiveActionBuilder.createFromExistingAction(leftChild)
+        final DistcpAction rightChild = DistcpActionBuilder.createFromExistingAction(leftChild)
                 .withoutArg("arg2")
                 .withArg("arg3")
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-hive-example")
+                .withName("simple-distcp-example")
                 .withDagContainingNode(parent).build();
+
+        final SshAction grandChild = SshActionBuilder.create()
+                .withParent(leftChild)
+                .withParent(rightChild)
+                .withHost("localhost")
+                .withCommand("pwd")
+                .build();
 
         final String xml = Serializer.serialize(workflow);
 
         System.out.println(xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-hive-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "simple-distcp-example-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-hive-example-graph.png");
+        GraphVisualization.graphToPng(intermediateGraph, "simple-distcp-example-graph.png");
 
         log.debug("Workflow XML is:\n{0}", xml);
 

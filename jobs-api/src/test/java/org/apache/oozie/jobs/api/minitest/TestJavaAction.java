@@ -16,11 +16,14 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.examples;
+package org.apache.oozie.jobs.api.minitest;
 
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.jobs.api.GraphVisualization;
-import org.apache.oozie.jobs.api.action.*;
+import org.apache.oozie.jobs.api.action.JavaAction;
+import org.apache.oozie.jobs.api.action.JavaActionBuilder;
+import org.apache.oozie.jobs.api.action.Prepare;
+import org.apache.oozie.jobs.api.action.PrepareBuilder;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
@@ -30,55 +33,57 @@ import org.apache.oozie.test.WorkflowTestCase;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestShellAction extends WorkflowTestCase {
-    public void testForkedShellActions() throws IOException, JAXBException, OozieClientException {
+public class TestJavaAction extends WorkflowTestCase {
+    public void testForkedJavaActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
                 .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
                 .build();
 
-        final ShellAction parent = ShellActionBuilder.create()
+        final JavaAction parent = JavaActionBuilder.create()
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
                 .withConfigProperty("mapred.job.queue.name", "default")
-                .withArgument("arg1")
-                .withExecutable("python")
-                .withEnvironmentVariable("PATH=$PATH:/opt/python27/bin")
+                .withArg("arg1")
+                .withMainClass("org.apache.oozie.MyFirstMainClass")
+                .withJavaOptsString("-Dopt1a -Dopt1b")
                 .withCaptureOutput(true)
                 .build();
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
-        final ShellAction leftChild = ShellActionBuilder.createFromExistingAction(parent)
+        final JavaAction leftChild = JavaActionBuilder.createFromExistingAction(parent)
                 .withParent(parent)
-                .withoutArgument("arg1")
-                .withArgument("arg2")
-                .withExecutable("python3")
-                .withoutEnvironmentVariable("PATH=$PATH:/opt/python27/bin")
-                .withEnvironmentVariable("PATH=$PATH:/opt/python36/bin")
+                .withoutArg("arg1")
+                .withArg("arg2")
+                .withJavaOptsString(null)
+                .withJavaOpt("-Dopt2a")
+                .withJavaOpt("-Dopt2b")
                 .withCaptureOutput(false)
                 .build();
 
-        final ShellAction rightChild = ShellActionBuilder.createFromExistingAction(leftChild)
-                .withoutArgument("arg2")
-                .withArgument("arg3")
-                .withExecutable("python4")
-                .withoutEnvironmentVariable("PATH=$PATH:/opt/python36/bin")
-                .withEnvironmentVariable("PATH=$PATH:/opt/python42/bin")
+        final JavaAction rightChild = JavaActionBuilder.createFromExistingAction(leftChild)
+                .withoutArg("arg2")
+                .withArg("arg3")
+                .withJavaOptsString(null)
+                .withoutJavaOpt("-Dopt2a")
+                .withoutJavaOpt("-Dopt2b")
+                .withJavaOpt("-Dopt3a")
+                .withJavaOpt("-Dopt3b")
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-shell-example")
+                .withName("simple-java-example")
                 .withDagContainingNode(parent).build();
 
         final String xml = Serializer.serialize(workflow);
 
         System.out.println(xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-shell-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "simple-java-example-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-shell-example-graph.png");
+        GraphVisualization.graphToPng(intermediateGraph, "simple-java-example-graph.png");
 
         log.debug("Workflow XML is:\n{0}", xml);
 

@@ -16,61 +16,62 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.examples;
+package org.apache.oozie.jobs.api.minitest;
 
 import org.apache.oozie.client.OozieClientException;
+import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.jobs.api.GraphVisualization;
-import org.apache.oozie.jobs.api.action.*;
+import org.apache.oozie.jobs.api.action.MapReduceAction;
+import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
+import org.apache.oozie.jobs.api.action.Prepare;
+import org.apache.oozie.jobs.api.action.PrepareBuilder;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
+import org.apache.oozie.test.TestWorkflow;
 import org.apache.oozie.test.WorkflowTestCase;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestSqoopAction extends WorkflowTestCase {
-    public void testForkedSqoopActions() throws IOException, JAXBException, OozieClientException {
+public class TestMapReduceAction extends WorkflowTestCase {
+    public void testForkedMapReduceActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
                 .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
                 .build();
 
-        final SqoopAction parent = SqoopActionBuilder.create()
+        final MapReduceAction parent = MapReduceActionBuilder.create()
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
                 .withConfigProperty("mapred.job.queue.name", "default")
-                .withCommand("python")
+                .withConfigProperty("mapred.mapper.class", "org.apache.hadoop.mapred.lib.IdentityMapper")
+                .withConfigProperty("mapred.input.dir", "/user/${wf:user()}/examples/input")
+                .withConfigProperty("mapred.output.dir", "/user/${wf:user()}/examples/output")
                 .build();
 
-        //  We are reusing the definition of parent and only modifying and adding what is different.
-        final SqoopAction leftChild = SqoopActionBuilder.createFromExistingAction(parent)
+        //  We are reusing the definition of mrAction1 and only modifying and adding what is different.
+        final MapReduceAction leftChild = MapReduceActionBuilder.createFromExistingAction(parent)
                 .withParent(parent)
-                .withCommand("python3")
                 .build();
 
-        final SqoopAction rightChild = SqoopActionBuilder.createFromExistingAction(leftChild)
-                .withoutArgument("arg2")
-                .withArgument("arg3")
-                .withCommand(null)
+        final MapReduceAction rightChild = MapReduceActionBuilder.createFromExistingAction(leftChild)
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-sqoop-example")
+                .withName("simple-map-reduce-example")
                 .withDagContainingNode(parent).build();
 
         final String xml = Serializer.serialize(workflow);
 
         System.out.println(xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-sqoop-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "simple-map-reduce-example-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-sqoop-example-graph.png");
-
-        log.debug("Workflow XML is:\n{0}", xml);
+        GraphVisualization.graphToPng(intermediateGraph, "simple-map-reduce-example-graph.png");
 
         validate(xml);
     }

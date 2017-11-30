@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.examples;
+package org.apache.oozie.jobs.api.minitest;
 
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.jobs.api.GraphVisualization;
-import org.apache.oozie.jobs.api.action.MapReduceAction;
-import org.apache.oozie.jobs.api.action.MapReduceActionBuilder;
-import org.apache.oozie.jobs.api.action.Prepare;
-import org.apache.oozie.jobs.api.action.PrepareBuilder;
+import org.apache.oozie.jobs.api.action.Delete;
+import org.apache.oozie.jobs.api.action.FSAction;
+import org.apache.oozie.jobs.api.action.FSActionBuilder;
+import org.apache.oozie.jobs.api.action.Mkdir;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
@@ -34,44 +34,40 @@ import org.apache.oozie.test.WorkflowTestCase;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.util.Date;
 
-public class TestMapReduceAction extends WorkflowTestCase {
-    public void testForkedMapReduceActions() throws IOException, JAXBException, OozieClientException {
-        final Prepare prepare = new PrepareBuilder()
-                .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
-                .build();
+public class TestFSAction extends WorkflowTestCase {
 
-        final MapReduceAction parent = MapReduceActionBuilder.create()
-                .withJobTracker(getJobTrackerUri())
+    public void testTwoFSActions() throws JAXBException, IOException, OozieClientException {
+        final String hdfsPath = getFsTestCaseDir() + "/user/${wf:user()}/examples/output_" + new Date().getTime();
+
+        final Delete delete = new Delete(hdfsPath, true);
+
+        final Mkdir mkdir = new Mkdir(hdfsPath);
+
+        final FSAction parent = FSActionBuilder.create()
                 .withNameNode(getNameNodeUri())
-                .withPrepare(prepare)
-                .withConfigProperty("mapred.job.queue.name", "default")
-                .withConfigProperty("mapred.mapper.class", "org.apache.hadoop.mapred.lib.IdentityMapper")
-                .withConfigProperty("mapred.input.dir", "/user/${wf:user()}/examples/input")
-                .withConfigProperty("mapred.output.dir", "/user/${wf:user()}/examples/output")
+                .withDelete(delete)
+                .withMkdir(mkdir)
                 .build();
 
-        //  We are reusing the definition of mrAction1 and only modifying and adding what is different.
-        final MapReduceAction leftChild = MapReduceActionBuilder.createFromExistingAction(parent)
+        final FSAction child = FSActionBuilder.createFromExistingAction(parent)
                 .withParent(parent)
                 .build();
 
-        final MapReduceAction rightChild = MapReduceActionBuilder.createFromExistingAction(leftChild)
-                .build();
-
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-map-reduce-example")
+                .withName("simple-fs-example")
                 .withDagContainingNode(parent).build();
 
         final String xml = Serializer.serialize(workflow);
 
-        System.out.println(xml);
+        log.debug("Workflow XML is:\n{0}", xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-map-reduce-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "simple-fs-example-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-map-reduce-example-graph.png");
+        GraphVisualization.graphToPng(intermediateGraph, "simple-fs-example-graph.png");
 
         validate(xml);
     }

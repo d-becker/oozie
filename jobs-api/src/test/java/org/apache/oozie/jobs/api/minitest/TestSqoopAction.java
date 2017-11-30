@@ -16,69 +16,59 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.examples;
+package org.apache.oozie.jobs.api.minitest;
 
 import org.apache.oozie.client.OozieClientException;
-import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.jobs.api.GraphVisualization;
 import org.apache.oozie.jobs.api.action.*;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
-import org.apache.oozie.test.TestWorkflow;
 import org.apache.oozie.test.WorkflowTestCase;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestDistcpAction extends WorkflowTestCase {
-    public void testForkedDistcpActions() throws IOException, JAXBException, OozieClientException {
+public class TestSqoopAction extends WorkflowTestCase {
+    public void testForkedSqoopActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
                 .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
                 .build();
 
-        final DistcpAction parent = DistcpActionBuilder.create()
+        final SqoopAction parent = SqoopActionBuilder.create()
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
                 .withConfigProperty("mapred.job.queue.name", "default")
-                .withJavaOpts("-Dopt1 -Dopt2")
-                .withArg("arg1")
+                .withCommand("python")
                 .build();
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
-        final DistcpAction leftChild = DistcpActionBuilder.createFromExistingAction(parent)
+        final SqoopAction leftChild = SqoopActionBuilder.createFromExistingAction(parent)
                 .withParent(parent)
-                .withoutArg("arg1")
-                .withArg("arg2")
+                .withCommand("python3")
                 .build();
 
-        final DistcpAction rightChild = DistcpActionBuilder.createFromExistingAction(leftChild)
-                .withoutArg("arg2")
-                .withArg("arg3")
+        final SqoopAction rightChild = SqoopActionBuilder.createFromExistingAction(leftChild)
+                .withoutArgument("arg2")
+                .withArgument("arg3")
+                .withCommand(null)
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-distcp-example")
+                .withName("simple-sqoop-example")
                 .withDagContainingNode(parent).build();
-
-        final SshAction grandChild = SshActionBuilder.create()
-                .withParent(leftChild)
-                .withParent(rightChild)
-                .withHost("localhost")
-                .withCommand("pwd")
-                .build();
 
         final String xml = Serializer.serialize(workflow);
 
         System.out.println(xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-distcp-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "simple-sqoop-example-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-distcp-example-graph.png");
+        GraphVisualization.graphToPng(intermediateGraph, "simple-sqoop-example-graph.png");
 
         log.debug("Workflow XML is:\n{0}", xml);
 

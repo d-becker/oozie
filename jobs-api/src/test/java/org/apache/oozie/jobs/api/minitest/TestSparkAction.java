@@ -16,14 +16,12 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.examples;
+package org.apache.oozie.jobs.api.minitest;
 
 import org.apache.oozie.client.OozieClientException;
+import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.jobs.api.GraphVisualization;
-import org.apache.oozie.jobs.api.action.JavaAction;
-import org.apache.oozie.jobs.api.action.JavaActionBuilder;
-import org.apache.oozie.jobs.api.action.Prepare;
-import org.apache.oozie.jobs.api.action.PrepareBuilder;
+import org.apache.oozie.jobs.api.action.*;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
@@ -33,57 +31,52 @@ import org.apache.oozie.test.WorkflowTestCase;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestJavaAction extends WorkflowTestCase {
-    public void testForkedJavaActions() throws IOException, JAXBException, OozieClientException {
+public class TestSparkAction extends WorkflowTestCase {
+    public void testForkedSparkActions() throws IOException, JAXBException, OozieClientException {
         final Prepare prepare = new PrepareBuilder()
                 .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
                 .build();
 
-        final JavaAction parent = JavaActionBuilder.create()
+        final SparkAction parent = SparkActionBuilder.create()
                 .withJobTracker(getJobTrackerUri())
                 .withNameNode(getNameNodeUri())
                 .withPrepare(prepare)
                 .withConfigProperty("mapred.job.queue.name", "default")
-                .withArg("arg1")
-                .withMainClass("org.apache.oozie.MyFirstMainClass")
-                .withJavaOptsString("-Dopt1a -Dopt1b")
-                .withCaptureOutput(true)
+                .withArg("inputpath=hdfs://localhost/input/file.txt")
+                .withArg("value=1")
+                .withMaster("yarn")
+                .withMode("cluster")
+                .withActionName("Spark Example")
+                .withActionClass("org.apache.spark.examples.mllib.JavaALS")
+                .withJar("/lib/spark-examples_2.10-1.1.0.jar")
+                .withSparkOpts("--executor-memory 20G --num-executors 50")
                 .build();
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
-        final JavaAction leftChild = JavaActionBuilder.createFromExistingAction(parent)
+        final SparkAction leftChild = SparkActionBuilder.createFromExistingAction(parent)
                 .withParent(parent)
-                .withoutArg("arg1")
-                .withArg("arg2")
-                .withJavaOptsString(null)
-                .withJavaOpt("-Dopt2a")
-                .withJavaOpt("-Dopt2b")
-                .withCaptureOutput(false)
+                .withoutArg("value=1")
+                .withArg("value=3")
                 .build();
 
-        final JavaAction rightChild = JavaActionBuilder.createFromExistingAction(leftChild)
-                .withoutArg("arg2")
-                .withArg("arg3")
-                .withJavaOptsString(null)
-                .withoutJavaOpt("-Dopt2a")
-                .withoutJavaOpt("-Dopt2b")
-                .withJavaOpt("-Dopt3a")
-                .withJavaOpt("-Dopt3b")
+        final SparkAction rightChild = SparkActionBuilder.createFromExistingAction(leftChild)
+                .withoutArg("value=2")
+                .withArg("value=3")
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-java-example")
+                .withName("simple-spark-example")
                 .withDagContainingNode(parent).build();
 
         final String xml = Serializer.serialize(workflow);
 
         System.out.println(xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-java-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "simple-spark-example-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-java-example-graph.png");
+        GraphVisualization.graphToPng(intermediateGraph, "simple-spark-example-graph.png");
 
         log.debug("Workflow XML is:\n{0}", xml);
 

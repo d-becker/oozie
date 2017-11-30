@@ -16,58 +16,57 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.examples;
+package org.apache.oozie.jobs.api.minitest;
 
 import org.apache.oozie.client.OozieClientException;
-import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.jobs.api.GraphVisualization;
-import org.apache.oozie.jobs.api.action.Delete;
-import org.apache.oozie.jobs.api.action.FSAction;
-import org.apache.oozie.jobs.api.action.FSActionBuilder;
-import org.apache.oozie.jobs.api.action.Mkdir;
+import org.apache.oozie.jobs.api.action.*;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
-import org.apache.oozie.test.TestWorkflow;
 import org.apache.oozie.test.WorkflowTestCase;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.Date;
 
-public class TestFSAction extends WorkflowTestCase {
-
-    public void testTwoFSActions() throws JAXBException, IOException, OozieClientException {
-        final String hdfsPath = getFsTestCaseDir() + "/user/${wf:user()}/examples/output_" + new Date().getTime();
-
-        final Delete delete = new Delete(hdfsPath, true);
-
-        final Mkdir mkdir = new Mkdir(hdfsPath);
-
-        final FSAction parent = FSActionBuilder.create()
-                .withNameNode(getNameNodeUri())
-                .withDelete(delete)
-                .withMkdir(mkdir)
+public class TestSshAction extends WorkflowTestCase {
+    public void testForkedSshActions() throws IOException, JAXBException, OozieClientException {
+        final SshAction parent = SshActionBuilder.create()
+                .withArg("\"Hello Oozie!\"")
+                .withHost("localhost")
+                .withCommand("echo")
+                .withCaptureOutput(true)
                 .build();
 
-        final FSAction child = FSActionBuilder.createFromExistingAction(parent)
+        //  We are reusing the definition of parent and only modifying and adding what is different.
+        final SshAction leftChild = SshActionBuilder.createFromExistingAction(parent)
                 .withParent(parent)
+                .withoutArg("\"Hello Oozie!\"")
+                .withArg("\"Hello Oozie!!\"")
+                .withCaptureOutput(false)
+                .build();
+
+        final SshAction rightChild = SshActionBuilder.createFromExistingAction(leftChild)
+                .withoutArg("\"Hello Oozie!!\"")
+                .withArg("\"Hello Oozie!!!\"")
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-fs-example")
+                .withName("simple-ssh-example")
                 .withDagContainingNode(parent).build();
 
         final String xml = Serializer.serialize(workflow);
 
-        log.debug("Workflow XML is:\n{0}", xml);
+        System.out.println(xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-fs-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "simple-ssh-example-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-fs-example-graph.png");
+        GraphVisualization.graphToPng(intermediateGraph, "simple-ssh-example-graph.png");
+
+        log.debug("Workflow XML is:\n{0}", xml);
 
         validate(xml);
     }

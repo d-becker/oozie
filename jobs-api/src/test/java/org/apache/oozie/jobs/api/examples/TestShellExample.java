@@ -18,22 +18,23 @@
 
 package org.apache.oozie.jobs.api.examples;
 
+import junit.framework.TestCase;
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.jobs.api.GraphVisualization;
-import org.apache.oozie.jobs.api.action.Prepare;
-import org.apache.oozie.jobs.api.action.PrepareBuilder;
 import org.apache.oozie.jobs.api.action.ShellAction;
 import org.apache.oozie.jobs.api.action.ShellActionBuilder;
 import org.apache.oozie.jobs.api.oozie.dag.Graph;
 import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
-import org.apache.oozie.test.WorkflowTestCase;
+import org.apache.oozie.util.XLog;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestShellExample extends WorkflowTestCase {
+public class TestShellExample extends TestCase {
+    private static final XLog log = XLog.getLog(TestShellExample.class);
+
     public void testShellExample() throws IOException, JAXBException, OozieClientException {
         final ShellAction parent = ShellActionBuilder.create()
                 .withName("parent")
@@ -50,6 +51,7 @@ public class TestShellExample extends WorkflowTestCase {
                 .withParentWithCondition(parent, "${wf:actionData('parent')['my_output'] eq 'Hello Oozie'}")
                 .withoutArgument("my_output=Hello Oozie")
                 .withArgument("Happy path")
+                .withCaptureOutput(null)
                 .build();
 
         final ShellAction sadPath = ShellActionBuilder.createFromExistingAction(parent)
@@ -64,16 +66,12 @@ public class TestShellExample extends WorkflowTestCase {
 
         final String xml = Serializer.serialize(workflow);
 
-        System.out.println(xml);
-
         GraphVisualization.workflowToPng(workflow, "shell-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
         GraphVisualization.graphToPng(intermediateGraph, "shell-graph.png");
 
-        log.debug("Workflow XML is:\n{0}", xml);
-
-        validate(xml);
+        log.info("Workflow XML is:\n{0}", xml);
     }
 }

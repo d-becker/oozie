@@ -18,6 +18,7 @@
 
 package org.apache.oozie.jobs.api.examples;
 
+import junit.framework.TestCase;
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.jobs.api.GraphVisualization;
 import org.apache.oozie.jobs.api.action.JavaAction;
@@ -29,11 +30,14 @@ import org.apache.oozie.jobs.api.serialization.Serializer;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.apache.oozie.jobs.api.workflow.WorkflowBuilder;
 import org.apache.oozie.test.WorkflowTestCase;
+import org.apache.oozie.util.XLog;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestJavaMainExample extends WorkflowTestCase {
+public class TestJavaMainExample extends TestCase {
+    private static final XLog log = XLog.getLog(TestJavaMainExample.class);
+
     public void testJavaMain() throws IOException, JAXBException, OozieClientException {
         final JavaAction parent = JavaActionBuilder.create()
                 .withName("java-main")
@@ -51,16 +55,12 @@ public class TestJavaMainExample extends WorkflowTestCase {
 
         final String xml = Serializer.serialize(workflow);
 
-        System.out.println(xml);
-
         GraphVisualization.workflowToPng(workflow, "java-main-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
         GraphVisualization.graphToPng(intermediateGraph, "java-main-graph.png");
 
-        log.debug("Workflow XML is:\n{0}", xml);
-
-        validate(xml);
+        log.info("Workflow XML is:\n{0}", xml);
     }
 }

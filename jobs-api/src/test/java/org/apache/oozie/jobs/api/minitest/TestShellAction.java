@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.oozie.jobs.api.examples;
+package org.apache.oozie.jobs.api.minitest;
 
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.jobs.api.GraphVisualization;
@@ -30,41 +30,55 @@ import org.apache.oozie.test.WorkflowTestCase;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class TestSshAction extends WorkflowTestCase {
-    public void testForkedSshActions() throws IOException, JAXBException, OozieClientException {
-        final SshAction parent = SshActionBuilder.create()
-                .withArg("\"Hello Oozie!\"")
-                .withHost("localhost")
-                .withCommand("echo")
+public class TestShellAction extends WorkflowTestCase {
+    public void testForkedShellActions() throws IOException, JAXBException, OozieClientException {
+        final Prepare prepare = new PrepareBuilder()
+                .withDelete("hdfs://localhost:8020/user/${wf:user()}/examples/output")
+                .build();
+
+        final ShellAction parent = ShellActionBuilder.create()
+                .withJobTracker(getJobTrackerUri())
+                .withNameNode(getNameNodeUri())
+                .withPrepare(prepare)
+                .withConfigProperty("mapred.job.queue.name", "default")
+                .withArgument("arg1")
+                .withExecutable("python")
+                .withEnvironmentVariable("PATH=$PATH:/opt/python27/bin")
                 .withCaptureOutput(true)
                 .build();
 
         //  We are reusing the definition of parent and only modifying and adding what is different.
-        final SshAction leftChild = SshActionBuilder.createFromExistingAction(parent)
+        final ShellAction leftChild = ShellActionBuilder.createFromExistingAction(parent)
                 .withParent(parent)
-                .withoutArg("\"Hello Oozie!\"")
-                .withArg("\"Hello Oozie!!\"")
+                .withoutArgument("arg1")
+                .withArgument("arg2")
+                .withExecutable("python3")
+                .withoutEnvironmentVariable("PATH=$PATH:/opt/python27/bin")
+                .withEnvironmentVariable("PATH=$PATH:/opt/python36/bin")
                 .withCaptureOutput(false)
                 .build();
 
-        final SshAction rightChild = SshActionBuilder.createFromExistingAction(leftChild)
-                .withoutArg("\"Hello Oozie!!\"")
-                .withArg("\"Hello Oozie!!!\"")
+        final ShellAction rightChild = ShellActionBuilder.createFromExistingAction(leftChild)
+                .withoutArgument("arg2")
+                .withArgument("arg3")
+                .withExecutable("python4")
+                .withoutEnvironmentVariable("PATH=$PATH:/opt/python36/bin")
+                .withEnvironmentVariable("PATH=$PATH:/opt/python42/bin")
                 .build();
 
         final Workflow workflow = new WorkflowBuilder()
-                .withName("simple-ssh-example")
+                .withName("simple-shell-example")
                 .withDagContainingNode(parent).build();
 
         final String xml = Serializer.serialize(workflow);
 
         System.out.println(xml);
 
-        GraphVisualization.workflowToPng(workflow, "simple-ssh-example-workflow.png");
+        GraphVisualization.workflowToPng(workflow, "simple-shell-example-workflow.png");
 
         final Graph intermediateGraph = new Graph(workflow);
 
-        GraphVisualization.graphToPng(intermediateGraph, "simple-ssh-example-graph.png");
+        GraphVisualization.graphToPng(intermediateGraph, "simple-shell-example-graph.png");
 
         log.debug("Workflow XML is:\n{0}", xml);
 
