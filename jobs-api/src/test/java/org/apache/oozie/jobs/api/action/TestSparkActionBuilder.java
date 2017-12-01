@@ -199,4 +199,23 @@ public class TestSparkActionBuilder extends TestNodeBuilderBaseImpl<SparkAction,
         assertEquals(action.getJar(), modifiedAction.getJar());
         assertEquals(action.getSparkOpts(), modifiedAction.getSparkOpts());
     }
+
+    @Test
+    public void testFromOtherAction() {
+        final ShellAction parent = ShellActionBuilder.create()
+                .withName("parent")
+                .build();
+
+        final ShellAction otherAction = ShellActionBuilder.createFromExistingAction(parent)
+                .withName("shell")
+                .withParent(parent)
+                .build();
+
+        final SparkAction fromOtherAction = SparkActionBuilder.createFromExistingAction(otherAction)
+                .withName("spark")
+                .build();
+
+        assertEquals("spark", fromOtherAction.getName());
+        assertEquals(parent, fromOtherAction.getParentsWithoutConditions().get(0));
+    }
 }

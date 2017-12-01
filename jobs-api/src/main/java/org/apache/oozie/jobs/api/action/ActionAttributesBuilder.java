@@ -167,6 +167,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
                 captureOutput);
     }
 
+    public static ActionAttributesBuilder createFromAction(final Node action) {
+        if (HasAttributes.class.isAssignableFrom(action.getClass())) {
+            return ActionAttributesBuilder.createFromExisting(((HasAttributes) action).getAttributes());
+        }
+
+        return ActionAttributesBuilder.create();
+    }
+
     private ActionAttributesBuilder(final ModifyOnce<String> jobTracker,
                                     final ModifyOnce<String> nameNode,
                                     final ModifyOnce<Prepare> prepare,

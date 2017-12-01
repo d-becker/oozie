@@ -39,7 +39,20 @@ public class JavaActionBuilder extends NodeBuilderBaseImpl<JavaActionBuilder> im
                 javaOpts);
     }
 
-    private JavaActionBuilder(final JavaAction action,
+    public static JavaActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
+        final ModifyOnce<String> mainClass = new ModifyOnce<>();
+        final ModifyOnce<String> javaOptsString = new ModifyOnce<>();
+        final List<String> javaOpts = new ArrayList<>();
+
+        return new JavaActionBuilder(action,
+                builder,
+                mainClass,
+                javaOptsString,
+                javaOpts);
+    }
+
+    private JavaActionBuilder(final Node action,
                               final ActionAttributesBuilder attributesBuilder,
                               final ModifyOnce<String> mainClass,
                               final ModifyOnce<String> javaOptsString,

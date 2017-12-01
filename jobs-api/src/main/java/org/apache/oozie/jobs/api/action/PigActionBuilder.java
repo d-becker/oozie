@@ -34,7 +34,18 @@ public class PigActionBuilder extends NodeBuilderBaseImpl<PigActionBuilder> impl
                 params);
     }
 
-    PigActionBuilder(final PigAction action,
+    public static PigActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
+        final ModifyOnce<String> script = new ModifyOnce<>();
+        final List<String> params = new ArrayList<>();
+
+        return new PigActionBuilder(action,
+                builder,
+                script,
+                params);
+    }
+
+    PigActionBuilder(final Node action,
                      final ActionAttributesBuilder attributesBuilder,
                      final ModifyOnce<String> script,
                      final List<String> params) {

@@ -3,6 +3,7 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import org.apache.oozie.jobs.api.ModifyOnce;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Hive2ActionBuilder extends NodeBuilderBaseImpl<Hive2ActionBuilder> implements Builder<Hive2Action> {
@@ -16,7 +17,7 @@ public class Hive2ActionBuilder extends NodeBuilderBaseImpl<Hive2ActionBuilder> 
         final ModifyOnce<String> password = new ModifyOnce<>();
         final ModifyOnce<String> script = new ModifyOnce<>();
         final ModifyOnce<String> query = new ModifyOnce<>();
-        final List<String> params = ImmutableList.of();
+        final List<String> params = new ArrayList<>();
 
         return new Hive2ActionBuilder(
                 null,
@@ -34,7 +35,7 @@ public class Hive2ActionBuilder extends NodeBuilderBaseImpl<Hive2ActionBuilder> 
         final ModifyOnce<String> password = new ModifyOnce<>(action.getPassword());
         final ModifyOnce<String> script = new ModifyOnce<>(action.getScript());
         final ModifyOnce<String> query = new ModifyOnce<>(action.getQuery());
-        final List<String> params = ImmutableList.copyOf(action.getParams());
+        final List<String> params = new ArrayList<>(action.getParams());
 
         return new Hive2ActionBuilder(action,
                 builder,
@@ -45,7 +46,24 @@ public class Hive2ActionBuilder extends NodeBuilderBaseImpl<Hive2ActionBuilder> 
                 params);
     }
 
-    Hive2ActionBuilder(final Hive2Action action,
+    public static Hive2ActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
+        final ModifyOnce<String> jdbcUrl = new ModifyOnce<>();
+        final ModifyOnce<String> password = new ModifyOnce<>();
+        final ModifyOnce<String> script = new ModifyOnce<>();
+        final ModifyOnce<String> query = new ModifyOnce<>();
+        final List<String> params = new ArrayList<>();
+
+        return new Hive2ActionBuilder(action,
+                builder,
+                jdbcUrl,
+                password,
+                script,
+                query,
+                params);
+    }
+
+    Hive2ActionBuilder(final Node action,
                        final ActionAttributesBuilder attributesBuilder,
                        final ModifyOnce<String> jdbcUrl,
                        final ModifyOnce<String> password,

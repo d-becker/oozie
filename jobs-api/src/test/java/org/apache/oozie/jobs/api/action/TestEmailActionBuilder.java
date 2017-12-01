@@ -172,4 +172,26 @@ public class TestEmailActionBuilder extends TestNodeBuilderBaseImpl<EmailAction,
         expectedException.expect(IllegalStateException.class);
         builder.withAttachment("any_attachment");
     }
+
+    @Test
+    public void testFromOtherAction() {
+        final ShellAction parent = ShellActionBuilder.create()
+                .withName("parent")
+                .withExecutable("echo")
+                .build();
+
+        final ShellAction otherAction = ShellActionBuilder.createFromExistingAction(parent)
+                .withName("shell")
+                .withParent(parent)
+                .build();
+
+        final EmailAction fromOtherAction = EmailActionBuilder.createFromExistingAction(otherAction)
+                .withName("email")
+                .withBody("body")
+                .build();
+
+        assertEquals(parent, fromOtherAction.getParentsWithoutConditions().get(0));
+        assertEquals("email", fromOtherAction.getName());
+        assertEquals("body", fromOtherAction.getBody());
+    }
 }

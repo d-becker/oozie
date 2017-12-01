@@ -31,7 +31,7 @@ import java.util.Map;
  * Builder instances can be used to build several elements, although properties already set cannot be changed after
  * a call to {@link MapReduceActionBuilder#build} either.
  */
-public class MapReduceAction extends Node {
+public class MapReduceAction extends Node implements HasAttributes {
     private final ActionAttributes attributes;
 
     MapReduceAction(final ConstructionData constructionData,
@@ -131,7 +131,7 @@ public class MapReduceAction extends Node {
         return attributes.getArchives();
     }
 
-    ActionAttributes getAttributes() {
+    public ActionAttributes getAttributes() {
         return attributes;
     }
 }

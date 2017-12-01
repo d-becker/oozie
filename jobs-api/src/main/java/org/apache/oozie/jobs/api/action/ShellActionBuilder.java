@@ -34,7 +34,18 @@ public class ShellActionBuilder extends NodeBuilderBaseImpl<ShellActionBuilder> 
                 environmentVariables);
     }
 
-    private ShellActionBuilder(final ShellAction action,
+    public static ShellActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
+        final ModifyOnce<String> executable = new ModifyOnce<>();
+        final List<String> environmentVariables = new ArrayList<>();
+
+        return new ShellActionBuilder(action,
+                builder,
+                executable,
+                environmentVariables);
+    }
+
+    private ShellActionBuilder(final Node action,
                                final ActionAttributesBuilder attributesBuilder,
                                final ModifyOnce<String> executable,
                                final List<String> environmentVariables) {

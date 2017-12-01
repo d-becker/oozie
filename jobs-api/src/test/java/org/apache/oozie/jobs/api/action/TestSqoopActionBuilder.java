@@ -189,4 +189,23 @@ public class TestSqoopActionBuilder extends TestNodeBuilderBaseImpl<SqoopAction,
 
         assertEquals(action.getCommand(), modifiedAction.getCommand());
     }
+
+    @Test
+    public void testFromOtherAction() {
+        final ShellAction parent = ShellActionBuilder.create()
+                .withName("parent")
+                .build();
+
+        final ShellAction otherAction = ShellActionBuilder.createFromExistingAction(parent)
+                .withName("shell")
+                .withParent(parent)
+                .build();
+
+        final SqoopAction fromOtherAction = SqoopActionBuilder.createFromExistingAction(otherAction)
+                .withName("sqoop")
+                .build();
+
+        assertEquals("sqoop", fromOtherAction.getName());
+        assertEquals(parent, fromOtherAction.getParentsWithoutConditions().get(0));
+    }
 }

@@ -29,15 +29,14 @@ public class DistcpActionBuilder extends NodeBuilderBaseImpl<DistcpActionBuilder
                 builder);
     }
 
-    public static DistcpActionBuilder createFromExistingAction(final DistcpAction action) {
-        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromExisting(action.getAttributes());
+    public static DistcpActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
 
-        return new DistcpActionBuilder(
-                action,
+        return new DistcpActionBuilder(action,
                 builder);
     }
 
-    DistcpActionBuilder(final DistcpAction action,
+    DistcpActionBuilder(final Node action,
                         final ActionAttributesBuilder attributesBuilder) {
         super(action);
 

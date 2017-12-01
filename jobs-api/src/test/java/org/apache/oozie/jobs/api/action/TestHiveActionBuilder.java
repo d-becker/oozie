@@ -190,4 +190,23 @@ public class TestHiveActionBuilder extends TestNodeBuilderBaseImpl<HiveAction, H
         assertEquals(action.getScript(), modifiedAction.getScript());
         assertEquals(action.getQuery(), modifiedAction.getQuery());
     }
+
+    @Test
+    public void testFromOtherAction() {
+        final ShellAction parent = ShellActionBuilder.create()
+                .withName("parent")
+                .build();
+
+        final ShellAction otherAction = ShellActionBuilder.createFromExistingAction(parent)
+                .withName("shell")
+                .withParent(parent)
+                .build();
+
+        final HiveAction fromOtherAction = HiveActionBuilder.createFromExistingAction(otherAction)
+                .withName("hive")
+                .build();
+
+        assertEquals("hive", fromOtherAction.getName());
+        assertEquals(parent, fromOtherAction.getParentsWithoutConditions().get(0));
+    }
 }

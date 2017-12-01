@@ -195,4 +195,23 @@ public class TestJavaActionBuilder extends TestNodeBuilderBaseImpl<JavaAction, J
         assertEquals(action.getJavaOpts().get(0), modifiedAction.getJavaOpts().get(0));
         assertEquals(action.isCaptureOutput(), modifiedAction.isCaptureOutput());
     }
+
+    @Test
+    public void testFromOtherAction() {
+        final ShellAction parent = ShellActionBuilder.create()
+                .withName("parent")
+                .build();
+
+        final ShellAction otherAction = ShellActionBuilder.createFromExistingAction(parent)
+                .withName("shell")
+                .withParent(parent)
+                .build();
+
+        final JavaAction fromOtherAction = JavaActionBuilder.createFromExistingAction(otherAction)
+                .withName("java")
+                .build();
+
+        assertEquals("java", fromOtherAction.getName());
+        assertEquals(parent, fromOtherAction.getParentsWithoutConditions().get(0));
+    }
 }

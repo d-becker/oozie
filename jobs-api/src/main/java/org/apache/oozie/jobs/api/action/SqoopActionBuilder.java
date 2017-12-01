@@ -25,7 +25,16 @@ public class SqoopActionBuilder extends NodeBuilderBaseImpl<SqoopActionBuilder> 
                 command);
     }
 
-    private SqoopActionBuilder(final SqoopAction action,
+    public static SqoopActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
+        final ModifyOnce<String> command = new ModifyOnce<>();
+
+        return new SqoopActionBuilder(action,
+                builder,
+                command);
+    }
+
+    private SqoopActionBuilder(final Node action,
                                final ActionAttributesBuilder attributesBuilder,
                                final ModifyOnce<String> command) {
         super(action);

@@ -3,7 +3,7 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-public class SqoopAction extends Node {
+public class SqoopAction extends Node implements HasAttributes {
     private final ActionAttributes attributes;
     private final String command;
 
@@ -64,7 +64,7 @@ public class SqoopAction extends Node {
         return attributes.getArchives();
     }
 
-    ActionAttributes getAttributes() {
+    public ActionAttributes getAttributes() {
         return attributes;
     }
 }

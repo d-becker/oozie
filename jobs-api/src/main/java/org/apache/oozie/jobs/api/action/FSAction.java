@@ -31,7 +31,7 @@ import java.util.Map;
  * Builder instances can be used to build several elements, although properties already set cannot be changed after
  * a call to {@link FSActionBuilder#build} either.
  */
-public class FSAction extends Node {
+public class FSAction extends Node implements HasAttributes {
     private final ActionAttributes attributes;
 
     FSAction(final Node.ConstructionData constructionData,
@@ -126,7 +126,7 @@ public class FSAction extends Node {
         return attributes.getChgrps();
     }
 
-    ActionAttributes getAttributes() {
+    public ActionAttributes getAttributes() {
         return attributes;
     }
 }

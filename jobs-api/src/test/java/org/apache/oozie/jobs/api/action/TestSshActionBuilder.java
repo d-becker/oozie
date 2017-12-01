@@ -109,4 +109,23 @@ public class TestSshActionBuilder extends TestNodeBuilderBaseImpl<SshAction, Ssh
         assertEquals(action.getHost(), modifiedAction.getHost());
         assertEquals(action.isCaptureOutput(), modifiedAction.isCaptureOutput());
     }
+
+    @Test
+    public void testFromOtherAction() {
+        final ShellAction parent = ShellActionBuilder.create()
+                .withName("parent")
+                .build();
+
+        final ShellAction otherAction = ShellActionBuilder.createFromExistingAction(parent)
+                .withName("shell")
+                .withParent(parent)
+                .build();
+
+        final SshAction fromOtherAction = SshActionBuilder.createFromExistingAction(otherAction)
+                .withName("ssh")
+                .build();
+
+        assertEquals("ssh", fromOtherAction.getName());
+        assertEquals(parent, fromOtherAction.getParentsWithoutConditions().get(0));
+    }
 }

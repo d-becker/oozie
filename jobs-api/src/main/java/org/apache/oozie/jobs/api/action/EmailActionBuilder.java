@@ -90,7 +90,27 @@ public class EmailActionBuilder extends NodeBuilderBaseImpl<EmailActionBuilder> 
                 attachment);
     }
 
-    EmailActionBuilder(final EmailAction action,
+    public static EmailActionBuilder createFromExistingAction(final Node action) {
+        final ModifyOnce<String> to = new ModifyOnce<>();
+        final ModifyOnce<String> cc = new ModifyOnce<>();
+        final ModifyOnce<String> bcc = new ModifyOnce<>();
+        final ModifyOnce<String> subject = new ModifyOnce<>();
+        final ModifyOnce<String> body = new ModifyOnce<>();
+        final ModifyOnce<String> contentType = new ModifyOnce<>();
+        final ModifyOnce<String> attachment = new ModifyOnce<>();
+
+        return new EmailActionBuilder(
+                action,
+                to,
+                cc,
+                bcc,
+                subject,
+                body,
+                contentType,
+                attachment);
+    }
+
+    EmailActionBuilder(final Node action,
                        final ModifyOnce<String> to,
                        final ModifyOnce<String> cc,
                        final ModifyOnce<String> bcc,

@@ -3,7 +3,7 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-public class PigAction extends Node {
+public class PigAction extends Node implements HasAttributes {
     private final ActionAttributes attributes;
     private final String script;
     private final ImmutableList<String> params;
@@ -71,7 +71,7 @@ public class PigAction extends Node {
         return attributes.getArchives();
     }
 
-    ActionAttributes getAttributes() {
+    public ActionAttributes getAttributes() {
         return attributes;
     }
 }

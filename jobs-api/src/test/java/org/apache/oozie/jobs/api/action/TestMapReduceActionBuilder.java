@@ -379,4 +379,23 @@ public class TestMapReduceActionBuilder extends TestNodeBuilderBaseImpl<MapReduc
 
         assertEquals(Arrays.asList(FILES[0], FILES[2]), modifiedMrAction.getFiles());
     }
+
+    @Test
+    public void testFromOtherAction() {
+        final ShellAction parent = ShellActionBuilder.create()
+                .withName("parent")
+                .build();
+
+        final ShellAction otherAction = ShellActionBuilder.createFromExistingAction(parent)
+                .withName("shell")
+                .withParent(parent)
+                .build();
+
+        final MapReduceAction fromOtherAction = MapReduceActionBuilder.createFromExistingAction(otherAction)
+                .withName("map-reduce")
+                .build();
+
+        assertEquals("map-reduce", fromOtherAction.getName());
+        assertEquals(parent, fromOtherAction.getParentsWithoutConditions().get(0));
+    }
 }

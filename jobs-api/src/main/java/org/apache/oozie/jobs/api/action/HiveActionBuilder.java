@@ -37,7 +37,20 @@ public class HiveActionBuilder extends NodeBuilderBaseImpl<HiveActionBuilder> im
                 params);
     }
 
-    HiveActionBuilder(final HiveAction action,
+    public static HiveActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
+        final ModifyOnce<String> script = new ModifyOnce<>();
+        final ModifyOnce<String> query = new ModifyOnce<>();
+        final List<String> params = new ArrayList<>();
+
+        return new HiveActionBuilder(action,
+                builder,
+                script,
+                query,
+                params);
+    }
+
+    HiveActionBuilder(final Node action,
                       final ActionAttributesBuilder attributesBuilder,
                       final ModifyOnce<String> script,
                       final ModifyOnce<String> query,

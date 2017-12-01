@@ -34,7 +34,18 @@ public class SshActionBuilder extends NodeBuilderBaseImpl<SshActionBuilder> impl
                 command);
     }
 
-    private SshActionBuilder(final SshAction action,
+    public static SshActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
+        final ModifyOnce<String> host = new ModifyOnce<>();
+        final ModifyOnce<String> command = new ModifyOnce<>();
+
+        return new SshActionBuilder(action,
+                builder,
+                host,
+                command);
+    }
+
+    private SshActionBuilder(final Node action,
                              final ActionAttributesBuilder attributesBuilder,
                              final ModifyOnce<String> host,
                              final ModifyOnce<String> command) {

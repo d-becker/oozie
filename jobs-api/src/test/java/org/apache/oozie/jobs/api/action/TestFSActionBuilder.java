@@ -427,7 +427,7 @@ public class TestFSActionBuilder extends TestNodeBuilderBaseImpl<FSAction, FSAct
     }
 
     @Test
-    public void testFromExistiongFSAction() {
+    public void testFromExistingFSAction() {
         final String nameNode = "${nameNode}";
 
         final FSActionBuilder builder = getBuilderInstance();
@@ -444,5 +444,26 @@ public class TestFSActionBuilder extends TestNodeBuilderBaseImpl<FSAction, FSAct
         final Map<String, String> expectedConfiguration = new LinkedHashMap<>();
         expectedConfiguration.put(MAPRED_JOB_QUEUE_NAME, DEFAULT);
         assertEquals(expectedConfiguration, modifiedAction.getConfiguration());
+    }
+
+    @Test
+    public void testFromEmailAction() {
+        final EmailAction parent = EmailActionBuilder.create()
+                .withName("parent")
+                .build();
+
+        final EmailAction other = EmailActionBuilder.createFromExistingAction(parent)
+                .withName("other")
+                .withParent(parent)
+                .build();
+
+        final FSAction fromEmail = FSActionBuilder.createFromExistingAction(other)
+                .withName("fs")
+                .withNameNode("${nameNode}")
+                .build();
+
+        assertEquals(parent, fromEmail.getParentsWithoutConditions().get(0));
+        assertEquals("fs", fromEmail.getName());
+        assertEquals("${nameNode}", fromEmail.getNameNode());
     }
 }

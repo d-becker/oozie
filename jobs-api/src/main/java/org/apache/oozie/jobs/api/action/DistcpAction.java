@@ -3,7 +3,7 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-public class DistcpAction extends Node {
+public class DistcpAction extends Node implements HasAttributes {
     private final ActionAttributes attributes;
 
     DistcpAction(final ConstructionData constructionData,
@@ -41,7 +41,7 @@ public class DistcpAction extends Node {
         return attributes.getArgs();
     }
 
-    ActionAttributes getAttributes() {
+    public ActionAttributes getAttributes() {
         return attributes;
     }
 }

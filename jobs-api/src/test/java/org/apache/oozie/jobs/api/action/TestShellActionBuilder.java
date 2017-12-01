@@ -193,4 +193,23 @@ public class TestShellActionBuilder extends TestNodeBuilderBaseImpl<ShellAction,
         assertEquals(action.getEnvironmentVariables().get(0), modifiedAction.getEnvironmentVariables().get(0));
         assertEquals(action.isCaptureOutput(), modifiedAction.isCaptureOutput());
     }
+
+    @Test
+    public void testFromOtherAction() {
+        final PigAction parent = PigActionBuilder.create()
+                .withName("parent")
+                .build();
+
+        final PigAction otherAction = PigActionBuilder.createFromExistingAction(parent)
+                .withName("pig")
+                .withParent(parent)
+                .build();
+
+        final ShellAction fromOtherAction = ShellActionBuilder.createFromExistingAction(otherAction)
+                .withName("shell")
+                .build();
+
+        assertEquals("shell", fromOtherAction.getName());
+        assertEquals(parent, fromOtherAction.getParentsWithoutConditions().get(0));
+    }
 }

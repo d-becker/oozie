@@ -50,16 +50,16 @@ public class MapReduceActionBuilder extends NodeBuilderBaseImpl<MapReduceActionB
      * @param action The {@link MapReduceAction} object on which this {@link MapReduceActionBuilder} will be based.
      * @return A new {@link MapReduceActionBuilder} that is based on a previously built {@link MapReduceAction} object.
      */
-    public static MapReduceActionBuilder createFromExistingAction(final MapReduceAction action) {
-        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromExisting(action.getAttributes());
+    public static MapReduceActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
 
         return new MapReduceActionBuilder(
                 action,
                 builder);
     }
 
-    MapReduceActionBuilder(final MapReduceAction action,
-                                  final ActionAttributesBuilder attributesBuilder) {
+    MapReduceActionBuilder(final Node action,
+                           final ActionAttributesBuilder attributesBuilder) {
         super(action);
 
         this.attributesBuilder = attributesBuilder;

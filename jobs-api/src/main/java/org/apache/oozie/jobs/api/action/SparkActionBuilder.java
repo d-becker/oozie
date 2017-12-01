@@ -53,7 +53,26 @@ public class SparkActionBuilder extends NodeBuilderBaseImpl<SparkActionBuilder> 
                 sparkOpts);
     }
 
-    SparkActionBuilder(final SparkAction action,
+    public static SparkActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
+        final ModifyOnce<String> master = new ModifyOnce<>();
+        final ModifyOnce<String> mode = new ModifyOnce<>();
+        final ModifyOnce<String> actionName = new ModifyOnce<>();
+        final ModifyOnce<String> actionClass = new ModifyOnce<>();
+        final ModifyOnce<String> jar = new ModifyOnce<>();
+        final ModifyOnce<String> sparkOpts = new ModifyOnce<>();
+
+        return new SparkActionBuilder(action,
+                builder,
+                master,
+                mode,
+                actionName,
+                actionClass,
+                jar,
+                sparkOpts);
+    }
+
+    SparkActionBuilder(final Node action,
                        final ActionAttributesBuilder attributesBuilder,
                        final ModifyOnce<String> master,
                        final ModifyOnce<String> mode,

@@ -3,7 +3,7 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-public class SparkAction extends Node {
+public class SparkAction extends Node implements HasAttributes {
     private final ActionAttributes attributes;
     private final String master;
     private final String mode;
@@ -99,7 +99,7 @@ public class SparkAction extends Node {
         return attributes.getArchives();
     }
 
-    ActionAttributes getAttributes() {
+    public ActionAttributes getAttributes() {
         return attributes;
     }
 }

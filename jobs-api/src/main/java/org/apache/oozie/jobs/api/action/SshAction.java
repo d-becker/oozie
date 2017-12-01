@@ -3,7 +3,7 @@ package org.apache.oozie.jobs.api.action;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-public class SshAction extends Node {
+public class SshAction extends Node implements HasAttributes {
     private final ActionAttributes attributes;
     private final String host;
     private final String command;
@@ -36,7 +36,7 @@ public class SshAction extends Node {
         return attributes.isCaptureOutput();
     }
 
-    ActionAttributes getAttributes() {
+    public ActionAttributes getAttributes() {
         return attributes;
     }
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action, Hive2ActionBuilder> {
     private static final String NAME = "hive2-name";
@@ -193,5 +194,24 @@ public class TestHive2ActionBuilder extends TestNodeBuilderBaseImpl<Hive2Action,
         assertEquals(action.getPassword(), modifiedAction.getPassword());
         assertEquals(action.getScript(), modifiedAction.getScript());
         assertEquals(action.getQuery(), modifiedAction.getQuery());
+    }
+
+    @Test
+    public void testFromOtherAction() {
+        final ShellAction parent = ShellActionBuilder.create()
+                .withName("parent")
+                .build();
+
+        final ShellAction otherAction = ShellActionBuilder.createFromExistingAction(parent)
+                .withName("shell")
+                .withParent(parent)
+                .build();
+
+        final Hive2Action fromOtherAction = Hive2ActionBuilder.createFromExistingAction(otherAction)
+                .withName("hive2")
+                .build();
+
+        assertEquals("hive2", fromOtherAction.getName());
+        assertEquals(parent, fromOtherAction.getParentsWithoutConditions().get(0));
     }
 }

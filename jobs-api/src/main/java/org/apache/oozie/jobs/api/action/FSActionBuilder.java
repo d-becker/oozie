@@ -50,15 +50,15 @@ public class FSActionBuilder extends NodeBuilderBaseImpl<FSActionBuilder> implem
      * @param action The {@link FSAction} object on which this {@link FSActionBuilder} will be based.
      * @return A new {@link FSActionBuilder} that is based on a previously built {@link FSAction} object.
      */
-    public static FSActionBuilder createFromExistingAction(final FSAction action) {
-        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromExisting(action.getAttributes());
+    public static FSActionBuilder createFromExistingAction(final Node action) {
+        final ActionAttributesBuilder builder = ActionAttributesBuilder.createFromAction(action);
 
         return new FSActionBuilder(
                 action,
                 builder);
     }
 
-    FSActionBuilder(final FSAction action,
+    FSActionBuilder(final Node action,
                     final ActionAttributesBuilder attributesBuilder) {
         super(action);
 
