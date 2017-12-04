@@ -67,6 +67,11 @@
                 <class-a>org.apache.oozie.jobs.api.oozie.dag.ExplicitNode</class-a>
                 <class-b>org.apache.oozie.jobs.api.generated.workflow.ACTION</class-b>
             </converter>
+
+            <converter type="org.apache.oozie.jobs.api.mapping.ParametersConverter" >
+                <class-a>org.apache.oozie.jobs.api.workflow.Parameters</class-a>
+                <class-b>org.apache.oozie.jobs.api.generated.workflow.PARAMETERS</class-b>
+            </converter>
         </custom-converters>
 
     </configuration>

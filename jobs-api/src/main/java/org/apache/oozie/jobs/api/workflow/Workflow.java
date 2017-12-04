@@ -30,8 +30,9 @@ public class Workflow {
     private final String name;
     private final ImmutableSet<Node> nodes;
     private final ImmutableSet<Node> roots;
+    private final Parameters parameters;
 
-    Workflow(final String name, final ImmutableSet<Node> nodes) {
+    Workflow(final String name, final ImmutableSet<Node> nodes, final Parameters parameters) {
         checkUniqueNames(nodes);
 
         this.name = name;
@@ -40,6 +41,8 @@ public class Workflow {
         final Set<Node> mutableRoots = findMutableRoots(nodes);
 
         this.roots = ImmutableSet.copyOf(mutableRoots);
+
+        this.parameters = parameters;
     }
 
     public String getName() {
@@ -52,6 +55,10 @@ public class Workflow {
 
     public ImmutableSet<Node> getRoots() {
         return roots;
+    }
+
+    public Parameters getParameters() {
+        return parameters;
     }
 
     private void checkUniqueNames(final Set<Node> nodes) {

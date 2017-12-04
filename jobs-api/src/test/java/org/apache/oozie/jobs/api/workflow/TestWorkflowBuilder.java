@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class TestWorkflowBuilder {
     private static final String NAME = "workflow-name";
@@ -161,5 +162,20 @@ public class TestWorkflowBuilder {
 
         final Set<Node> expectedNodes = new HashSet<>(Arrays.asList(mrAction1, mrAction2, mrAction3, mrAction4, mrAction5));
         assertEquals(expectedNodes, workflow.getNodes());
+    }
+
+    @Test
+    public void testAddMixedParameters() {
+        final Workflow workflow = new WorkflowBuilder()
+                .withParameter("name1", "value1")
+                .withParameter("name2", "value2", "description2")
+                .build();
+
+        assertEquals("name1", workflow.getParameters().getParameters().get(0).getName());
+        assertEquals("value1", workflow.getParameters().getParameters().get(0).getValue());
+        assertNull(workflow.getParameters().getParameters().get(0).getDescription());
+        assertEquals("name2", workflow.getParameters().getParameters().get(1).getName());
+        assertEquals("value2", workflow.getParameters().getParameters().get(1).getValue());
+        assertEquals("description2", workflow.getParameters().getParameters().get(1).getDescription());
     }
 }

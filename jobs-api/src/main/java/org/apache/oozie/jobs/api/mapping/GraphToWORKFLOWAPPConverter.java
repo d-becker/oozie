@@ -33,7 +33,11 @@ public class GraphToWORKFLOWAPPConverter extends DozerConverter<Graph, WORKFLOWA
 
     @Override
     public WORKFLOWAPP convertTo(final Graph graph, final WORKFLOWAPP workflowapp) {
-        final GraphNodes graphNodes = new GraphNodes(graph.getName(), graph.getStart(), graph.getEnd(), graph.getNodes());
+        final GraphNodes graphNodes = new GraphNodes(graph.getName(),
+                graph.getParameters(),
+                graph.getStart(),
+                graph.getEnd(),
+                graph.getNodes());
 
         return mapper.map(graphNodes, WORKFLOWAPP.class);
     }

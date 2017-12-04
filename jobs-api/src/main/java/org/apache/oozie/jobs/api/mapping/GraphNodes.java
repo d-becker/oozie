@@ -21,6 +21,7 @@ package org.apache.oozie.jobs.api.mapping;
 import org.apache.oozie.jobs.api.oozie.dag.End;
 import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.apache.oozie.jobs.api.oozie.dag.Start;
+import org.apache.oozie.jobs.api.workflow.Parameters;
 
 import java.util.Collection;
 
@@ -28,15 +29,18 @@ import java.util.Collection;
 // a Workflow to turn it into a Graph, we can generate the NodeBase's directly in the tests.
 public class GraphNodes {
     private final String name;
+    private final Parameters parameters;
     private final Start start;
     private final End end;
     private final Collection<NodeBase> nodes;
 
     GraphNodes(final String name,
+               final Parameters parameters,
                final Start start,
                final End end,
                final Collection<NodeBase> nodes) {
         this.name = name;
+        this.parameters = parameters;
         this.start = start;
         this.end = end;
         this.nodes = nodes;
@@ -56,5 +60,9 @@ public class GraphNodes {
 
     public Collection<NodeBase> getNodes() {
         return nodes;
+    }
+
+    public Parameters getParameters() {
+        return parameters;
     }
 }

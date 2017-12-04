@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.apache.oozie.jobs.api.Condition;
 import org.apache.oozie.jobs.api.action.Node;
+import org.apache.oozie.jobs.api.workflow.Parameters;
 import org.apache.oozie.jobs.api.workflow.Workflow;
 
 import java.util.ArrayList;
@@ -74,6 +75,7 @@ public class Graph {
     private final String name;
     private final Start start = new Start("start");
     private final End end = new End("end");
+    private final Parameters parameters;
     private final Map<String, NodeBase> nodesByName = new LinkedHashMap<>();
     private final Map<Fork, Integer> forkNumbers = new HashMap<>();
     private int forkCounter = 1;
@@ -95,6 +97,7 @@ public class Graph {
      */
     public Graph(final Workflow workflow) {
         this.name = workflow.getName();
+        this.parameters = workflow.getParameters();
 
         final List<Node> nodesInTopologicalOrder = getNodesInTopologicalOrder(workflow);
 
@@ -110,6 +113,10 @@ public class Graph {
      */
     public String getName() {
         return name;
+    }
+
+    public Parameters getParameters() {
+        return parameters;
     }
 
     /**
