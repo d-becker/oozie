@@ -21,6 +21,7 @@ package org.apache.oozie.jobs.api.mapping;
 import org.apache.oozie.jobs.api.oozie.dag.End;
 import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.apache.oozie.jobs.api.oozie.dag.Start;
+import org.apache.oozie.jobs.api.workflow.Global;
 import org.apache.oozie.jobs.api.workflow.Parameters;
 
 import java.util.Collection;
@@ -30,17 +31,20 @@ import java.util.Collection;
 public class GraphNodes {
     private final String name;
     private final Parameters parameters;
+    private final Global global;
     private final Start start;
     private final End end;
     private final Collection<NodeBase> nodes;
 
     GraphNodes(final String name,
                final Parameters parameters,
+               final Global global,
                final Start start,
                final End end,
                final Collection<NodeBase> nodes) {
         this.name = name;
         this.parameters = parameters;
+        this.global = global;
         this.start = start;
         this.end = end;
         this.nodes = nodes;
@@ -64,5 +68,9 @@ public class GraphNodes {
 
     public Parameters getParameters() {
         return parameters;
+    }
+
+    public Global getGlobal() {
+        return global;
     }
 }

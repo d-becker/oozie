@@ -21,12 +21,24 @@ package org.apache.oozie.jobs.api.mapping;
 import com.google.common.base.Preconditions;
 import org.apache.oozie.jobs.api.action.ErrorHandler;
 import org.apache.oozie.jobs.api.action.Node;
-import org.apache.oozie.jobs.api.generated.workflow.*;
+import org.apache.oozie.jobs.api.generated.workflow.ACTION;
+import org.apache.oozie.jobs.api.generated.workflow.ACTIONTRANSITION;
+import org.apache.oozie.jobs.api.generated.workflow.DECISION;
+import org.apache.oozie.jobs.api.generated.workflow.END;
+import org.apache.oozie.jobs.api.generated.workflow.FORK;
+import org.apache.oozie.jobs.api.generated.workflow.GLOBAL;
+import org.apache.oozie.jobs.api.generated.workflow.JOIN;
+import org.apache.oozie.jobs.api.generated.workflow.KILL;
+import org.apache.oozie.jobs.api.generated.workflow.ObjectFactory;
+import org.apache.oozie.jobs.api.generated.workflow.PARAMETERS;
+import org.apache.oozie.jobs.api.generated.workflow.START;
+import org.apache.oozie.jobs.api.generated.workflow.WORKFLOWAPP;
 import org.apache.oozie.jobs.api.oozie.dag.Decision;
 import org.apache.oozie.jobs.api.oozie.dag.ExplicitNode;
 import org.apache.oozie.jobs.api.oozie.dag.Fork;
 import org.apache.oozie.jobs.api.oozie.dag.Join;
 import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
+import org.apache.oozie.jobs.api.workflow.Global;
 import org.apache.oozie.jobs.api.workflow.Parameters;
 import org.dozer.DozerConverter;
 import org.dozer.Mapper;
@@ -47,6 +59,7 @@ public class GraphNodesToWORKFLOWAPPConverter extends DozerConverter<GraphNodes,
         SOURCE_TARGET_CLASSES.put(Join.class, JOIN.class);
         SOURCE_TARGET_CLASSES.put(ExplicitNode.class, ACTION.class);
         SOURCE_TARGET_CLASSES.put(Parameters.class, PARAMETERS.class);
+        SOURCE_TARGET_CLASSES.put(Global.class, GLOBAL.class);
     }
 
     public GraphNodesToWORKFLOWAPPConverter() {
@@ -60,6 +73,8 @@ public class GraphNodesToWORKFLOWAPPConverter extends DozerConverter<GraphNodes,
         workflowapp.setName(graphNodes.getName());
 
         mapParameters(graphNodes, workflowapp);
+
+        mapGlobal(graphNodes, workflowapp);
 
         mapStart(graphNodes, workflowapp);
 
@@ -86,6 +101,15 @@ public class GraphNodesToWORKFLOWAPPConverter extends DozerConverter<GraphNodes,
 
         final PARAMETERS mappedParameters = mapper.map(graphNodes.getParameters(), PARAMETERS.class);
         workflowapp.setParameters(mappedParameters);
+    }
+
+    private void mapGlobal(GraphNodes graphNodes, WORKFLOWAPP workflowapp) {
+        if (graphNodes.getGlobal() == null) {
+            return;
+        }
+
+        final GLOBAL mappedGlobal = mapper.map(graphNodes.getGlobal(), GLOBAL.class);
+        workflowapp.setGlobal(mappedGlobal);
     }
 
     private void mapStart(final GraphNodes graphNodes, final WORKFLOWAPP workflowapp) {

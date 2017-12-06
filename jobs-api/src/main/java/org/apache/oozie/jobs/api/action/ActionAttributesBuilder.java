@@ -65,7 +65,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
      * Creates and returns an empty builder.
      * @return An empty builder.
      */
-    static ActionAttributesBuilder create() {
+    public static ActionAttributesBuilder create() {
         final ModifyOnce<String> jobTracker = new ModifyOnce<>();
         final ModifyOnce<String> nameNode = new ModifyOnce<>();
         final ModifyOnce<Prepare> prepare = new ModifyOnce<>();
@@ -120,7 +120,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
      * @return A new {@link ActionAttributesBuilder} that is based on a previously built
      *         {@link ActionAttributes} object.
      */
-    static ActionAttributesBuilder createFromExisting(final ActionAttributes attributes) {
+    public static ActionAttributesBuilder createFromExisting(final ActionAttributes attributes) {
         final ModifyOnce<String> jobTracker = new ModifyOnce<>(attributes.getJobTracker());
         final ModifyOnce<String> nameNode = new ModifyOnce<>(attributes.getNameNode());
         final ModifyOnce<Prepare> prepare = new ModifyOnce<>(attributes.getPrepare());
@@ -224,7 +224,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
      * @param jobTracker The string representing the job tracker.
      * @throws IllegalStateException if a job tracker has already been set on this builder.
      */
-    void withJobTracker(final String jobTracker) {
+    public void withJobTracker(final String jobTracker) {
         this.jobTracker.set(jobTracker);
     }
 
@@ -233,7 +233,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
      * @param nameNode The string representing the name node.
      * @throws IllegalStateException if a name node has already been set on this builder.
      */
-    void withNameNode(final String nameNode) {
+    public void withNameNode(final String nameNode) {
         this.nameNode.set(nameNode);
     }
 
@@ -268,7 +268,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
      * Registers a job XML with this builder.
      * @param jobXml The job XML to register.
      */
-    void withJobXml(final String jobXml) {
+    public void withJobXml(final String jobXml) {
         this.jobXmls.add(jobXml);
     }
 
@@ -276,14 +276,14 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
      * Removes a job XML if it is registered with this builder, otherwise does nothing.
      * @param jobXml The job XML to remove.
      */
-    void withoutJobXml(final String jobXml) {
+    public void withoutJobXml(final String jobXml) {
         jobXmls.remove(jobXml);
     }
 
     /**
      * Removes all job XMLs that are registered with this builder.
      */
-    void clearJobXmls() {
+    public void clearJobXmls() {
         jobXmls.clear();
     }
 
@@ -294,7 +294,7 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
      * @param value The value of the property to set.
      * @throws IllegalStateException if the provided key has already been set on this builder.
      */
-    void withConfigProperty(final String key, final String value) {
+    public void withConfigProperty(final String key, final String value) {
         ModifyOnce<String> mappedValue = this.configuration.get(key);
 
         if (mappedValue == null) {
@@ -514,11 +514,11 @@ public class ActionAttributesBuilder implements Builder<ActionAttributes> {
         args.clear();
     }
 
-    void withResourceManager(final String resourceManager) {
+    public void withResourceManager(final String resourceManager) {
         this.resourceManager.set(resourceManager);
     }
 
-    void withLauncher(final Launcher launcher) {
+    public void withLauncher(final Launcher launcher) {
         this.launcher.set(launcher);
     }
 

@@ -72,6 +72,16 @@
                 <class-a>org.apache.oozie.jobs.api.workflow.Parameters</class-a>
                 <class-b>org.apache.oozie.jobs.api.generated.workflow.PARAMETERS</class-b>
             </converter>
+
+            <converter type="org.apache.oozie.jobs.api.mapping.GlobalConverter" >
+                <class-a>org.apache.oozie.jobs.api.workflow.Global</class-a>
+                <class-b>org.apache.oozie.jobs.api.generated.workflow.GLOBAL</class-b>
+            </converter>
+
+            <converter type="org.apache.oozie.jobs.api.mapping.InlineWorkflowLauncherConverter" >
+                <class-a>org.apache.oozie.jobs.api.action.Launcher</class-a>
+                <class-b>org.apache.oozie.jobs.api.generated.workflow.LAUNCHER</class-b>
+            </converter>
         </custom-converters>
 
     </configuration>

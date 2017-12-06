@@ -31,8 +31,10 @@ public class Workflow {
     private final ImmutableSet<Node> nodes;
     private final ImmutableSet<Node> roots;
     private final Parameters parameters;
+    private final Global global;
 
-    Workflow(final String name, final ImmutableSet<Node> nodes, final Parameters parameters) {
+    Workflow(final String name, final ImmutableSet<Node> nodes, final Parameters parameters, final Global global) {
+        this.global = global;
         checkUniqueNames(nodes);
 
         this.name = name;
@@ -59,6 +61,10 @@ public class Workflow {
 
     public Parameters getParameters() {
         return parameters;
+    }
+
+    public Global getGlobal() {
+        return global;
     }
 
     private void checkUniqueNames(final Set<Node> nodes) {

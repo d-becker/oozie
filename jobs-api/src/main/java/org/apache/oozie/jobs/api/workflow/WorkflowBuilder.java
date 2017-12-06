@@ -33,12 +33,12 @@ import java.util.Set;
 public class WorkflowBuilder {
     private final ModifyOnce<String> name;
     private final List<Node> addedActions;
-    private final ParametersBuilder parametersBuilder;
+    private ParametersBuilder parametersBuilder;
+    private GlobalBuilder globalBuilder;
 
     public WorkflowBuilder() {
         this.name = new ModifyOnce<>();
         this.addedActions = new ArrayList<>();
-        this.parametersBuilder = new ParametersBuilder();
     }
 
     public WorkflowBuilder withName(final String name) {
@@ -52,12 +52,24 @@ public class WorkflowBuilder {
     }
 
     public WorkflowBuilder withParameter(final String name, final String value) {
+        ensureParametersBuilder();
         this.parametersBuilder.withParameter(name, value);
         return this;
     }
 
     public WorkflowBuilder withParameter(final String name, final String value, final String description) {
         this.parametersBuilder.withParameter(name, value, description);
+        return this;
+    }
+
+    private void ensureParametersBuilder() {
+        if (this.parametersBuilder == null) {
+            this.parametersBuilder = new ParametersBuilder();
+        }
+    }
+
+    public WorkflowBuilder withGlobal(final Global global) {
+        this.globalBuilder = GlobalBuilder.createFromExisting(global);
         return this;
     }
 
@@ -74,9 +86,23 @@ public class WorkflowBuilder {
         final ImmutableSet.Builder<Node> builder = new ImmutableSet.Builder<>();
         builder.addAll(nodes);
 
-        final Parameters parameters = parametersBuilder.build();
+        final Parameters parameters;
+        if (parametersBuilder != null) {
+            parameters = parametersBuilder.build();
+        }
+        else {
+            parameters = null;
+        }
 
-        return new Workflow(name.get(), builder.build(), parameters);
+        final Global global;
+        if (globalBuilder != null) {
+            global = globalBuilder.build();
+        }
+        else {
+            global = null;
+        }
+
+        return new Workflow(name.get(), builder.build(), parameters, global);
     }
 
     private void ensureName() {

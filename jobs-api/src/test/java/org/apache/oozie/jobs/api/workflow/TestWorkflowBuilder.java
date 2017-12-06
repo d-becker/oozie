@@ -178,4 +178,15 @@ public class TestWorkflowBuilder {
         assertEquals("value2", workflow.getParameters().getParameters().get(1).getValue());
         assertEquals("description2", workflow.getParameters().getParameters().get(1).getDescription());
     }
+
+    @Test
+    public void testAddGlobal() {
+        final Workflow workflow = new WorkflowBuilder()
+                .withGlobal(GlobalBuilder.create()
+                        .withConfigProperty("key1", "value1")
+                        .build())
+                .build();
+
+        assertEquals("value1", workflow.getGlobal().getConfigProperty("key1"));
+    }
 }
