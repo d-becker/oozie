@@ -189,4 +189,16 @@ public class TestWorkflowBuilder {
 
         assertEquals("value1", workflow.getGlobal().getConfigProperty("key1"));
     }
+
+    @Test
+    public void testAddCredentials() {
+        final Workflow workflow = new WorkflowBuilder()
+                .withCredentials(CredentialsBuilder.create()
+                        .withCredential("hbase", "hbase")
+                        .build())
+                .build();
+
+        assertEquals("hbase", workflow.getCredentials().getCredentials().get(0).getName());
+        assertEquals("hbase", workflow.getCredentials().getCredentials().get(0).getType());
+    }
 }

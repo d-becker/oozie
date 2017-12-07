@@ -35,6 +35,7 @@ public class WorkflowBuilder {
     private final List<Node> addedActions;
     private ParametersBuilder parametersBuilder;
     private GlobalBuilder globalBuilder;
+    private CredentialsBuilder credentialsBuilder;
 
     public WorkflowBuilder() {
         this.name = new ModifyOnce<>();
@@ -64,12 +65,17 @@ public class WorkflowBuilder {
 
     private void ensureParametersBuilder() {
         if (this.parametersBuilder == null) {
-            this.parametersBuilder = new ParametersBuilder();
+            this.parametersBuilder = ParametersBuilder.create();
         }
     }
 
     public WorkflowBuilder withGlobal(final Global global) {
         this.globalBuilder = GlobalBuilder.createFromExisting(global);
+        return this;
+    }
+
+    public WorkflowBuilder withCredentials(final Credentials credentials) {
+        this.credentialsBuilder = CredentialsBuilder.createFromExisting(credentials);
         return this;
     }
 
@@ -102,7 +108,15 @@ public class WorkflowBuilder {
             global = null;
         }
 
-        return new Workflow(name.get(), builder.build(), parameters, global);
+        final Credentials credentials;
+        if (credentialsBuilder != null) {
+            credentials = credentialsBuilder.build();
+        }
+        else {
+            credentials = null;
+        }
+
+        return new Workflow(name.get(), builder.build(), parameters, global, credentials);
     }
 
     private void ensureName() {

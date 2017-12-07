@@ -31,7 +31,6 @@ public class TestGlobalExample extends TestCase {
                         .build())
                 .build();
 
-
         final String xml = Serializer.serialize(workflow);
 
         log.info("Workflow XML is:\n{0}", xml);

@@ -21,6 +21,8 @@ package org.apache.oozie.jobs.api.mapping;
 import org.apache.oozie.jobs.api.oozie.dag.End;
 import org.apache.oozie.jobs.api.oozie.dag.NodeBase;
 import org.apache.oozie.jobs.api.oozie.dag.Start;
+import org.apache.oozie.jobs.api.workflow.Credential;
+import org.apache.oozie.jobs.api.workflow.Credentials;
 import org.apache.oozie.jobs.api.workflow.Global;
 import org.apache.oozie.jobs.api.workflow.Parameters;
 
@@ -32,6 +34,7 @@ public class GraphNodes {
     private final String name;
     private final Parameters parameters;
     private final Global global;
+    private final Credentials credentials;
     private final Start start;
     private final End end;
     private final Collection<NodeBase> nodes;
@@ -39,12 +42,14 @@ public class GraphNodes {
     GraphNodes(final String name,
                final Parameters parameters,
                final Global global,
+               final Credentials credentials,
                final Start start,
                final End end,
                final Collection<NodeBase> nodes) {
         this.name = name;
         this.parameters = parameters;
         this.global = global;
+        this.credentials = credentials;
         this.start = start;
         this.end = end;
         this.nodes = nodes;
@@ -72,5 +77,9 @@ public class GraphNodes {
 
     public Global getGlobal() {
         return global;
+    }
+
+    public Credentials getCredentials() {
+        return credentials;
     }
 }

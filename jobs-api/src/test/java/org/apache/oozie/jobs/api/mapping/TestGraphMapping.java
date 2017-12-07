@@ -159,7 +159,12 @@ public class TestGraphMapping {
         fork.addParent(A);
         A.addParent(start);
 
-        final GraphNodes graphNodes = new GraphNodes(workflowName, null, null, start, end,
+        final GraphNodes graphNodes = new GraphNodes(workflowName,
+                null,
+                null,
+                null,
+                start,
+                end,
                 Arrays.asList(A, B, C, D, E, fork, join, decision, decisionJoin));
 
 

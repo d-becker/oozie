@@ -11,7 +11,7 @@ public class TestParametersBuilder {
 
     @Before
     public void setUp() {
-        this.builder = new ParametersBuilder();
+        this.builder = ParametersBuilder.create();
     }
 
     @Test
@@ -42,5 +42,21 @@ public class TestParametersBuilder {
         assertEquals("name2", parameters.getParameters().get(1).getName());
         assertEquals("value2", parameters.getParameters().get(1).getValue());
         assertEquals("description2", parameters.getParameters().get(1).getDescription());
+    }
+
+    @Test
+    public void testCreateFromExisting() {
+        final Parameters existing = builder
+                .withParameter("name1", "value1")
+                .withParameter("name2", "value2")
+                .build();
+
+        final Parameters fromExisting = ParametersBuilder.createFromExisting(existing)
+                .withParameter("name3", "value3")
+                .build();
+
+        assertEquals("value1", fromExisting.getParameters().get(0).getValue());
+        assertEquals("value2", fromExisting.getParameters().get(1).getValue());
+        assertEquals("value3", fromExisting.getParameters().get(2).getValue());
     }
 }

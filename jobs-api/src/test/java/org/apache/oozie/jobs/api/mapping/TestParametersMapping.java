@@ -12,7 +12,7 @@ public class TestParametersMapping {
 
     @Test
     public void testMappingParameters() {
-        final Parameters source = new ParametersBuilder()
+        final Parameters source = ParametersBuilder.create()
                 .withParameter("name1", "value1")
                 .withParameter("name2", "value2", "description2")
                 .build();
