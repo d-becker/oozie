@@ -18,16 +18,20 @@
 
 package org.apache.oozie.servlet;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Optional;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.oozie.BaseEngineException;
 import org.apache.oozie.BulkResponseInfo;
 import org.apache.oozie.BundleEngine;
@@ -46,16 +50,15 @@ import org.apache.oozie.client.OozieClient;
 import org.apache.oozie.client.rest.BulkResponseImpl;
 import org.apache.oozie.client.rest.JsonTags;
 import org.apache.oozie.client.rest.RestConstants;
-import org.apache.oozie.service.BundleEngineService;
-import org.apache.oozie.service.CoordinatorEngineService;
-import org.apache.oozie.service.DagEngineService;
-import org.apache.oozie.service.Services;
+import org.apache.oozie.service.*;
+import org.apache.oozie.util.IOUtils;
 import org.apache.oozie.util.XLog;
 import org.apache.oozie.util.XmlUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class V1JobsServlet extends BaseJobsServlet {
+    private static final XLog LOG = XLog.getLog(V1JobsServlet.class);
 
     private static final String INSTRUMENTATION_NAME = "v1jobs";
     private static final Set<String> httpJobType = new HashSet<String>(){{
@@ -84,7 +87,7 @@ public class V1JobsServlet extends BaseJobsServlet {
             String coordPath = conf.get(OozieClient.COORDINATOR_APP_PATH);
             String bundlePath = conf.get(OozieClient.BUNDLE_APP_PATH);
 
-            ServletUtilities.ValidateAppPath(wfPath, coordPath, bundlePath);
+            ServletUtilities.validateAppPath(wfPath, coordPath, bundlePath);
 
             if (wfPath != null) {
                 json = submitWorkflowJob(request, conf);
@@ -106,6 +109,57 @@ public class V1JobsServlet extends BaseJobsServlet {
             }
         }
         return json;
+    }
+
+    @Override
+    protected void checkAndWriteApplicationXMLToHDFS(final String userName, final Configuration conf) throws XServletException {
+        final String appPath;
+        if (Optional.fromNullable(conf.get(OozieClient.APP_PATH)).isPresent()) {
+            appPath = conf.get(OozieClient.APP_PATH) + File.separator + "workflow.xml";
+        }
+        else if (Optional.fromNullable(conf.get(OozieClient.COORDINATOR_APP_PATH)).isPresent()) {
+            appPath = conf.get(OozieClient.COORDINATOR_APP_PATH) + File.separator + "coordinator.xml";
+        }
+        else {
+            appPath = conf.get(OozieClient.BUNDLE_APP_PATH) + File.separator + "bundle.xml";
+        }
+
+        LOG.debug("Checking whether XML exists on HDFS. [appPath={0}]", appPath);
+
+        try {
+            final URI uri = new URI(appPath);
+            final HadoopAccessorService has = Services.get().get(HadoopAccessorService.class);
+            final Configuration fsConf = has.createConfiguration(uri.getAuthority());
+            final FileSystem dfs = has.createFileSystem(userName, uri, fsConf);
+
+            final Path path = new Path(uri.getPath());
+
+            if (dfs.exists(path)) {
+                if (!dfs.isFile(path)) {
+                    final String errorMessage = String.format("HDFS path [%s] exists but is not a file.", path.toString());
+                    LOG.error(errorMessage);
+                    throw new XServletException(HttpServletResponse.SC_BAD_REQUEST, ErrorCode.E0307, errorMessage);
+                }
+
+                LOG.debug("HDFS path [{0}] is an existing file, no need to create.", path.toString());
+            }
+            else {
+                LOG.debug("HDFS path [{0}] does not exist, will try to create.", path.toString());
+
+                try (final FSDataOutputStream target = dfs.create(path)) {
+                    LOG.debug("HDFS path [{0}] created.", path.toString());
+
+                    final String source = conf.get("GENERATED_XML");
+                    IOUtils.copyCharStream(new StringReader(source), new OutputStreamWriter(target));
+                }
+
+                LOG.debug("XML written to HDFS file [{0}].", path.toString());
+            }
+        }
+        catch (final URISyntaxException | IOException | HadoopAccessorException e) {
+            throw new XServletException(HttpServletResponse.SC_BAD_REQUEST, ErrorCode.E0307,
+                    String.format("Could not check or write XML to HDFS. Error message: %s", e.getMessage()));
+        }
     }
 
     /**

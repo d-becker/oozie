@@ -18,26 +18,32 @@
 
 package org.apache.oozie.servlet;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.oozie.ErrorCode;
 import org.apache.oozie.client.OozieClient;
 import org.apache.oozie.client.rest.RestConstants;
+import org.apache.oozie.service.ConfigurationService;
 import org.apache.oozie.service.Services;
 import org.apache.oozie.service.AuthorizationException;
 import org.apache.oozie.service.AuthorizationService;
 import org.apache.oozie.util.JobUtils;
 import org.apache.oozie.util.JobsFilterUtils;
 import org.apache.oozie.util.XConfiguration;
+import org.apache.oozie.util.XLog;
 import org.json.simple.JSONObject;
 
 public abstract class BaseJobsServlet extends JsonRestServlet {
+    private static final XLog LOG = XLog.getLog(BaseJobsServlet.class);
 
     private static final JsonRestServlet.ResourceInfo RESOURCES_INFO[] = new JsonRestServlet.ResourceInfo[1];
 
@@ -97,6 +103,9 @@ public abstract class BaseJobsServlet extends JsonRestServlet {
         if (!requestUser.equals(UNDEF)) {
             conf.set(OozieClient.USER_NAME, requestUser);
         }
+
+        checkAndWriteApplicationXMLToHDFS(request.getParameter(RestConstants.USER_PARAM), ensureJobApplicationPath(conf));
+
         BaseJobServlet.checkAuthorizationForApp(conf);
         JobUtils.normalizeAppPath(conf.get(OozieClient.USER_NAME), conf.get(OozieClient.GROUP_NAME), conf);
 
@@ -104,6 +113,22 @@ public abstract class BaseJobsServlet extends JsonRestServlet {
         startCron();
         sendJsonResponse(response, HttpServletResponse.SC_CREATED, json);
     }
+
+    private XConfiguration ensureJobApplicationPath(final XConfiguration configuration) {
+        if (Strings.isNullOrEmpty(configuration.get(OozieClient.APP_PATH))) {
+            final String generatedJobApplicationPath = ConfigurationService.get("oozie.client.jobs.application.generated.path")
+                    + File.separator + "application_" + new Date().getTime();
+            LOG.debug("Parameter [{0}] was missing, setting to default [{1}]",
+                    configuration.get(OozieClient.APP_PATH),
+                    generatedJobApplicationPath);
+            configuration.set(OozieClient.APP_PATH, generatedJobApplicationPath);
+        }
+
+        return configuration;
+    }
+
+    protected abstract void checkAndWriteApplicationXMLToHDFS(final String requestUser, final Configuration conf)
+            throws XServletException;
 
     /**
      * Return information about jobs.

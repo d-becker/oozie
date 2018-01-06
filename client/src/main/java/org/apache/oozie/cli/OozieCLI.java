@@ -19,6 +19,7 @@
 package org.apache.oozie.cli;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
@@ -40,6 +41,8 @@ import org.apache.oozie.client.XOozieClient;
 import org.apache.oozie.client.rest.JsonTags;
 import org.apache.oozie.client.rest.JsonToBean;
 import org.apache.oozie.client.rest.RestConstants;
+import org.apache.oozie.jobs.api.serialization.WorkflowMarshaller;
+import org.apache.oozie.jobs.api.workflow.Workflow;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.w3c.dom.DOMException;
@@ -51,6 +54,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -58,12 +62,10 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -118,6 +120,9 @@ public class OozieCLI {
     public static final String LOG_OPTION = "log";
     public static final String ERROR_LOG_OPTION = "errorlog";
     public static final String AUDIT_LOG_OPTION = "auditlog";
+    public static final String API_JAR_CHECK_OPTION = "apijarcheck";
+    public static final String API_JAR_SUBMIT_OPTION = "apijarsubmit";
+    public static final String API_JAR_RUN_OPTION = "apijarrun";
 
     public static final String ACTION_OPTION = "action";
     public static final String DEFINITION_OPTION = "definition";
@@ -349,6 +354,9 @@ public class OozieCLI {
         Option log = new Option(LOG_OPTION, true, "job log");
         Option errorlog = new Option(ERROR_LOG_OPTION, true, "job error log");
         Option auditlog = new Option(AUDIT_LOG_OPTION, true, "job audit log");
+        final Option generateAndCheck = new Option(API_JAR_CHECK_OPTION, true, "generate and check job definition");
+        final Option generateAndSubmit = new Option(API_JAR_SUBMIT_OPTION, true, "generate and submit job definition");
+        final Option generateAndRun = new Option(API_JAR_RUN_OPTION, true, "generate and run job definition");
         Option logFilter = new Option(
                 RestConstants.LOG_FILTER_OPTION, true,
                 "job log search parameter. Can be specified as -logfilter opt1=val1;opt2=val1;opt3=val1. "
@@ -412,6 +420,9 @@ public class OozieCLI {
         actions.addOption(log);
         actions.addOption(errorlog);
         actions.addOption(auditlog);
+        actions.addOption(generateAndCheck);
+        actions.addOption(generateAndSubmit);
+        actions.addOption(generateAndRun);
         actions.addOption(definition);
         actions.addOption(config_content);
         actions.addOption(ignore);
@@ -988,7 +999,7 @@ public class OozieCLI {
 
     private static String JOB_ID_PREFIX = "job: ";
 
-    private void jobCommand(CommandLine commandLine) throws IOException, OozieCLIException {
+    private void jobCommand(CommandLine commandLine) throws IOException, OozieCLIException, IllegalAccessException, ClassNotFoundException {
         XOozieClient wc = createXOozieClient(commandLine);
 
         List<String> options = new ArrayList<String>();
@@ -1353,11 +1364,99 @@ public class OozieCLI {
                 wc.getCoordActionMissingDependencies(commandLine.getOptionValue(COORD_ACTION_MISSING_DEPENDENCIES),
                         actions, dates, System.out);
             }
-
+            else if (options.contains(API_JAR_CHECK_OPTION)) {
+                checkApiJar(wc, commandLine, options.contains(VERBOSE_OPTION));
+            }
+            else if (options.contains(API_JAR_SUBMIT_OPTION)) {
+                submitApiJar(wc, commandLine, options.contains(VERBOSE_OPTION));
+            }
+            else if (options.contains(API_JAR_RUN_OPTION)) {
+                runApiJar(wc, commandLine, options.contains(VERBOSE_OPTION));
+            }
         }
-        catch (OozieClientException ex) {
+        catch (final OozieClientException ex) {
             throw new OozieCLIException(ex.toString(), ex);
         }
+    }
+
+    private void checkApiJar(final XOozieClient wc, final CommandLine commandLine, final boolean verbose)
+            throws OozieClientException {
+        final String apiJarPath = commandLine.getOptionValue(API_JAR_CHECK_OPTION);
+        logIfVerbose(verbose, "Checking API jar:" + apiJarPath);
+
+        final String generatedXml = loadApiJarAndGenerateXml(apiJarPath, verbose);
+
+        final Path workflowXml;
+        try {
+            workflowXml = Files.createTempFile("workflow", ".xml");
+            Files.write(workflowXml, generatedXml.getBytes());
+
+            logIfVerbose(verbose, "API jar is written to " + workflowXml.toString());
+        }
+        catch (final IOException e) {
+            throw new OozieClientException(e.getMessage(), e);
+        }
+
+        logIfVerbose(verbose, "Servlet response is:");
+        System.out.println(wc.validateXML(workflowXml.toString()));
+
+        logIfVerbose(verbose, "API jar is valid.");
+    }
+
+    private void logIfVerbose(final boolean verbose, final String message) {
+        if (verbose) {
+            System.out.println(message);
+        }
+    }
+
+    private String loadApiJarAndGenerateXml(final String apiJarPath, final boolean verbose) throws OozieClientException {
+        final String generatedXml;
+        try {
+            logIfVerbose(verbose, "Loading API jar " + apiJarPath.toString());
+
+            final Workflow generatedWorkflow = new ApiJarLoader(new File(apiJarPath)).loadAndGenerate();
+            generatedXml = WorkflowMarshaller.unmarshal(generatedWorkflow);
+
+            logIfVerbose(verbose, "Workflow job definition generated from API jar: \n" + generatedXml);
+        }
+        catch (final IOException | ClassNotFoundException | IllegalAccessException | NoSuchMethodException |
+                InvocationTargetException | InstantiationException | JAXBException e) {
+            throw new OozieClientException(e.getMessage(), e);
+        }
+
+        return generatedXml;
+    }
+
+    private void submitApiJar(final XOozieClient wc, final CommandLine commandLine, final boolean verbose)
+            throws OozieClientException {
+        final String apiJarPath = commandLine.getOptionValue(API_JAR_SUBMIT_OPTION);
+        logIfVerbose(verbose, "Submitting a job based on API jar: " + apiJarPath);
+
+        try {
+            System.out.println(JOB_ID_PREFIX + wc.submit(getConfiguration(wc, commandLine),
+                    loadApiJarAndGenerateXml(apiJarPath, verbose)));
+        }
+        catch (final IOException e) {
+            throw new OozieClientException(e.getMessage(), e);
+        }
+
+        logIfVerbose(verbose, "Job based on API jar submitted successfully.");
+    }
+
+    private void runApiJar(final XOozieClient wc, final CommandLine commandLine, final boolean verbose)
+            throws OozieClientException {
+        final String apiJarPath = commandLine.getOptionValue(API_JAR_RUN_OPTION);
+        logIfVerbose(verbose, "Running a job based on API jar: " + apiJarPath);
+
+        try {
+            System.out.println(JOB_ID_PREFIX + wc.run(getConfiguration(wc, commandLine),
+                    loadApiJarAndGenerateXml(apiJarPath, verbose)));
+        }
+        catch (final IOException e) {
+            throw new OozieClientException(e.getMessage(), e);
+        }
+
+        logIfVerbose(verbose, "Job based on API jar run successfully.");
     }
 
     @VisibleForTesting

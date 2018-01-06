@@ -18,23 +18,22 @@
 
 package org.apache.oozie.client;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.StringReader;
+import java.io.*;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.jar.*;
 
+import com.google.common.base.Strings;
+import com.google.common.io.Files;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.oozie.BuildInfo;
 import org.apache.oozie.cli.CLIParser;
 import org.apache.oozie.cli.OozieCLI;
+import org.apache.oozie.cli.WorkflowFactoryCompiler;
+import org.apache.oozie.cli.ApiJarFactory;
 import org.apache.oozie.client.rest.RestConstants;
+import org.apache.oozie.jobs.api.factory.SimpleWorkflowFactory;
 import org.apache.oozie.service.InstrumentationService;
 import org.apache.oozie.service.MetricsInstrumentationService;
 import org.apache.oozie.service.Services;
@@ -83,7 +82,9 @@ public class TestOozieCLI extends DagServletTestCase {
     private String createConfigFile(String appPath) throws Exception {
         String path = getTestCaseDir() + "/" + getName() + ".xml";
         Configuration conf = new Configuration(false);
-        conf.set(OozieClient.APP_PATH, appPath);
+        if (!Strings.isNullOrEmpty(appPath)) {
+            conf.set(OozieClient.APP_PATH, appPath);
+        }
         conf.set(OozieClient.RERUN_SKIP_NODES, "node");
 
         OutputStream os = new FileOutputStream(path);
@@ -1704,6 +1705,138 @@ public class TestOozieCLI extends DagServletTestCase {
                 return null;
             }
         });
+    }
+
+    public void testApiJarCheck() throws Exception {
+        final JarFile workflowApiJar = createWorkflowApiJar();
+
+        runTest(END_POINTS, SERVLET_CLASSES, IS_SECURITY_ENABLED, new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                String oozieUrl = getContextURL();
+
+                String[] args = new String[]{"job",
+                        "-apijarcheck", workflowApiJar.getName(),
+                        "-oozie", oozieUrl,
+                        "-verbose"};
+                assertEquals(0, new OozieCLI().run(args));
+
+                return null;
+            }
+        });
+    }
+
+    public void testApiJarSubmit() throws Exception {
+        final JarFile workflowApiJar = createWorkflowApiJar();
+
+        runTest(END_POINTS, SERVLET_CLASSES, IS_SECURITY_ENABLED, new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                final int wfCount = MockDagEngineService.INIT_WF_COUNT;
+
+                final String oozieUrl = getContextURL();
+                final Path appPath = new Path(getFsTestCaseDir(), "app");
+                getFileSystem().mkdirs(appPath);
+
+                final String[] args = new String[]{"job",
+                        "-apijarsubmit", workflowApiJar.getName(),
+                        "-oozie", oozieUrl,
+                        "-config", createConfigFile(appPath.toString()),
+                        "-verbose"};
+                assertEquals(0, new OozieCLI().run(args));
+                assertEquals("submit", MockDagEngineService.did);
+                assertFalse(MockDagEngineService.started.get(wfCount));
+
+                return null;
+            }
+        });
+    }
+
+    public void testApiJarSubmitWithoutAppPath() throws Exception {
+        final JarFile workflowApiJar = createWorkflowApiJar();
+
+        runTest(END_POINTS, SERVLET_CLASSES, IS_SECURITY_ENABLED, new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                final int wfCount = MockDagEngineService.INIT_WF_COUNT;
+
+                final String oozieUrl = getContextURL();
+                final Path appPath = new Path(getFsTestCaseDir(), "app");
+                getFileSystem().mkdirs(appPath);
+
+                final String[] args = new String[]{"job",
+                        "-apijarsubmit", workflowApiJar.getName(),
+                        "-oozie", oozieUrl,
+                        "-config", createConfigFile(null),
+                        "-verbose"};
+                assertEquals(0, new OozieCLI().run(args));
+                assertEquals("submit", MockDagEngineService.did);
+                assertFalse(MockDagEngineService.started.get(wfCount));
+
+                return null;
+            }
+        });
+    }
+
+    public void testApiJarRun() throws Exception {
+        final JarFile workflowApiJar = createWorkflowApiJar();
+
+        runTest(END_POINTS, SERVLET_CLASSES, IS_SECURITY_ENABLED, new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                final int wfCount = MockDagEngineService.INIT_WF_COUNT;
+
+                final String oozieUrl = getContextURL();
+                final Path appPath = new Path(getFsTestCaseDir(), "app");
+                getFileSystem().mkdirs(appPath);
+
+                final String[] args = new String[]{"job",
+                        "-apijarrun", workflowApiJar.getName(),
+                        "-oozie", oozieUrl,
+                        "-config", createConfigFile(appPath.toString()),
+                        "-verbose"};
+                assertEquals(0, new OozieCLI().run(args));
+                assertEquals("submit", MockDagEngineService.did);
+                assertTrue(MockDagEngineService.started.get(wfCount));
+
+                return null;
+            }
+        });
+    }
+
+    public void testApiJarRunWithoutAppPath() throws Exception {
+        final JarFile workflowApiJar = createWorkflowApiJar();
+
+        runTest(END_POINTS, SERVLET_CLASSES, IS_SECURITY_ENABLED, new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                final int wfCount = MockDagEngineService.INIT_WF_COUNT;
+
+                final String oozieUrl = getContextURL();
+                final Path appPath = new Path(getFsTestCaseDir(), "app");
+                getFileSystem().mkdirs(appPath);
+
+                final String[] args = new String[]{"job",
+                        "-apijarrun", workflowApiJar.getName(),
+                        "-oozie", oozieUrl,
+                        "-config", createConfigFile(null),
+                        "-verbose"};
+                assertEquals(0, new OozieCLI().run(args));
+                assertEquals("submit", MockDagEngineService.did);
+                assertTrue(MockDagEngineService.started.get(wfCount));
+
+                return null;
+            }
+        });
+    }
+
+    private JarFile createWorkflowApiJar() throws IOException {
+        final String workflowApiJarName = "workflow-api-jar.jar";
+        final File targetFolder = Files.createTempDir();
+
+        new WorkflowFactoryCompiler(targetFolder, SimpleWorkflowFactory.class).compile();
+
+        return new ApiJarFactory(targetFolder, workflowApiJarName, SimpleWorkflowFactory.class).create();
     }
 
     private String runOozieCLIAndGetStdout(String[] args) {
